@@ -19,6 +19,7 @@ using OneStreamWorkspacesApi;
 using OneStreamWorkspacesApi.V800;
 using OneStreamWorkspacesApi.V820;
 using Microsoft.Data.SqlClient;
+using Workspace.OSConsTools.DDM_ConfigUI_Assembly;
 
 namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
 {
@@ -26,11 +27,7 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
     {
 
         //Params
-        private const string Param_CubeViewName = "IV_DDM_App_CV_Name";
-
-        private const string Param_DashboardName = "IV_1a_DDM_App_Content_DB";
-
-        private const string CV_DashboardName = "1a_DDM_App_Content_CV";
+        private const string DefaultCubeViewName = "Default";
 
         public object Main(SessionInfo si)
         {
@@ -78,51 +75,36 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
         internal static WsDynamicComponentCollection get_DynamicComponentContent(SessionInfo si, IWsasDynamicDashboardsApiV800 api, DashboardWorkspace workspace,
             DashboardMaintUnit maintUnit, WsDynamicDashboardEx dynamicDashboardEx, Dictionary<string, string> customSubstVarsAlreadyResolved)
 		{
-            var wfUnitPk = BRApi.Workflow.General.GetWorkflowUnitPk(si);
-            var ProfileKey = wfUnitPk.ProfileKey;
-            int curr_Profile_ID = DDM_Support.get_CurrProfileID(si, ProfileKey);
-			
+            var configMenuRow = DDM_Support.get_ConfigMenuRow(si, customSubstVarsAlreadyResolved);
+            var paneBinding = DDM_Support.get_PaneBinding(configMenuRow, dynamicDashboardEx.DynamicDashboard.Name);
 
-            int menuOptionID = DDM_Support.get_SelectedMenu(si, customSubstVarsAlreadyResolved);
- BRApi.ErrorLog.LogMessage(si, $"Attempting to load Dashboard Rows menuOptionID : {menuOptionID}");
-            var config_Menu_DT = DDM_Support.get_ConfigMenu(si, menuOptionID);
-           var dashboardName = "emb_Dynamic_DDM_App_Content_DB" ;
-            var cubeViewName = "Default";
+            BRApi.ErrorLog.LogMessage(si, $"DDM content binding: Dashboard={dynamicDashboardEx.DynamicDashboard.Name}, Type={paneBinding.ContentType}, DashboardTarget={paneBinding.DashboardName}, CubeViewTarget={paneBinding.CubeViewName}");
 
-            if (config_Menu_DT.Rows.Count > 0)
-            {
-                var optType = config_Menu_DT.Rows[0]["LayoutType"].ToString();
-// BRApi.ErrorLog.LogMessage(si, $"Attempting Opttype : {optType}");
-                if (optType == "1")
-                {
-					 BRApi.ErrorLog.LogMessage(si, $"Attempting to load Dashboard Rows >0 : {dashboardName}");
-                    dashboardName = config_Menu_DT.Rows[0]["DB_Name"].ToString();
-                }
-                else if (optType == "2")
-                {
-                    dashboardName = CV_DashboardName;
-                    cubeViewName = config_Menu_DT.Rows[0]["CV_Name"].ToString();
-                }
-            }
 			var dynComponents = new WsDynamicComponentCollection();
 			dynComponents = api.GetDynamicComponentsForDynamicDashboard(si, workspace, dynamicDashboardEx, string.Empty, null, TriStateBool.Unknown, WsDynamicItemStateType.Unknown);
-			// BRApi.ErrorLog.LogMessage(si, $"Hit Here in content{dynamicDashboardEx.DynamicDashboard.Name} - {dynComponents.Components.Count}");
-			var dynDBComponent = new WsDynamicDbrdCompMemberEx();
 
-			if (dynamicDashboardEx.DynamicDashboard.Name == "DDM_App_Content_DB")
-			{
-				 BRApi.ErrorLog.LogMessage(si, $"Attempting to load Dashboard: {dashboardName}");
-				dynDBComponent = dynComponents.GetComponentUsingBasedOnName("emb_Dynamic_DDM_App_Content_DB");
-				dynDBComponent.DynamicComponentEx.DynamicComponent.Component.EmbeddedDashboardName = dashboardName;
-			}
-			else
-			{
-				dynDBComponent = dynComponents.GetComponentUsingBasedOnName("cv_DDM_Dynamic");
-				var CV_XmlData = new XElement("cv_DDM_Dynamic");
-				CV_XmlData = XElement.Parse(dynDBComponent.DynamicComponentEx.DynamicComponent.Component.XmlData);
-				CV_XmlData.SetElementValue("CubeViewName",cubeViewName);
-				dynDBComponent.DynamicComponentEx.DynamicComponent.Component.XmlData = CV_XmlData.ToString();
-			}	
+            bool bindingApplied = false;
+            if (paneBinding.ContentType == DDM_ConfigHelpers.DBPaneContents.CubeView)
+            {
+                bindingApplied = try_BindCubeView(dynComponents, paneBinding.CubeViewName);
+                if (!bindingApplied)
+                {
+                    bindingApplied = try_BindCubeViewByName(dynComponents, "cv_DDM_Dynamic", paneBinding.CubeViewName);
+                }
+            }
+            else
+            {
+                bindingApplied = try_BindEmbeddedDashboard(dynComponents, paneBinding.DashboardName);
+                if (!bindingApplied)
+                {
+                    bindingApplied = try_BindEmbeddedDashboardByName(dynComponents, "emb_Dynamic_DDM_App_Content_DB", paneBinding.DashboardName);
+                }
+            }
+
+            if (!bindingApplied)
+            {
+                BRApi.ErrorLog.LogMessage(si, $"DDM content binding fallback used for {dynamicDashboardEx.DynamicDashboard.Name}");
+            }
 
               return dynComponents;
         }
@@ -140,6 +122,106 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
             api.SaveDynamicDashboardState(si, parentDynamicComponentEx.DynamicComponent, dynamicDashboardEx, WsDynamicItemStateType.MinimalWithTemplateParameters);
 
             return dynamicDashboardEx;
+        }
+
+        private static bool try_BindEmbeddedDashboard(WsDynamicComponentCollection dynComponents, string dashboardName)
+        {
+            if (string.IsNullOrEmpty(dashboardName) || dynComponents == null || dynComponents.Components == null)
+            {
+                return false;
+            }
+
+            foreach (var componentMember in dynComponents.Components)
+            {
+                var component = componentMember.DynamicComponentEx.DynamicComponent.Component;
+                if (component != null && !string.IsNullOrEmpty(component.EmbeddedDashboardName))
+                {
+                    component.EmbeddedDashboardName = dashboardName;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool try_BindEmbeddedDashboardByName(WsDynamicComponentCollection dynComponents, string basedOnName, string dashboardName)
+        {
+            if (string.IsNullOrEmpty(dashboardName) || dynComponents == null)
+            {
+                return false;
+            }
+
+            var dynComponent = dynComponents.GetComponentUsingBasedOnName(basedOnName);
+            if (dynComponent != null && dynComponent.DynamicComponentEx?.DynamicComponent?.Component != null)
+            {
+                dynComponent.DynamicComponentEx.DynamicComponent.Component.EmbeddedDashboardName = dashboardName;
+                return true;
+            }
+
+            return false;
+        }
+
+        private static bool try_BindCubeView(WsDynamicComponentCollection dynComponents, string cubeViewName)
+        {
+            if (string.IsNullOrEmpty(cubeViewName))
+            {
+                cubeViewName = DefaultCubeViewName;
+            }
+
+            if (dynComponents == null || dynComponents.Components == null)
+            {
+                return false;
+            }
+
+            foreach (var componentMember in dynComponents.Components)
+            {
+                var component = componentMember.DynamicComponentEx.DynamicComponent.Component;
+                if (component == null || string.IsNullOrEmpty(component.XmlData))
+                {
+                    continue;
+                }
+
+                try
+                {
+                    var xmlData = XElement.Parse(component.XmlData);
+                    if (xmlData.Element("CubeViewName") != null)
+                    {
+                        xmlData.SetElementValue("CubeViewName", cubeViewName);
+                        component.XmlData = xmlData.ToString();
+                        return true;
+                    }
+                }
+                catch
+                {
+                    // Not cube view XML, continue scanning components.
+                }
+            }
+
+            return false;
+        }
+
+        private static bool try_BindCubeViewByName(WsDynamicComponentCollection dynComponents, string basedOnName, string cubeViewName)
+        {
+            if (dynComponents == null)
+            {
+                return false;
+            }
+
+            var dynComponent = dynComponents.GetComponentUsingBasedOnName(basedOnName);
+            if (dynComponent == null || dynComponent.DynamicComponentEx?.DynamicComponent?.Component == null)
+            {
+                return false;
+            }
+
+            if (string.IsNullOrEmpty(cubeViewName))
+            {
+                cubeViewName = DefaultCubeViewName;
+            }
+
+            var xmlData = XElement.Parse(dynComponent.DynamicComponentEx.DynamicComponent.Component.XmlData);
+            xmlData.SetElementValue("CubeViewName", cubeViewName);
+            dynComponent.DynamicComponentEx.DynamicComponent.Component.XmlData = xmlData.ToString();
+            return true;
         }
 
     }
