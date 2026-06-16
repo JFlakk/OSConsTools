@@ -1,0 +1,2378 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<OneStreamXF version="9.3.0.18429">
+    <applicationWorkspacesRoot>
+        <workspaces>
+            <workspace name="OS Consultant Tools" description="" notes="" accessGroup="Everyone" maintenanceGroup="Everyone" isShareableWorkspace="true" sharedWorkspaceNames="PPBE Planning Process" companyName="" versionNum="" author="" namespacePrefix="OSConsTools" importsNamespace1="" importsNamespace2="" importsNamespace3="" importsNamespace4="" importsNamespace5="" importsNamespace6="" importsNamespace7="" importsNamespace8="" wsAssemblyService="" text1="" text2="" text3="" text4="" text5="" text6="" text7="" text8="">
+                <WorkspaceDefinition>
+                    <SubstitutionVariableItems />
+                </WorkspaceDefinition>
+                <maintenanceUnits>
+                    <maintenanceUnit name="Finance Model Manager" description="" accessGroup="Everyone" maintenanceGroup="Everyone" wsAssemblyService="" category="">
+                        <fileResources />
+                        <stringResources />
+                        <parameters />
+                        <adapters />
+                        <components />
+                        <dashboardGroups />
+                        <workspaceAssemblies>
+                            <workspaceAssembly name="FMM_UI_Assembly" description="" compilerLanguage="CSharp">
+                                <dependencies />
+                                <files>
+                                    <folder name="Factory">
+                                        <file name="FMM_SvcFactory.cs" fileType="CSharp" businessRuleType="Unknown" compilerActionType="Compile" isEncrypted="false">
+                                            <sourceCode><![CDATA[using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.Common;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using Microsoft.CSharp;
+using OneStream.Finance.Database;
+using OneStream.Finance.Engine;
+using OneStream.Shared.Common;
+using OneStream.Shared.Database;
+using OneStream.Shared.Engine;
+using OneStream.Shared.Wcf;
+using OneStream.Stage.Database;
+using OneStream.Stage.Engine;
+using OneStreamWorkspacesApi;
+using OneStreamWorkspacesApi.V800;
+
+namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
+{
+	public class FMM_SvcFactory : IWsAssemblyServiceFactory
+	{
+        public IWsAssemblyServiceBase CreateWsAssemblyServiceInstance(SessionInfo si, BRGlobals brGlobals,
+            DashboardWorkspace workspace, WsAssemblyServiceType wsAssemblyServiceType, string itemName)
+        {
+            try
+            {
+                switch (wsAssemblyServiceType)
+                {
+                    //case WsAssemblyServiceType.Component:
+                    //    return new WsasComponent();
+
+                    //case WsAssemblyServiceType.Dashboard:
+                    //    return new WsasDashboard();
+
+                    //case WsAssemblyServiceType.DataManagementStep:
+                    //    return new WsasDataManagementStep();
+
+                    case WsAssemblyServiceType.DataSet:
+                        return new FMM_DataSetSvc();
+
+                    //case WsAssemblyServiceType.DynamicDashboards:
+                    //    return new WsasDynamicDashboards();
+
+                    //case WsAssemblyServiceType.DynamicCubeView:
+                    //    return new WsasDynamicCubeView();
+
+                    //case WsAssemblyServiceType.DynamicGrid:
+                    //    return new WsasDynamicGrid();
+
+                    //case WsAssemblyServiceType.FinanceCore:
+                    //    return new WsasFinanceCore();
+
+                    //case WsAssemblyServiceType.FinanceCustomCalculate:
+                    //    return new WsasFinanceCustomCalculate();
+
+                    //case WsAssemblyServiceType.FinanceGetDataCell:
+                    //    return new WsasFinanceGetDataCell();
+
+                    //case WsAssemblyServiceType.FinanceMemberLists:
+                    //    return new WsasFinanceMemberLists();
+
+                    //case WsAssemblyServiceType.SqlTableEditor:
+                    //    return new WsasSqlTableEditor();
+
+                    //case WsAssemblyServiceType.TableView:
+                    //    return new WsasTableView();
+
+                    //case WsAssemblyServiceType.XFBRString:
+                    //    return new WsasXFBRString();
+
+                    default:
+                        return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new XFException(si, ex);
+            }
+        }
+	}
+}
+]]></sourceCode>
+                                        </file>
+                                        <folder name="Services">
+                                            <file name="FMM_CustCalcSvc.cs" fileType="CSharp" businessRuleType="Unknown" compilerActionType="Unknown" isEncrypted="false">
+                                                <sourceCode><![CDATA[using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.Common;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using Microsoft.CSharp;
+using OneStream.Finance.Database;
+using OneStream.Finance.Engine;
+using OneStream.Shared.Common;
+using OneStream.Shared.Database;
+using OneStream.Shared.Engine;
+using OneStream.Shared.Wcf;
+using OneStream.Stage.Database;
+using OneStream.Stage.Engine;
+using OneStreamWorkspacesApi;
+using OneStreamWorkspacesApi.V800;
+
+namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
+{
+	public class FMM_CustCalcSvc : IWsasFinanceCustomCalculateV800
+	{
+        public void CustomCalculate(SessionInfo si, BRGlobals brGlobals, FinanceRulesApi api, FinanceRulesArgs args)
+        {
+            try
+            {
+            }
+            catch (Exception ex)
+            {
+                throw new XFException(si, ex);
+            }
+        }
+	}
+}
+]]></sourceCode>
+                                            </file>
+                                            <file name="FMM_DataSetSvc.cs" fileType="CSharp" businessRuleType="Unknown" compilerActionType="Unknown" isEncrypted="false">
+                                                <sourceCode><![CDATA[using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.Common;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using Microsoft.CSharp;
+using OneStream.Finance.Database;
+using OneStream.Finance.Engine;
+using OneStream.Shared.Common;
+using OneStream.Shared.Database;
+using OneStream.Shared.Engine;
+using OneStream.Shared.Wcf;
+using OneStream.Stage.Database;
+using OneStream.Stage.Engine;
+using OneStream.Data.DataFrame;
+using OneStream.Data.DataFrame.Abstractions;
+using OneStreamWorkspacesApi;
+using OneStreamWorkspacesApi.V800;
+
+namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
+{
+	public class FMM_DataSetSvc : IWsasDataSetV800
+	{
+        public object GetDataSet(SessionInfo si, BRGlobals brGlobals, DashboardWorkspace workspace, DashboardDataSetArgs args)
+        {
+            try
+            {
+                if ((brGlobals != null) && (workspace != null) && (args != null))
+                {
+                    //if (args.DataSetName.XFEqualsIgnoreCase("MyDataSet"))
+                    //{
+                    //}
+                }
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw new XFException(si, ex);
+            }
+        }
+	}
+}
+]]></sourceCode>
+                                            </file>
+                                            <file name="FMM_DBSvc.cs" fileType="CSharp" businessRuleType="Unknown" compilerActionType="Unknown" isEncrypted="false">
+                                                <sourceCode><![CDATA[using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.Common;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using Microsoft.CSharp;
+using OneStream.Finance.Database;
+using OneStream.Finance.Engine;
+using OneStream.Shared.Common;
+using OneStream.Shared.Database;
+using OneStream.Shared.Engine;
+using OneStream.Shared.Wcf;
+using OneStream.Stage.Database;
+using OneStream.Stage.Engine;
+using OneStreamWorkspacesApi;
+using OneStreamWorkspacesApi.V800;
+
+namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
+{
+	public class FMM_DBSvc : IWsasDashboardV800
+	{
+        public XFLoadDashboardTaskResult ProcessLoadDashboardTask(SessionInfo si, BRGlobals brGlobals, DashboardWorkspace workspace, DashboardExtenderArgs args)
+        {
+            try
+            {
+                if ((brGlobals != null) && (workspace != null) && (args?.LoadDashboardTaskInfo != null))
+                {
+                    if (args.FunctionName.XFEqualsIgnoreCase("TestFunction"))
+                    {
+                        // Implement Load Dashboard logic here.
+                        if ((args.LoadDashboardTaskInfo.Reason == LoadDashboardReasonType.Initialize) && (args.LoadDashboardTaskInfo.Action == LoadDashboardActionType.BeforeFirstGetParameters))
+                        {
+                            var loadDashboardTaskResult = new XFLoadDashboardTaskResult();
+                            loadDashboardTaskResult.ChangeCustomSubstVarsInDashboard = false;
+                            loadDashboardTaskResult.ModifiedCustomSubstVars = null;
+                            return loadDashboardTaskResult;
+                        }
+                    }
+                }
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw new XFException(si, ex);
+            }
+        }
+	}
+}
+]]></sourceCode>
+                                            </file>
+                                            <file name="FMM_DMStepSvc.cs" fileType="CSharp" businessRuleType="Unknown" compilerActionType="Unknown" isEncrypted="false">
+                                                <sourceCode><![CDATA[using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.Common;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using Microsoft.CSharp;
+using OneStream.Finance.Database;
+using OneStream.Finance.Engine;
+using OneStream.Shared.Common;
+using OneStream.Shared.Database;
+using OneStream.Shared.Engine;
+using OneStream.Shared.Wcf;
+using OneStream.Stage.Database;
+using OneStream.Stage.Engine;
+using OneStreamWorkspacesApi;
+using OneStreamWorkspacesApi.V800;
+
+namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
+{
+	public class FMM_DMStepSvc : IWsasDataManagementStepV800
+	{
+        public void ProcessDataManagementStep(SessionInfo si, BRGlobals brGlobals, DashboardWorkspace workspace, ExtenderArgs args)
+        {
+            try
+            {
+                if ((brGlobals != null) && (workspace != null) && (args?.DataMgmtArgs != null))
+                {
+                    // Implement Data Management Step logic here...
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new XFException(si, ex);
+            }
+        }
+	}
+}
+]]></sourceCode>
+                                            </file>
+                                            <file name="FMM_DynCVSvc.cs" fileType="CSharp" businessRuleType="Unknown" compilerActionType="Unknown" isEncrypted="false">
+                                                <sourceCode><![CDATA[using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.Common;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using Microsoft.CSharp;
+using OneStream.Finance.Database;
+using OneStream.Finance.Engine;
+using OneStream.Shared.Common;
+using OneStream.Shared.Database;
+using OneStream.Shared.Engine;
+using OneStream.Shared.Wcf;
+using OneStream.Stage.Database;
+using OneStream.Stage.Engine;
+using OneStreamWorkspacesApi;
+using OneStreamWorkspacesApi.V800;
+
+namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
+{
+	public class FMM_DynCVSvc : IWsasDynamicCubeViewV800
+	{
+        public CubeViewItem GetDynamicCubeViewItem(SessionInfo si, IWsasDynamicCubeViewApiV800 api, DashboardWorkspace workspace, CubeViewItem cubeViewItem, DynamicCubeViewArgs args)
+        {
+            try
+            {
+                return api.GetDynamicCubeViewItem(si, workspace, cubeViewItem, args);
+            }
+            catch (Exception ex)
+            {
+                throw new XFException(si, ex);
+            }
+        }
+	}
+}
+]]></sourceCode>
+                                            </file>
+                                            <file name="FMM_DynGVSvc.cs" fileType="CSharp" businessRuleType="Unknown" compilerActionType="Unknown" isEncrypted="false">
+                                                <sourceCode><![CDATA[using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.Common;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using Microsoft.CSharp;
+using OneStream.Finance.Database;
+using OneStream.Finance.Engine;
+using OneStream.Shared.Common;
+using OneStream.Shared.Database;
+using OneStream.Shared.Engine;
+using OneStream.Shared.Wcf;
+using OneStream.Stage.Database;
+using OneStream.Stage.Engine;
+using OneStream.Data.DataFrame;
+using OneStream.Data.DataFrame.Abstractions;
+using OneStreamWorkspacesApi;
+using OneStreamWorkspacesApi.V800;
+
+namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
+{
+	public class FMM_DynGVSvc : IWsasDynamicGridV800
+	{
+        /// <summary>
+        /// Retrieves paginated, filtered, and sorted data for display in the Dynamic Grid component.
+        /// This method is called by the grid component whenever data needs to be refreshed (initial load, pagination, filtering, sorting).
+        /// 
+        /// Key Responsibilities:
+        /// 1. Extract pagination parameters (startRowIndex, pageSize)
+        /// 2. Extract filter criteria from pagedGridColumnFilters
+        /// 3. Extract sort criteria from dbOrderBys
+        /// 4. Retrieve XFDataTable by executing database query or by some other means using these parameters
+        /// 5. Return XFDataTable with the result set
+        /// 
+        /// Performance Considerations:
+        /// - Only retrieve the page of data requested (use startRowIndex and pageSize)
+        /// - Apply filters and sorts at the database level, not in memory
+        /// - Consider using stored procedures for complex queries
+        /// - Page size is limited to 3000 rows per page
+        /// </summary>
+        public XFDynamicGridGetDataResult GetDynamicGridData(SessionInfo si, BRGlobals brGlobals, DashboardWorkspace workspace, DashboardDynamicGridArgs args)
+        {
+            try
+            {
+                if ((brGlobals != null) && (workspace != null) && (args != null))
+                {
+                    // Use args.GetDataArgs.StartRowIndex and args.GetDataArgs.PageSize to determine which page of data to retrieve.
+					int startRowIndex = args.GetDataArgs.StartRowIndex;
+					int pageSize = args.GetDataArgs.PageSize;
+					
+                    // Use args.GetDataArgs.PagedGridColumnFilters to handle any filtering applied to the grid and
+					// args.GetDataArgs.PagedGridDbOrderBys to handle the sorting of data.
+					List<PagedGridColumnFilter> pagedGridColumnFilters = args.GetDataArgs.PagedGridColumnFilters;
+					List<DbOrderBy> dbOrderBys = args.GetDataArgs.PagedGridDbOrderBys;
+					
+					// Insert logic here to retrieve an XFDataTable using the startRowIndex, pageSize, pagedGridColumnFilters
+					// and dbOrderBys. This XFDataTable is the data to be shown in the grid's currently selected page with
+					// the grid's current filter and sorts applied on its columns.
+					XFDataTable result = null;
+					
+					// Optionally build column definitions and row formats.
+					List<XFDynamicGridColumnDefinition> columnDefinitions = null;
+					List<XFDynamicGridRowFormat> rowFormats = null;
+					
+					return new XFDynamicGridGetDataResult(result, columnDefinitions, rowFormats, DataAccessLevel.AllAccess);
+                }
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw new XFException(si, ex);
+            }
+        }
+
+		/// <summary>
+        /// Saves edited data from the Dynamic Grid component back to the data source.
+        /// This method is called when users press save after inserting, updating, or deleting rows in the grid.
+        /// 
+		/// Key Responsibilities:
+        /// 1. Extract edited rows from args.SaveDataArgs.EditedDataRows
+        /// 2. Determine which rows were inserted, updated, or deleted
+        /// 3. Apply changes to the data source
+        /// 4. Return updated data for the current page
+        /// 
+        /// IMPORTANT: 
+        /// - Validate data before saving (business rules, constraints, etc.)
+        /// - Handle concurrency conflicts (optimistic/pessimistic locking)
+        /// - The return result MUST include the DataTable property with updated data
+        /// </summary>
+        public XFDynamicGridSaveDataResult SaveDynamicGridData(SessionInfo si, BRGlobals brGlobals, DashboardWorkspace workspace, DashboardDynamicGridArgs args)
+        {
+            try
+            {
+                if ((brGlobals != null) && (workspace != null) && (args != null))
+                {
+                    // Use args.SaveDataArgs.EditedDataRows to get the list of rows that were inserted, updated, or deleted.
+					List<XFEditedDataRow> editedDataRows = args.SaveDataArgs.EditedDataRows;
+					
+					// Insert logic here to save edited data from the Dynamic Grid component back to the data source
+					// using editedDataRows.
+					
+					// IMPORTANT: The return result object must include the DataTable property populated with the updated data.
+					// Can utilize the GetDynamicGridData method above.
+					XFDynamicGridGetDataResult getDataResult = GetDynamicGridData(si, brGlobals, workspace, args);
+					
+					// Create and return the save data result.
+					XFDynamicGridSaveDataResult result = new XFDynamicGridSaveDataResult();
+					result.DataTable = getDataResult?.DataTable;
+					result.RowFormats = getDataResult?.RowFormats;
+					result.PageIndex = (args.GetDataArgs.StartRowIndex / args.GetDataArgs.PageSize);
+					result.IndexOfSelectedRowOnPage = 0;
+					result.SaveDataTaskResult = new XFDynamicGridSaveDataTaskResult()
+					{
+						IsOK = true,
+						ShowMessageBox = false,
+						Message = ""
+					};
+					return result;
+                }
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw new XFException(si, ex);
+            }
+        }
+	}
+}
+]]></sourceCode>
+                                            </file>
+                                            <file name="FMM_FinCoreSvc.cs" fileType="CSharp" businessRuleType="Unknown" compilerActionType="Unknown" isEncrypted="false">
+                                                <sourceCode><![CDATA[using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.Common;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using Microsoft.CSharp;
+using OneStream.Finance.Database;
+using OneStream.Finance.Engine;
+using OneStream.Shared.Common;
+using OneStream.Shared.Database;
+using OneStream.Shared.Engine;
+using OneStream.Shared.Wcf;
+using OneStream.Stage.Database;
+using OneStream.Stage.Engine;
+using OneStreamWorkspacesApi;
+using OneStreamWorkspacesApi.V800;
+
+namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
+{
+	public class FMM_FinCoreSvc : IWsasFinanceCoreV800
+	{
+        public void Calculate(SessionInfo si, BRGlobals brGlobals, FinanceRulesApi api, FinanceRulesArgs args)
+        {
+            try
+            {
+            }
+            catch (Exception ex)
+            {
+                throw new XFException(si, ex);
+            }
+        }
+
+        //public void Translate(SessionInfo si, BRGlobals brGlobals, FinanceRulesApi api, FinanceRulesArgs args)
+        //{
+        //    try
+        //    {
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw new XFException(si, ex);
+        //    }
+        //}
+
+        //public void ConsolidateShare(SessionInfo si, BRGlobals brGlobals, FinanceRulesApi api, FinanceRulesArgs args)
+        //{
+        //    try
+        //    {
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw new XFException(si, ex);
+        //    }
+        //}
+
+        //public void ConsolidateElimination(SessionInfo si, BRGlobals brGlobals, FinanceRulesApi api, FinanceRulesArgs args)
+        //{
+        //    try
+        //    {
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw new XFException(si, ex);
+        //    }
+        //}
+
+        //public FxRateResult GetCustomFxRate(SessionInfo si, BRGlobals brGlobals, FinanceRulesApi api, FinanceRulesArgs args)
+        //{
+        //    try
+        //    {
+        //        return null;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw new XFException(si, ex);
+        //    }
+        //}
+
+        //public ConditionalInputResultType GetConditionalInputResult(SessionInfo si, BRGlobals brGlobals, FinanceRulesApi api, FinanceRulesArgs args)
+        //{
+        //    try
+        //    {
+        //        return ConditionalInputResultType.Default;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw new XFException(si, ex);
+        //    }
+        //}
+	}
+}
+]]></sourceCode>
+                                            </file>
+                                            <file name="FMM_ProcCalcSvc.cs" fileType="CSharp" businessRuleType="Unknown" compilerActionType="Unknown" isEncrypted="false">
+                                                <sourceCode><![CDATA[using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.Common;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using Microsoft.CSharp;
+using OneStream.Finance.Database;
+using OneStream.Finance.Engine;
+using OneStream.Shared.Common;
+using OneStream.Shared.Database;
+using OneStream.Shared.Engine;
+using OneStream.Shared.Wcf;
+using OneStream.Stage.Database;
+using OneStream.Stage.Engine;
+using OneStreamWorkspacesApi;
+using OneStreamWorkspacesApi.V800;
+
+namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
+{
+	public class FMM_ProcCalcSvc : IWsasComponentV800
+	{
+        public XFSelectionChangedTaskResult ProcessComponentSelectionChanged(SessionInfo si, BRGlobals brGlobals, DashboardWorkspace workspace, DashboardExtenderArgs args)
+        {
+            try
+            {
+                if ((brGlobals != null) && (workspace != null) && (args?.SelectionChangedTaskInfo != null))
+                {
+                    if (args.FunctionName.XFEqualsIgnoreCase("TestFunction"))
+                    {
+                        // Implement Dashboard Component Selection Changed logic here.
+                        var selectionChangedTaskResult = new XFSelectionChangedTaskResult();
+                        selectionChangedTaskResult.IsOK = true;
+                        selectionChangedTaskResult.ShowMessageBox = false;
+                        selectionChangedTaskResult.Message = "";
+                        selectionChangedTaskResult.ChangeSelectionChangedUIActionInDashboard = false;
+                        selectionChangedTaskResult.ModifiedSelectionChangedUIActionInfo = null;
+                        selectionChangedTaskResult.ChangeSelectionChangedNavigationInDashboard = false;
+                        selectionChangedTaskResult.ModifiedSelectionChangedNavigationInfo = null;
+                        selectionChangedTaskResult.ChangeCustomSubstVarsInDashboard = false;
+                        selectionChangedTaskResult.ModifiedCustomSubstVars = null;
+                        selectionChangedTaskResult.ChangeCustomSubstVarsInLaunchedDashboard = false;
+                        selectionChangedTaskResult.ModifiedCustomSubstVarsForLaunchedDashboard = null;
+                        return selectionChangedTaskResult;
+                    }
+                }
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+				throw new XFException(si, ex);
+            }
+        }
+	}
+}
+]]></sourceCode>
+                                            </file>
+                                            <file name="FMM_TEDSvc.cs" fileType="CSharp" businessRuleType="Unknown" compilerActionType="Unknown" isEncrypted="false">
+                                                <sourceCode><![CDATA[using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.Common;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using Microsoft.CSharp;
+using OneStream.Finance.Database;
+using OneStream.Finance.Engine;
+using OneStream.Shared.Common;
+using OneStream.Shared.Database;
+using OneStream.Shared.Engine;
+using OneStream.Shared.Wcf;
+using OneStream.Stage.Database;
+using OneStream.Stage.Engine;
+using OneStream.Data.DataFrame;
+using OneStream.Data.DataFrame.Abstractions;
+using OneStreamWorkspacesApi;
+using OneStreamWorkspacesApi.V800;
+
+namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
+{
+	public class FMM_TEDSvc : IWsasSqlTableEditorV800
+	{
+        public XFSqlTableEditorSaveDataTaskResult SqlTableEditorSaveData(SessionInfo si, BRGlobals brGlobals, DashboardWorkspace workspace, DashboardExtenderArgs args)
+        {
+            try
+            {
+                if ((brGlobals != null) && (workspace != null) && (args?.SqlTableEditorSaveDataTaskInfo?.SqlTableEditorDefinition != null))
+                {
+                    if (args.FunctionName.XFEqualsIgnoreCase("TestFunction"))
+                    {
+                        // Implement SQL Table Editor Save Data logic here.
+                        // Save the data rows.
+                        // XFSqlTableEditorSaveDataTaskInfo saveDataTaskInfo = args.SqlTableEditorSaveDataTaskInfo;
+                        // using (DbConnInfo dbConn = BRApi.Database.CreateDbConnInfo(si, saveDataTaskInfo.SqlTableEditorDefinition.DbLocation, saveDataTaskInfo.SqlTableEditorDefinition.ExternalDBConnName))
+                        // {
+                        //     dbConn.BeginTrans();
+                        //     BRApi.Database.SaveDataTableRows(dbConn, saveDataTaskInfo.SqlTableEditorDefinition.TableName, saveDataTaskInfo.Columns, saveDataTaskInfo.HasPrimaryKeyColumns, saveDataTaskInfo.EditedDataRows, true, false, false);
+                        //     dbConn.CommitTrans();
+                        // }
+
+                        var saveDataTaskResult = new XFSqlTableEditorSaveDataTaskResult();
+                        saveDataTaskResult.IsOK = true;
+                        saveDataTaskResult.ShowMessageBox = false;
+                        saveDataTaskResult.Message = "";
+                        saveDataTaskResult.CancelDefaultSave = false; // Note: Use True if we already saved the data rows in this Business Rule.
+                        return saveDataTaskResult;
+                    }
+                }
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw new XFException(si, ex);
+            }
+        }
+	}
+}
+]]></sourceCode>
+                                            </file>
+                                            <file name="FMM_XFBRSvc.cs" fileType="CSharp" businessRuleType="Unknown" compilerActionType="Unknown" isEncrypted="false">
+                                                <sourceCode><![CDATA[using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.Common;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using Microsoft.CSharp;
+using OneStream.Finance.Database;
+using OneStream.Finance.Engine;
+using OneStream.Shared.Common;
+using OneStream.Shared.Database;
+using OneStream.Shared.Engine;
+using OneStream.Shared.Wcf;
+using OneStream.Stage.Database;
+using OneStream.Stage.Engine;
+using OneStreamWorkspacesApi;
+using OneStreamWorkspacesApi.V800;
+
+namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
+{
+	public class FMM_XFBRSvc : IWsasXFBRStringV800
+	{
+        public string GetXFBRString(SessionInfo si, BRGlobals brGlobals, DashboardWorkspace workspace, DashboardStringFunctionArgs args)
+        {
+            try
+            {
+                if ((brGlobals != null) && (workspace != null) && (args != null))
+                {
+                    if (args.FunctionName.XFEqualsIgnoreCase("SayHello"))
+                    {
+                        return "Hello";
+                    }
+                }
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw new XFException(si, ex);
+            }
+        }
+	}
+}
+]]></sourceCode>
+                                            </file>
+                                            <file name="FMM_XFTVSvc.cs" fileType="CSharp" businessRuleType="Unknown" compilerActionType="Unknown" isEncrypted="false">
+                                                <sourceCode><![CDATA[using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.Common;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using Microsoft.CSharp;
+using OneStream.Finance.Database;
+using OneStream.Finance.Engine;
+using OneStream.Shared.Common;
+using OneStream.Shared.Database;
+using OneStream.Shared.Engine;
+using OneStream.Shared.Wcf;
+using OneStream.Stage.Database;
+using OneStream.Stage.Engine;
+using OneStream.Data.DataFrame;
+using OneStream.Data.DataFrame.Abstractions;
+using OneStreamWorkspacesApi;
+using OneStreamWorkspacesApi.V800;
+
+namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
+{
+	public class FMM_XFTVSvc : IWsasTableViewV800
+	{
+        public List<string> TableViewGetCustomSubstVarsInUse(SessionInfo si, BRGlobals brGlobals, DashboardWorkspace workspace, string tableViewName, Dictionary<string, string> custSubstVarsAlreadyResolved)
+        {
+            try
+            {
+                if ((brGlobals != null) && (workspace != null))
+                {
+                    if (tableViewName.XFEqualsIgnoreCase("MyTableView"))
+                    {
+                    }
+                }
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw new XFException(si, ex);
+            }
+        }
+
+        public TableView GetTableView(SessionInfo si, BRGlobals brGlobals, DashboardWorkspace workspace, string tableViewName, Dictionary<string, string> customSubstVars, Dictionary<string, string> nameValuePairs)
+        {
+            try
+            {
+                if ((brGlobals != null) && (workspace != null))
+                {
+                    if (tableViewName.XFEqualsIgnoreCase("MyTableView"))
+                    {
+                    }
+                }
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw new XFException(si, ex);
+            }
+        }
+
+        public bool SaveTableView(SessionInfo si, BRGlobals brGlobals, DashboardWorkspace workspace, string tableViewName, TableView tableView)
+        {
+            try
+            {
+                if ((brGlobals != null) && (workspace != null) && (tableView != null))
+                {
+                    if (tableViewName.XFEqualsIgnoreCase("MyTableView"))
+                    {
+                    }
+                }
+
+                return false;
+            }
+            catch (Exception ex)
+            {
+                throw new XFException(si, ex);
+            }
+        }
+	}
+}
+]]></sourceCode>
+                                            </file>
+                                        </folder>
+                                    </folder>
+                                    <folder name="Helper Classes">
+                                        <file name="FMM_StdDBExtHelper.cs" fileType="CSharp" businessRuleType="Unknown" compilerActionType="Unknown" isEncrypted="false">
+                                            <sourceCode><![CDATA[using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.Common;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using Microsoft.CSharp;
+using OneStream.Finance.Database;
+using OneStream.Finance.Engine;
+using OneStream.Shared.Common;
+using OneStream.Shared.Database;
+using OneStream.Shared.Engine;
+using OneStream.Shared.Wcf;
+using OneStream.Stage.Database;
+using OneStream.Stage.Engine;
+using OneStreamWorkspacesApi;
+using OneStreamWorkspacesApi.V800;
+
+namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
+{
+	public class FMM_StdDBExtHelper
+	{
+        public object Test(SessionInfo si)
+        {
+            try
+            {
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw new XFException(si, ex);
+            }
+        }
+	}
+}
+]]></sourceCode>
+                                        </file>
+                                        <file name="FMM_StdFinBRHelpers.cs" fileType="CSharp" businessRuleType="Unknown" compilerActionType="Disabled" isEncrypted="false">
+                                            <sourceCode><![CDATA[using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.Common;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using Microsoft.CSharp;
+using OneStream.Finance.Database;
+using OneStream.Finance.Engine;
+using OneStream.Shared.Common;
+using OneStream.Shared.Database;
+using OneStream.Shared.Engine;
+using OneStream.Shared.Wcf;
+using OneStream.Stage.Database;
+using OneStream.Stage.Engine;
+using OneStreamWorkspacesApi;
+using OneStreamWorkspacesApi.V800;
+
+namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
+{
+    public class FMM_StdFinBRHelpers
+    {
+        public SessionInfo si;
+        public BRGlobals globals;
+        public FinanceRulesApi api;
+        public FinanceRulesArgs args;
+
+        public XFSelectionChangedTaskResult Proc_ModelGrps(SessionInfo si, BRGlobals globals, object api, DashboardExtenderArgs args)
+        {
+            var returnResult = new XFSelectionChangedTaskResult();
+            var sql = $@"Select Grp.CubeID, Assign.Sequence, Act.CalcType, Model.Name
+						FROM FMM_ModelGrps Grp
+						JOIN FMM_ModelGrpAssign Assign
+						ON Grp.CubeID = Assign.CubeID
+						AND Grp.ModelGrpID = Assign.ModelGrpID
+						JOIN FMM_Models Model
+						ON Assign.CubeID = Model.CubeID
+						AND Assign.ModelGrpID = Model.ModelConfigID
+						JOIN FMM_ActConfig Act
+						ON Grp.CubeID = Act.CubeID
+						AND Model.ActID = Act.ActID
+						WHERE Grp.ModelType = 2
+						AND Model.ModelType = 2
+						AND Grp.Name = @ModelGrp
+                        ORDER BY Assign.Sequence";
+
+
+            //For each through each Model
+            //Case Statement on CalcType for each Model
+            //If Table then call Proc_TableModels(si, globals, api, args, CubeID, ModelConfigID)
+
+            return returnResult;
+        }
+
+        #region "Process Table Models"
+        public XFSelectionChangedTaskResult Proc_TableModels(SessionInfo si, BRGlobals globals, object api, DashboardExtenderArgs args, int cubeID, int ModelConfigID)
+        {
+            var returnResult = new XFSelectionChangedTaskResult();
+            var sql = $@"Select *
+                        FROM FMM_CalcConfig Calc
+                        JOIN FMM_DestCell Dest
+                        ON Calc.CubeID = Dest.CubeID
+                        AND Calc.ActID = Dest.ActID
+                        AND Calc.ModelConfigID = Dest.ModelConfigID
+                        AND Calc.CalcID = Dest.CalcID
+                        JOIN FMM_SrcCell Src
+                        ON Calc.CubeID = Src.CubeID
+                        AND Calc.ActID = Src.ActID
+                        AND Calc.ModelConfigID = Src.ModelConfigID
+                        AND Calc.CalcID = Src.CalcID
+                        WHERE CubeID = @CubeID
+                        AND ActID = @ActID
+                        AND ModelConfigID = @ModelConfigID";
+
+
+            //For each through each Model
+            //Proc_TableCalcs(si, globals, api, args, calcID)
+
+            return returnResult;
+        }
+
+        public void Proc_TableCalcs(SessionInfo si, BRGlobals globals, object api, DashboardExtenderArgs args, int calcID)
+        {
+            // 1. Get the 'Instructions' for this calculation
+            var srcConfigs = GetSrcCellConfigs(si, calcID);
+            var destConfig = GetDestCellConfig(si, calcID);
+
+            // 2. Fetch all source data into a Dictionary of DataTables
+            // Key = TableName/Alias, Value = The actual data
+            Dictionary<string, DataTable> sourceData = new Dictionary<string, DataTable>();
+
+            foreach (var src in srcConfigs)
+            {
+                // Use the 'SrcSQLStmt' or 'Item' name to fill the table
+                DataTable dt = FetchData(si, src.SrcSQLStmt);
+                sourceData.Add(src.TableName, dt);
+            }
+
+            // 3. Dynamic LINQ Join (Conceptual)
+            // In a truly configurable app, you'd use System.Linq.Dynamic or 
+            // a helper that joins based on the 'JoinKey' defined in the SrcCell
+            var results = from t1 in sourceData["TableA"].AsEnumerable()
+                          join t2 in sourceData["TableB"].AsEnumerable()
+                              on t1.Field<int>("JoinKey") equals t2.Field<int>("JoinKey")
+                          select new
+                          {
+                              // Use DestCell fields to map the result
+                              Account = t1.Field<string>(destConfig.Acct),
+                              Amount = t1.Field<decimal>("Amount") * t2.Field<decimal>("Factor")
+                          };
+
+            // 4. Convert results back to a DataTable and Save to Destination Table
+            DataTable dtFinal = results.ToDataTable();
+            SaveToDestination(si, destConfig.TableName, dtFinal);
+        }
+
+        public void ExecuteStreamlinedCalc(SessionInfo si, int calcID)
+        {
+            var srcConfigs = GetSrcCellConfigs(si, calcID);
+
+            // 1. Get your Primary driver table (Table 0)
+            DataTable driverTable = FetchData(si, srcConfigs[0].SrcSQLStmt);
+
+            // 2. Load all other tables into Lookups based on their JoinKey
+            // Key: JoinValue (e.g., EntityID), Value: The DataRow
+            var lookups = new List<Dictionary<string, DataRow>>();
+
+            for (int i = 1; i < srcConfigs.Count; i++)
+            {
+                DataTable dt = FetchData(si, srcConfigs[i].SrcSQLStmt);
+                var lookup = dt.AsEnumerable()
+                               .ToDictionary(r => r.Field<string>(srcConfigs[i].JoinKey));
+                lookups.Add(lookup);
+            }
+
+            // 3. One single LINQ pass over the driver table
+            foreach (DataRow mainRow in driverTable.Rows)
+            {
+                string keyValue = mainRow.Field<string>(srcConfigs[0].JoinKey);
+
+                // Find matches in all other dictionaries
+                // This is essentially a "Multi-Table Left Join"
+                var relatedRows = lookups.Select(l => l.ContainsKey(keyValue) ? l[keyValue] : null).ToList();
+
+                if (relatedRows.All(r => r != null)) // Inner Join logic
+                {
+                    // Perform your math using values from mainRow and relatedRows
+                    // Example: Result = mainRow["Amt"] * relatedRows[0]["Rate"] + relatedRows[1]["Adj"]
+                }
+            }
+        }
+        #endregion
+        public XFSelectionChangedTaskResult Proc_CubeModels(SessionInfo si, BRGlobals globals, object api, DashboardExtenderArgs args)
+        {
+            var returnResult = new XFSelectionChangedTaskResult();
+            var sql = $@"Select Assign.Sequence, Act.CalcType, Model.Name
+						FROM FMM_ModelGrps Grp
+						JOIN FMM_ModelGrpAssign Assign
+						ON Grp.CubeID = Assign.CubeID
+						AND Grp.ModelGrpID = Assign.ModelGrpID
+						JOIN FMM_Models Model
+						ON Assign.CubeID = Model.CubeID
+						AND Assign.ModelGrpID = Model.ModelConfigID
+						JOIN FMM_ActConfig Act
+						ON Grp.CubeID = Act.CubeID
+						AND Model.ActID = Act.ActID
+						WHERE Grp.ModelType = 2
+						AND Model.ModelType = 2
+						AND Grp.Name = @ModelGrp";
+
+
+            //For each through each Model
+            //
+
+            return returnResult;
+        }
+
+        public XFSelectionChangedTaskResult Proc_BRTabletoCubeModels(SessionInfo si, BRGlobals globals, object api, DashboardExtenderArgs args)
+        {
+            var returnResult = new XFSelectionChangedTaskResult();
+            var sql = $@"Select Assign.Sequence, Act.CalcType, Model.Name
+						FROM FMM_ModelGrps Grp
+						JOIN FMM_ModelGrpAssign Assign
+						ON Grp.CubeID = Assign.CubeID
+						AND Grp.ModelGrpID = Assign.ModelGrpID
+						JOIN FMM_Models Model
+						ON Assign.CubeID = Model.CubeID
+						AND Assign.ModelGrpID = Model.ModelConfigID
+						JOIN FMM_ActConfig Act
+						ON Grp.CubeID = Act.CubeID
+						AND Model.ActID = Act.ActID
+						WHERE Grp.ModelType = 2
+						AND Model.ModelType = 2
+						AND Grp.Name = @ModelGrp";
+
+
+
+
+            //For each through each Model
+            //
+
+            return returnResult;
+        }
+
+        public XFSelectionChangedTaskResult Proc_CubetoTableModels(SessionInfo si, BRGlobals globals, object api, DashboardExtenderArgs args)
+        {
+            var returnResult = new XFSelectionChangedTaskResult();
+            var sql = $@"Select Assign.Sequence, Act.CalcType, Model.Name
+						FROM FMM_ModelGrps Grp
+						JOIN FMM_ModelGrpAssign Assign
+						ON Grp.CubeID = Assign.CubeID
+						AND Grp.ModelGrpID = Assign.ModelGrpID
+						JOIN FMM_Models Model
+						ON Assign.CubeID = Model.CubeID
+						AND Assign.ModelGrpID = Model.ModelConfigID
+						JOIN FMM_ActConfig Act
+						ON Grp.CubeID = Act.CubeID
+						AND Model.ActID = Act.ActID
+						WHERE Grp.ModelType = 2
+						AND Model.ModelType = 2
+						AND Grp.Name = @ModelGrp";
+
+
+            //For each through each Model
+            //
+
+            return returnResult;
+        }
+        public XFSelectionChangedTaskResult Proc_ConsolModels(SessionInfo si, BRGlobals globals, object api, DashboardExtenderArgs args)
+        {
+            var returnResult = new XFSelectionChangedTaskResult();
+            var sql = $@"Select Assign.Sequence, Act.CalcType, Model.Name
+						FROM FMM_ModelGrps Grp
+						JOIN FMM_ModelGrpAssign Assign
+						ON Grp.CubeID = Assign.CubeID
+						AND Grp.ModelGrpID = Assign.ModelGrpID
+						JOIN FMM_Models Model
+						ON Assign.CubeID = Model.CubeID
+						AND Assign.ModelGrpID = Model.ModelConfigID
+						JOIN FMM_ActConfig Act
+						ON Grp.CubeID = Act.CubeID
+						AND Model.ActID = Act.ActID
+						WHERE Grp.ModelType = 2
+						AND Model.ModelType = 2
+						AND Grp.Name = @ModelGrp";
+
+
+            //For each through each Model
+            //
+
+            return returnResult;
+        }
+#endregion
+
+        #region "XFBR Helpers"     
+        #endregion
+
+        #region "CustCalc Helpers"	
+        public DataBufferCell UpdateCellDefinition(
+            DataBufferCell destcell,
+            string DriverDB_Acct = "NoPassedValue",
+            string DriverDB_Flow = "NoPassedValue",
+            string DriverDB_Origin = "NoPassedValue",
+            string DriverDB_IC = "NoPassedValue",
+            string DriverDB_UD1 = "NoPassedValue",
+            string DriverDB_UD2 = "NoPassedValue",
+            string DriverDB_UD3 = "NoPassedValue",
+            string DriverDB_UD4 = "NoPassedValue",
+            string DriverDB_UD5 = "NoPassedValue",
+            string DriverDB_UD6 = "NoPassedValue",
+            string DriverDB_UD7 = "NoPassedValue",
+            string DriverDB_UD8 = "NoPassedValue")
+        {
+            var DriverDBCell = new DataBufferCell(destcell);
+
+            // Define dimension update mappings to eliminate repetitive if statements
+            var dimensionUpdates = new[]
+            {
+            (value: DriverDB_Acct, setter: (int id) => { DriverDBCell.DataBufferCellPk.AccountId = UpdateDimension(id, DriverDB_Acct, api.Pov.AccountDim, api); }),
+            (value: DriverDB_Flow, setter: (int id) => { DriverDBCell.DataBufferCellPk.FlowId = UpdateDimension(id, DriverDB_Flow, api.Pov.FlowDim, api); }),
+            (value: DriverDB_Origin, setter: (int id) => { DriverDBCell.DataBufferCellPk.OriginId = UpdateDimension(id, DriverDB_Origin, api.Pov.OriginDim, api); }),
+            (value: DriverDB_IC, setter: (int id) => { DriverDBCell.DataBufferCellPk.ICId = UpdateDimension(id, DriverDB_IC, api.Pov.ICDim, api); }),
+            (value: DriverDB_UD1, setter: (int id) => { DriverDBCell.DataBufferCellPk.UD1Id = UpdateDimension(id, DriverDB_UD1, api.Pov.UD1Dim, api); }),
+            (value: DriverDB_UD2, setter: (int id) => { DriverDBCell.DataBufferCellPk.UD2Id = UpdateDimension(id, DriverDB_UD2, api.Pov.UD2Dim, api); }),
+            (value: DriverDB_UD3, setter: (int id) => { DriverDBCell.DataBufferCellPk.UD3Id = UpdateDimension(id, DriverDB_UD3, api.Pov.UD3Dim, api); }),
+            (value: DriverDB_UD4, setter: (int id) => { DriverDBCell.DataBufferCellPk.UD4Id = UpdateDimension(id, DriverDB_UD4, api.Pov.UD4Dim, api); }),
+            (value: DriverDB_UD5, setter: (int id) => { DriverDBCell.DataBufferCellPk.UD5Id = UpdateDimension(id, DriverDB_UD5, api.Pov.UD5Dim, api); }),
+            (value: DriverDB_UD6, setter: (int id) => { DriverDBCell.DataBufferCellPk.UD6Id = UpdateDimension(id, DriverDB_UD6, api.Pov.UD6Dim, api); }),
+            (value: DriverDB_UD7, setter: (int id) => { DriverDBCell.DataBufferCellPk.UD7Id = UpdateDimension(id, DriverDB_UD7, api.Pov.UD7Dim, api); }),
+            (value: DriverDB_UD8, setter: (int id) => { DriverDBCell.DataBufferCellPk.UD8Id = UpdateDimension(id, DriverDB_UD8, api.Pov.UD8Dim, api); })
+            };
+
+            // Apply updates where value is provided
+            foreach (var update in dimensionUpdates)
+            {
+                if (!string.IsNullOrEmpty(update.value) && !XFEqualsIgnoreCase(update.value, "NoPassedValue"))
+                {
+                    update.setter(0); // ID passed to UpdateDimension which handles extraction
+                }
+            }
+
+            return DriverDBCell;
+        }
+
+        private int UpdateDimension(int memberId, string dimensionValue, Dim dimension, FinanceRulesApi api)
+        {
+            if (string.IsNullOrEmpty(dimensionValue) || XFEqualsIgnoreCase(dimensionValue, "NoPassedValue"))
+                return memberId;
+
+            string memberName = XFEqualsIgnoreCase(dimensionValue, "Common") ? "XFCommon" : dimensionValue;
+            return GetMember(ref dimension, memberName, ref api).MemberId;
+        }
+
+
+        public void UpdateValue(ref DataBufferCell srcCell, ref DataBuffer currCellDB, ref DataBuffer destDB, decimal value)
+        {
+            var currCell = currCellDB.GetCell(si, srcCell.DataBufferCellPk);
+            var status = new DataCellStatus(value != 0);
+
+            srcCell.CellAmount = value;
+
+            if (currCell == null)
+            {
+                // Cell doesn't exist in current buffer
+                if (value != 0 && !srcCell.CellStatus.IsNoData)
+                {
+                    destDB.SetCell(si, srcCell, true);
+                }
+                else if (value == 0)
+                {
+                    var clearCell = new DataBufferCell(srcCell.DataBufferCellPk, 0, status);
+                    destDB.SetCell(si, clearCell);
+                }
+            }
+            else
+            {
+                // Cell exists in current buffer
+                if (currCell.CellAmount != srcCell.CellAmount)
+                {
+                    destDB.SetCell(si, srcCell, true);
+                }
+            }
+        }
+        #endregion
+
+        #region "MCM Buffer Calcs"
+        #region "Balanced Buffer"
+        public void Calc_Balanced_Buffer(
+            int CalcID,
+            string bal_buffer_calc
+            )
+        {
+            string bal_buffer_cell_SQL = @"
+												Select Acct, View,Origin,IC,Flow,UD1,
+													UD2,UD3,UD4,UD5,UD6,UD7,U8,
+													OS_Curr_Cube_Buffer_Filter,Buffer_Filter
+													FROM MCM_Cell
+													WHERE CalcID = @CalcID";
+
+            var dbConnApp = BRApi.Database.CreateApplicationDbConnInfo(si);
+            using (var connection = new SqlConnection(dbConnApp.ConnectionString))
+            {
+                connection.Open();
+                var command = new SqlCommand(bal_buffer_cell_SQL, connection);
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var acct = reader["Acct"] != DBNull.Value ? reader["Acct"].ToString() : null;
+                        var view = reader["View"] != DBNull.Value ? reader["View"].ToString() : null;
+                        var origin = reader["Origin"] != DBNull.Value ? reader["Origin"].ToString() : null;
+                        var ic = reader["IC"] != DBNull.Value ? reader["IC"].ToString() : null;
+                        var flow = reader["Flow"] != DBNull.Value ? reader["Flow"].ToString() : null;
+                        var ud1 = reader["UD1"] != DBNull.Value ? reader["UD1"].ToString() : null;
+                        var ud2 = reader["UD2"] != DBNull.Value ? reader["UD2"].ToString() : null;
+                        var ud3 = reader["UD3"] != DBNull.Value ? reader["UD3"].ToString() : null;
+                        var ud4 = reader["UD4"] != DBNull.Value ? reader["UD4"].ToString() : null;
+                        var ud5 = reader["UD5"] != DBNull.Value ? reader["UD5"].ToString() : null;
+                        var ud6 = reader["UD6"] != DBNull.Value ? reader["UD6"].ToString() : null;
+                        var ud7 = reader["UD7"] != DBNull.Value ? reader["UD7"].ToString() : null;
+                        var ud8 = reader["UD8"] != DBNull.Value ? reader["UD8"].ToString() : null;
+
+                        var os_Curr_Cube_Buffer = reader["OS_Curr_Cube_Buffer_Filter"].ToString();
+                        var Buffer = reader["Buffer_Filter"].ToString();
+                        //Test RemoveNoData and RemoveZeroes
+                        var currCubeBuffer = api.Data.GetDataBufferUsingFormula($"FilterMembers({view},{os_Curr_Cube_Buffer})");
+                        var destBuffer = new DataBuffer(currCubeBuffer.CommonDataBufferCellPk);
+                        var destInfo = api.Data.GetExpressionDestinationInfo($"{view}");
+
+                        var clearCubeData = new DataBuffer();
+
+                        var balancedBuffer = api.Data.GetDataBufferUsingFormula($"FilterMembers({bal_buffer_calc},{Buffer}])");
+
+                        foreach (var balBuffer_Cell in balancedBuffer.DataBufferCells.Values)
+                        {
+                            //Need to set the Dest Cell correctly so that the clear routine works
+                            var destCell = new DataBufferCell(UpdateCellDefinition(balBuffer_Cell, acct, flow, origin,
+                                ic, ud1, ud2, ud3, ud4, ud5, ud6, ud7, ud8));
+
+                            UpdateValue(ref destCell, ref currCubeBuffer, ref destBuffer, destCell.CellAmount);
+                            currCubeBuffer.DataBufferCells.Remove(destCell.DataBufferCellPk);
+                        }
+
+                        // Write calculated cells from above back to final output data buffer
+                        api.Data.SetDataBuffer(destBuffer, destInfo);
+                        destBuffer.DataBufferCells.Clear();
+
+                        foreach (var ClearCubeCell in currCubeBuffer.DataBufferCells.Values)
+                        {
+                            var status = new DataCellStatus(false);
+                            var clearCell = new DataBufferCell(ClearCubeCell.DataBufferCellPk, 0, status);
+                            clearCubeData.SetCell(si, clearCell);
+                        }
+
+                        var clearInfo = api.Data.GetExpressionDestinationInfo($"{view}");
+                        api.Data.SetDataBuffer(clearCubeData, clearInfo);
+                    }
+                }
+            }
+
+        }
+
+        #endregion
+
+        #region "Unbalanced Buffer"
+        public void Calc_UnbalBuffer(
+            int CalcID,
+            string bal_buffer_calc,
+            string UnbalCalc
+            )
+        {
+
+            string UnbalBuffer_cell_SQL = @"
+												Select Acct, View,Origin,IC,Flow,UD1,
+													UD2,UD3,UD4,UD5,UD6,UD7,U8,
+													OS_Curr_Cube_Buffer_Filter,Buffer_Filter
+													FROM MCM_Cell
+													WHERE CalcID = @CalcID";
+            string src_cell_SQL = @"
+						        SELECT Calc_Src_ID_Order, Open_Parens, Math_Operator, Entity, Cons, Scenario,
+						            Time, Origin, IC, View, Acct, Flow, UD1, UD2,
+						            UD3, UD4, UD5, UD6, UD7, UD8, Calc_Close_Parens,UnbalSrc_Cell_Buffer,
+						            UnbalOriginOverride,UnbalICOverride,UnbalAcctOverride,UnbalFlowOverride,UnbalUD1Override,
+									UnbalUD2Override,UnbalUD3Override,UnbalUD4Override,UnbalUD5Override,UnbalUD6Override,
+									UnbalUD7Override,UnbalUD8Override,UnbalSrc_Cell_Buffer_Filter,OS_Dynamic_Calc_Script,Override_Value,
+									Calc_Src_Type
+						        FROM FMM_SrcCell
+						        WHERE CalcID = @CalcID
+								AND Calc_Src_ID_Order > 1
+						        ORDER BY Calc_Src_ID_Order";
+
+            var srcCellTable = new DataTable();
+
+            var dbConnApp = BRApi.Database.CreateApplicationDbConnInfo(si);
+            using (var connection = new SqlConnection(dbConnApp.ConnectionString))
+            {
+                connection.Open();
+                var UnbalsrcCommand = new SqlCommand(src_cell_SQL, connection);
+                var src_buffers = 0;
+                UnbalsrcCommand.Parameters.Add(new SqlParameter("@CalcID", SqlDbType.Int) { Value = CalcID });
+
+                using (var Unbalsrcreader = UnbalsrcCommand.ExecuteReader())
+                {
+                    while (Unbalsrcreader.Read())
+                    {
+                        string calc_srcType = Unbalsrcreader["Calc_Src_Type"].ToString();
+                        var row = srcCellTable.NewRow();
+                        row["Calc_Src_ID_Order"] = Unbalsrcreader["Calc_Src_ID_Order"];
+                        row["Calc_Open_Parens"] = Unbalsrcreader["Calc_Open_Parens"];
+                        row["Calc_Math_Operator"] = Unbalsrcreader["Calc_Math_Operator"];
+                        row["Entity"] = Unbalsrcreader["Entity"];
+                        row["Cons"] = Unbalsrcreader["Cons"];
+                        row["Scenario"] = Unbalsrcreader["Scenario"];
+                        row["Time"] = Unbalsrcreader["Time"];
+                        row["Origin"] = Unbalsrcreader["Origin"];
+                        row["IC"] = Unbalsrcreader["IC"];
+                        row["View"] = Unbalsrcreader["View"];
+                        row["Acct"] = Unbalsrcreader["Acct"];
+                        row["Flow"] = Unbalsrcreader["Flow"];
+                        row["UD1"] = Unbalsrcreader["UD1"];
+                        row["UD2"] = Unbalsrcreader["UD2"];
+                        row["UD3"] = Unbalsrcreader["UD3"];
+                        row["UD4"] = Unbalsrcreader["UD4"];
+                        row["UD5"] = Unbalsrcreader["UD5"];
+                        row["UD6"] = Unbalsrcreader["UD6"];
+                        row["UD7"] = Unbalsrcreader["UD7"];
+                        row["UD8"] = Unbalsrcreader["UD8"];
+                        row["Calc_Close_Parens"] = Unbalsrcreader["Calc_Close_Parens"];
+                        row["UnbalSrc_Cell_Buffer"] = Unbalsrcreader["UnbalSrc_Cell_Buffer"];
+                        row["UnbalOriginOverride"] = Unbalsrcreader["UnbalOriginOverride"];
+                        row["UnbalICOverride"] = Unbalsrcreader["UnbalICOverride"];
+                        row["UnbalAcctOverride"] = Unbalsrcreader["UnbalAcctOverride"];
+                        row["UnbalFlowOverride"] = Unbalsrcreader["UnbalFlowOverride"];
+                        row["UnbalUD1Override"] = Unbalsrcreader["UnbalUD1Override"];
+                        row["UnbalUD2Override"] = Unbalsrcreader["UnbalUD2Override"];
+                        row["UnbalUD3Override"] = Unbalsrcreader["UnbalUD3Override"];
+                        row["UnbalUD4Override"] = Unbalsrcreader["UnbalUD4Override"];
+                        row["UnbalUD5Override"] = Unbalsrcreader["UnbalUD5Override"];
+                        row["UnbalUD6Override"] = Unbalsrcreader["UnbalUD6Override"];
+                        row["UnbalUD7Override"] = Unbalsrcreader["UnbalUD7Override"];
+                        row["UnbalUD8Override"] = Unbalsrcreader["UnbalUD8Override"];
+                        row["UnbalSrc_Cell_Buffer_Filter"] = Unbalsrcreader["UnbalSrc_Cell_Buffer_Filter"];
+                        row["OS_Dynamic_Calc_Script"] = Unbalsrcreader["OS_Dynamic_Calc_Script"];
+                        row["Override_Value"] = Unbalsrcreader["Override_Value"];
+                        row["Calc_Src_Type"] = Unbalsrcreader["Calc_Src_Type"];
+                        srcCellTable.Rows.Add(row);
+
+                        int index = (int)Unbalsrcreader["Calc_Src_ID_Order"];
+                        src_buffers = index;
+
+                        if (calc_srcType != "Dynamic Calc")
+                        {
+
+                            string UnbalsrcBuffer = Unbalsrcreader["UnbalSrc_Cell_Buffer"].ToString();
+                            string UnbalsrcBufferFilter = Unbalsrcreader["Buffer_Filter"].ToString();
+                            string bufferName = $"SrcBuffer{index}";
+
+                            // Dynamically create and store the data buffer
+                            var dataBuffer = api.Data.GetDataBufferUsingFormula($"FilterMembers({UnbalsrcBuffer}, {UnbalsrcBufferFilter})");
+                            UnbalsrcdataBuffers.Add(bufferName, dataBuffer);
+                        }
+                    }
+                }
+                var command = new SqlCommand(UnbalBuffer_cell_SQL, connection);
+                command.Parameters.Add(new SqlParameter("@CalcID", SqlDbType.Int) { Value = CalcID });
+
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var acct = reader["Acct"] != DBNull.Value ? reader["Acct"].ToString() : null;
+                        var view = reader["View"] != DBNull.Value ? reader["View"].ToString() : null;
+                        var origin = reader["Origin"] != DBNull.Value ? reader["Origin"].ToString() : null;
+                        var ic = reader["IC"] != DBNull.Value ? reader["IC"].ToString() : null;
+                        var flow = reader["Flow"] != DBNull.Value ? reader["Flow"].ToString() : null;
+                        var ud1 = reader["UD1"] != DBNull.Value ? reader["UD1"].ToString() : null;
+                        var ud2 = reader["UD2"] != DBNull.Value ? reader["UD2"].ToString() : null;
+                        var ud3 = reader["UD3"] != DBNull.Value ? reader["UD3"].ToString() : null;
+                        var ud4 = reader["UD4"] != DBNull.Value ? reader["UD4"].ToString() : null;
+                        var ud5 = reader["UD5"] != DBNull.Value ? reader["UD5"].ToString() : null;
+                        var ud6 = reader["UD6"] != DBNull.Value ? reader["UD6"].ToString() : null;
+                        var ud7 = reader["UD7"] != DBNull.Value ? reader["UD7"].ToString() : null;
+                        var ud8 = reader["UD8"] != DBNull.Value ? reader["UD8"].ToString() : null;
+
+                        var os_Curr_Cube_Buffer = reader["OS_Curr_Cube_Buffer_Filter"].ToString();
+                        var Buffer = reader["Buffer_Filter"].ToString();
+                        //Test RemoveNoData and RemoveZeroes
+                        var currCubeBuffer = api.Data.GetDataBufferUsingFormula($"FilterMembers({view},{os_Curr_Cube_Buffer})");
+                        var destBuffer = new DataBuffer(currCubeBuffer.CommonDataBufferCellPk);
+                        var destInfo = api.Data.GetExpressionDestinationInfo($"{view}");
+
+                        var clearCubeData = new DataBuffer();
+
+                        var balancedBuffer = api.Data.GetDataBufferUsingFormula($"FilterMembers({bal_buffer_calc},{Buffer}])");
+
+                        foreach (var balBuffer_Cell in balancedBuffer.DataBufferCells.Values)
+                        {
+                            //Need to set the Dest Cell correctly so that the clear routine works
+                            var destCell = new DataBufferCell(UpdateCellDefinition(balBuffer_Cell, acct, flow, origin,
+                                ic, ud1, ud2, ud3, ud4, ud5, ud6, ud7, ud8));
+
+                            //Call new function, pass in balBuffer_Cell and first unbal src row...  Build up calc string.  Run math  
+                            var table = new DataTable();
+                            var expression = UnbalCalc.Replace("BalancedBuffer", balBuffer_Cell.CellAmount.XFToString());
+                            //If this is Dynamic Calc, then call Dyn Calc 
+                            for (int i = 2; i <= src_buffers; i++)
+                            {
+                                var srcRow = srcCellTable.AsEnumerable().FirstOrDefault(r => Convert.ToInt32(r["Calc_Src_ID_Order"]) == i);
+                                if (srcRow != null)
+                                {
+                                    if (srcRow["Calc_Src_Type"].ToString() == "Dynamic Calc")
+                                    {
+                                        var dyn_Calc = getdynamic_calc_value(balBuffer_Cell, srcRow);
+                                        expression = UnbalCalc.Replace($"DynamicCalc{i}", dyn_Calc.XFToString());
+
+                                    }
+                                    else if (srcRow["Calc_Src_Type"].ToString() == "Stored Cell")
+                                    {
+                                        string searchName = $"SrcBuffer{i}";
+                                        var resultBuffer = new DataBuffer();
+
+                                        UnbalsrcdataBuffers.XFGetValue(searchName, resultBuffer);
+                                        {
+                                            // The key was found, and resultBuffer now holds the corresponding DataBuffer
+                                            Console.WriteLine("Buffer found for the name: " + searchName);
+                                        }
+                                        var src_buffer_Value = get_src_UnbalBuffer_value(balBuffer_Cell, resultBuffer, srcRow);
+                                        expression = UnbalCalc.Replace($"SrcBuffer{i}", src_buffer_Value.XFToString());
+
+                                    }
+                                }
+                            }
+                            // Use the Compute method to evaluate the expression
+                            var result = table.Compute(expression, string.Empty);
+                            UpdateValue(ref destCell, ref currCubeBuffer, ref destBuffer, Convert.ToDecimal(result));
+                            currCubeBuffer.DataBufferCells.Remove(destCell.DataBufferCellPk);
+                        }
+
+                        // Write calculated cells from above back to final output data buffer
+                        api.Data.SetDataBuffer(destBuffer, destInfo);
+                        destBuffer.DataBufferCells.Clear();
+
+                        foreach (var ClearCubeCell in currCubeBuffer.DataBufferCells.Values)
+                        {
+                            var status = new DataCellStatus(false);
+                            var clearCell = new DataBufferCell(ClearCubeCell.DataBufferCellPk, 0, status);
+                            clearCubeData.SetCell(si, clearCell);
+                        }
+
+                        var clearInfo = api.Data.GetExpressionDestinationInfo($"{view}");
+                        api.Data.SetDataBuffer(clearCubeData, clearInfo);
+                    }
+                }
+            }
+
+        }
+
+        #endregion
+
+        #region "UnbalAlloc"
+        public void Calc_UnbalAlloc_Buffer(
+            int CalcID,
+            string bal_buffer_calc,
+            string UnbalCalc
+            )
+        {
+            var cell_Expressions = new Dictionary<DataBufferCell, string>();
+            var src_buffers = 0;
+            var UnbalsrcdataBuffers = new Dictionary<string, DataBuffer>();
+            string UnbalBuffer_cell_SQL = @"
+												Select Acct, View,Origin,IC,Flow,UD1,
+													UD2,UD3,UD4,UD5,UD6,UD7,U8,
+													OS_Curr_Cube_Buffer_Filter,Buffer_Filter
+													FROM MCM_Cell
+													WHERE CalcID = @CalcID";
+            string src_cell_SQL = @"
+						        SELECT Calc_Src_ID_Order, Open_Parens, Math_Operator, Entity, Cons, Scenario,
+						            Time, Origin, IC, View, Acct, Flow, UD1, UD2,
+						            UD3, UD4, UD5, UD6, UD7, UD8, Calc_Close_Parens,UnbalSrc_Cell_Buffer,
+						            UnbalOriginOverride,UnbalICOverride,UnbalAcctOverride,UnbalFlowOverride,UnbalUD1Override,
+									UnbalUD2Override,UnbalUD3Override,UnbalUD4Override,UnbalUD5Override,UnbalUD6Override,
+									UnbalUD7Override,UnbalUD8Override,UnbalSrc_Cell_Buffer_Filter,OS_Dynamic_Calc_Script,Override_Value,
+									Calc_Src_Type
+						        FROM FMM_SrcCell
+						        WHERE CalcID = @CalcID
+								AND Calc_Src_ID_Order > 1
+						        ORDER BY Calc_Src_ID_Order";
+
+            var srcCellTable = new DataTable();
+
+            var dbConnApp = BRApi.Database.CreateApplicationDbConnInfo(si);
+            using (var connection = new SqlConnection(dbConnApp.ConnectionString))
+            {
+                connection.Open();
+                var UnbalsrcCommand = new SqlCommand(src_cell_SQL, connection);
+                UnbalsrcCommand.Parameters.Add(new SqlParameter("@CalcID", SqlDbType.Int) { Value = CalcID });
+
+                using (var Unbalsrcreader = UnbalsrcCommand.ExecuteReader())
+                {
+                    while (Unbalsrcreader.Read())
+                    {
+                        string calc_srcType = Unbalsrcreader["Calc_Src_Type"].ToString();
+                        var row = srcCellTable.NewRow();
+                        row["Calc_Src_ID_Order"] = Unbalsrcreader["Calc_Src_ID_Order"];
+                        row["Calc_Open_Parens"] = Unbalsrcreader["Calc_Open_Parens"];
+                        row["Calc_Math_Operator"] = Unbalsrcreader["Calc_Math_Operator"];
+                        row["Entity"] = Unbalsrcreader["Entity"];
+                        row["Cons"] = Unbalsrcreader["Cons"];
+                        row["Scenario"] = Unbalsrcreader["Scenario"];
+                        row["Time"] = Unbalsrcreader["Time"];
+                        row["Origin"] = Unbalsrcreader["Origin"];
+                        row["IC"] = Unbalsrcreader["IC"];
+                        row["View"] = Unbalsrcreader["View"];
+                        row["Acct"] = Unbalsrcreader["Acct"];
+                        row["Flow"] = Unbalsrcreader["Flow"];
+                        row["UD1"] = Unbalsrcreader["UD1"];
+                        row["UD2"] = Unbalsrcreader["UD2"];
+                        row["UD3"] = Unbalsrcreader["UD3"];
+                        row["UD4"] = Unbalsrcreader["UD4"];
+                        row["UD5"] = Unbalsrcreader["UD5"];
+                        row["UD6"] = Unbalsrcreader["UD6"];
+                        row["UD7"] = Unbalsrcreader["UD7"];
+                        row["UD8"] = Unbalsrcreader["UD8"];
+                        row["Calc_Close_Parens"] = Unbalsrcreader["Calc_Close_Parens"];
+                        row["UnbalSrc_Cell_Buffer"] = Unbalsrcreader["UnbalSrc_Cell_Buffer"];
+                        row["UnbalOriginOverride"] = Unbalsrcreader["UnbalOriginOverride"];
+                        row["UnbalICOverride"] = Unbalsrcreader["UnbalICOverride"];
+                        row["UnbalAcctOverride"] = Unbalsrcreader["UnbalAcctOverride"];
+                        row["UnbalFlowOverride"] = Unbalsrcreader["UnbalFlowOverride"];
+                        row["UnbalUD1Override"] = Unbalsrcreader["UnbalUD1Override"];
+                        row["UnbalUD2Override"] = Unbalsrcreader["UnbalUD2Override"];
+                        row["UnbalUD3Override"] = Unbalsrcreader["UnbalUD3Override"];
+                        row["UnbalUD4Override"] = Unbalsrcreader["UnbalUD4Override"];
+                        row["UnbalUD5Override"] = Unbalsrcreader["UnbalUD5Override"];
+                        row["UnbalUD6Override"] = Unbalsrcreader["UnbalUD6Override"];
+                        row["UnbalUD7Override"] = Unbalsrcreader["UnbalUD7Override"];
+                        row["UnbalUD8Override"] = Unbalsrcreader["UnbalUD8Override"];
+                        row["UnbalSrc_Cell_Buffer_Filter"] = Unbalsrcreader["UnbalSrc_Cell_Buffer_Filter"];
+                        row["OS_Dynamic_Calc_Script"] = Unbalsrcreader["OS_Dynamic_Calc_Script"];
+                        row["Override_Value"] = Unbalsrcreader["Override_Value"];
+                        row["Calc_Src_Type"] = Unbalsrcreader["Calc_Src_Type"];
+                        srcCellTable.Rows.Add(row);
+
+                        int index = (int)Unbalsrcreader["Calc_Src_ID_Order"];
+                        src_buffers = index;
+
+                        if (calc_srcType != "Dynamic Calc")
+                        {
+                            string UnbalsrcBuffer = Unbalsrcreader["UnbalSrc_Cell_Buffer"].ToString();
+                            string UnbalsrcBufferFilter = Unbalsrcreader["Buffer_Filter"].ToString();
+                            string bufferName = $"SrcBuffer{index}";
+
+                            // Dynamically create and store the data buffer
+                            var dataBuffer = api.Data.GetDataBufferUsingFormula($"FilterMembers({UnbalsrcBuffer}, {UnbalsrcBufferFilter})");
+                            UnbalsrcdataBuffers.Add(bufferName, dataBuffer);
+                        }
+                    }
+                }
+                var command = new SqlCommand(UnbalBuffer_cell_SQL, connection);
+                command.Parameters.Add(new SqlParameter("@CalcID", SqlDbType.Int) { Value = CalcID });
+
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var acct = reader["Acct"] != DBNull.Value ? reader["Acct"].ToString() : null;
+                        var view = reader["View"] != DBNull.Value ? reader["View"].ToString() : null;
+                        var origin = reader["Origin"] != DBNull.Value ? reader["Origin"].ToString() : null;
+                        var ic = reader["IC"] != DBNull.Value ? reader["IC"].ToString() : null;
+                        var flow = reader["Flow"] != DBNull.Value ? reader["Flow"].ToString() : null;
+                        var ud1 = reader["UD1"] != DBNull.Value ? reader["UD1"].ToString() : null;
+                        var ud2 = reader["UD2"] != DBNull.Value ? reader["UD2"].ToString() : null;
+                        var ud3 = reader["UD3"] != DBNull.Value ? reader["UD3"].ToString() : null;
+                        var ud4 = reader["UD4"] != DBNull.Value ? reader["UD4"].ToString() : null;
+                        var ud5 = reader["UD5"] != DBNull.Value ? reader["UD5"].ToString() : null;
+                        var ud6 = reader["UD6"] != DBNull.Value ? reader["UD6"].ToString() : null;
+                        var ud7 = reader["UD7"] != DBNull.Value ? reader["UD7"].ToString() : null;
+                        var ud8 = reader["UD8"] != DBNull.Value ? reader["UD8"].ToString() : null;
+
+                        var os_Curr_Cube_Buffer = reader["OS_Curr_Cube_Buffer_Filter"].ToString();
+                        var Buffer = reader["Buffer_Filter"].ToString();
+                        //Test RemoveNoData and RemoveZeroes
+                        var currCubeBuffer = api.Data.GetDataBufferUsingFormula($"FilterMembers({view},{os_Curr_Cube_Buffer})");
+                        var destBuffer = new DataBuffer(currCubeBuffer.CommonDataBufferCellPk);
+                        var destInfo = api.Data.GetExpressionDestinationInfo($"{view}");
+
+                        var clearCubeData = new DataBuffer();
+
+                        var balancedBuffer = api.Data.GetDataBufferUsingFormula($"FilterMembers({bal_buffer_calc},{Buffer}])");
+
+                        foreach (var balBuffer_Cell in balancedBuffer.DataBufferCells.Values)
+                        {
+                            // Set up the destination cell
+                            var destCell = new DataBufferCell(UpdateCellDefinition(balBuffer_Cell, acct, flow, origin,
+                                ic, ud1, ud2, ud3, ud4, ud5, ud6, ud7, ud8));
+
+                            // Initialize DataTable and expression
+                            var table = new DataTable();
+                            var expression = UnbalCalc.Replace("BalancedBuffer", balBuffer_Cell.CellAmount.XFToString());
+                            cell_Expressions.Add(destCell, expression);
+
+                            // First Loop: Handle Dynamic Calcs and Stored Cells
+                            for (int i = 2; i <= src_buffers; i++)
+                            {
+                                var srcRow = srcCellTable.AsEnumerable().FirstOrDefault(r => Convert.ToInt32(r["Calc_Src_ID_Order"]) == i);
+                                if (srcRow != null)
+                                {
+                                    UpdateExpressionForRow(balBuffer_Cell, srcRow, UnbalsrcdataBuffers, ref cell_Expressions, destCell, i);
+                                }
+                            }
+
+                            foreach (var kvp in cell_Expressions)
+                            {
+                                var cell = kvp.Key;     // The DataBufferCell (key)
+                                expression = kvp.Value;     // The associated expression (value)
+                                                            // Use the Compute method to evaluate the expression after both loops
+                                var result = table.Compute(expression, string.Empty);
+                                UpdateValue(ref cell, ref currCubeBuffer, ref destBuffer, Convert.ToDecimal(result));
+                                currCubeBuffer.DataBufferCells.Remove(cell.DataBufferCellPk);
+                                cell_Expressions.Remove(cell);
+                            }
+                        }
+
+
+                        // Write calculated cells from above back to final output data buffer
+                        api.Data.SetDataBuffer(destBuffer, destInfo);
+                        destBuffer.DataBufferCells.Clear();
+
+                        foreach (var ClearCubeCell in currCubeBuffer.DataBufferCells.Values)
+                        {
+                            var status = new DataCellStatus(false);
+                            var clearCell = new DataBufferCell(ClearCubeCell.DataBufferCellPk, 0, status);
+                            clearCubeData.SetCell(si, clearCell);
+                        }
+
+                        var clearInfo = api.Data.GetExpressionDestinationInfo($"{view}");
+                        api.Data.SetDataBuffer(clearCubeData, clearInfo);
+                    }
+                }
+            }
+
+        }
+
+        #endregion
+
+        #region "Ext_UnbalAlloc"
+        public void Calc_Ext_UnbalAlloc_Buffer(
+            int CalcID,
+            string bal_buffer_calc,
+            string UnbalCalc,
+            string memberList1Dim,
+            string memberList1Filter,
+            string memberList1DimType,
+            string memberList1DestFilter,
+            string memberList2Dim,
+            string memberList2Filter,
+            string memberList2DimType,
+            string memberList2DestFilter,
+            string memberList3Dim,
+            string memberList3Filter,
+            string memberList3DimType,
+            string memberList3DestFilter,
+            string memberList4Dim,
+            string memberList4Filter,
+            string memberList4DimType,
+            string memberList4DestFilter
+        )
+        {
+            // Process the parameters as needed in your method
+
+            // Example usage of the parameters
+            BRApi.ErrorLog.LogMessage(si, $"Processing CalcID: {CalcID}");
+            BRApi.ErrorLog.LogMessage(si, $"Balanced Buffer Calc: {bal_buffer_calc}, Unbalanced Calc: {UnbalCalc}");
+
+            // Log MemberList 1 details
+            BRApi.ErrorLog.LogMessage(si, $"MemberList 1: Dim: {memberList1Dim}, Filter: {memberList1Filter}, DimType: {memberList1DimType}, DestFilter: {memberList1DestFilter}");
+
+            // Log MemberList 2 details
+            if (memberList2Dim != null)
+                BRApi.ErrorLog.LogMessage(si, $"MemberList 2: Dim: {memberList2Dim}, Filter: {memberList2Filter}, DimType: {memberList2DimType}, DestFilter: {memberList2DestFilter}");
+
+            // Log MemberList 3 details
+            if (memberList3Dim != null)
+                BRApi.ErrorLog.LogMessage(si, $"MemberList 3: Dim: {memberList3Dim}, Filter: {memberList3Filter}, DimType: {memberList3DimType}, DestFilter: {memberList3DestFilter}");
+
+            // Log MemberList 4 details
+            if (memberList4Dim != null)
+                BRApi.ErrorLog.LogMessage(si, $"MemberList 4: Dim: {memberList4Dim}, Filter: {memberList4Filter}, DimType: {memberList4DimType}, DestFilter: {memberList4DestFilter}");
+
+            // Additional processing logic based on the new parameters can be added here
+        }
+
+        #endregion
+
+        #region "Ext_Unbalanced"
+        public void Calc_Ext_UnbalBuffer(
+            int CalcID,
+            string bal_buffer_calc,
+            string UnbalCalc,
+            string memberList1Dim,
+            string memberList1Filter,
+            string memberList1DimType,
+            string memberList1DestFilter,
+            string memberList2Dim,
+            string memberList2Filter,
+            string memberList2DimType,
+            string memberList2DestFilter,
+            string memberList3Dim,
+            string memberList3Filter,
+            string memberList3DimType,
+            string memberList3DestFilter,
+            string memberList4Dim,
+            string memberList4Filter,
+            string memberList4DimType,
+            string memberList4DestFilter
+        )
+        {
+            try
+            {
+                var dbConnApp = BRApi.Database.CreateApplicationDbConnInfo(si);
+                using (var connection = new SqlConnection(dbConnApp.ConnectionString))
+                {
+                    connection.Open();
+
+                    const string UnbalBuffer_cell_SQL = @"
+                SELECT Acct, View, Origin, IC, Flow, UD1, UD2, UD3, UD4, UD5, UD6, UD7, UD8,
+                       OS_Curr_Cube_Buffer_Filter, Buffer_Filter
+                FROM FMM_Dest_Cell
+                WHERE CalcID = @CalcID";
+
+                    using (var command = new SqlCommand(UnbalBuffer_cell_SQL, connection))
+                    {
+                        command.Parameters.Add(new SqlParameter("@CalcID", SqlDbType.Int) { Value = CalcID });
+
+                        // Build member lists once outside the loop
+                        var memberLists = BuildMemberLists(memberList1Dim, memberList1Filter,
+                            memberList2Dim, memberList2Filter,
+                            memberList3Dim, memberList3Filter,
+                            memberList4Dim, memberList4Filter);
+
+                        using (var reader = command.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                var view = reader["View"].ToString();
+                                var os_Curr_Cube_Buffer = reader["OS_Curr_Cube_Buffer_Filter"].ToString();
+
+                                var currCubeBuffer = api.Data.GetDataBufferUsingFormula($"FilterMembers({view},{os_Curr_Cube_Buffer})");
+                                var destBuffer = new DataBuffer(currCubeBuffer.CommonDataBufferCellPk);
+                                var destInfo = api.Data.GetExpressionDestinationInfo(view);
+
+                                ProcessMemberCombinations(CalcID, memberLists, currCubeBuffer, destBuffer, destInfo,
+                                    reader, bal_buffer_calc, UnbalCalc, view);
+
+                                // Write calculated cells
+                                api.Data.SetDataBuffer(destBuffer, destInfo);
+
+                                // Clear remaining cells
+                                ClearRemainingCells(currCubeBuffer, destInfo);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorHandler.LogWrite(si, new XFException(si, ex));
+                throw;
+            }
+        }
+
+        private Dictionary<int, List<MemberInfo>> BuildMemberLists(
+            string dim1, string filter1, string dim2, string filter2,
+            string dim3, string filter3, string dim4, string filter4)
+        {
+            var memberLists = new Dictionary<int, List<MemberInfo>>();
+
+            var dimFilters = new[] {
+            (dim: dim1, filter: filter1),
+            (dim: dim2, filter: filter2),
+            (dim: dim3, filter: filter3),
+            (dim: dim4, filter: filter4)
+            };
+
+            for (int i = 0; i < dimFilters.Length; i++)
+            {
+                if (!string.IsNullOrEmpty(dimFilters[i].dim) && !string.IsNullOrEmpty(dimFilters[i].filter))
+                {
+                    var dimObj = api.Dimensions.GetDim(dimFilters[i].dim);
+                    memberLists[i] = api.Members.GetMembersUsingFilter(dimObj.DimPk, dimFilters[i].filter);
+                }
+            }
+
+            return memberLists;
+        }
+
+        private void ProcessMemberCombinations(int CalcID, Dictionary<int, List<MemberInfo>> memberLists,
+            DataBuffer currCubeBuffer, DataBuffer destBuffer, ExpressionDestinationInfo destInfo,
+            SqlDataReader reader, string bal_buffer_calc, string UnbalCalc, string view)
+        {
+            var memberNames = new string[4];
+            ProcessMemberLevel(CalcID, memberLists, 0, memberNames, currCubeBuffer, destBuffer,
+            destInfo, reader, bal_buffer_calc, UnbalCalc, view);
+        }
+
+        private void ProcessMemberLevel(int CalcID, Dictionary<int, List<MemberInfo>> memberLists, int level,
+            string[] memberNames, DataBuffer currCubeBuffer, DataBuffer destBuffer,
+            ExpressionDestinationInfo destInfo, SqlDataReader reader, string bal_buffer_calc,
+            string UnbalCalc, string view)
+        {
+            if (!memberLists.ContainsKey(level))
+            {
+                // Execute for this combination
+                ExecuteDataBufferCode(CalcID, ref currCubeBuffer, ref destBuffer, destInfo, memberNames,
+                    reader, bal_buffer_calc, UnbalCalc);
+                return;
+            }
+
+            foreach (var member in memberLists[level])
+            {
+                memberNames[level] = member.Member.Name;
+                ProcessMemberLevel(CalcID, memberLists, level + 1, memberNames, currCubeBuffer,
+                    destBuffer, destInfo, reader, bal_buffer_calc, UnbalCalc, view);
+            }
+        }
+
+        private void ClearRemainingCells(DataBuffer currCubeBuffer, ExpressionDestinationInfo destInfo)
+        {
+            var clearCubeData = new DataBuffer();
+            foreach (var cell in currCubeBuffer.DataBufferCells.Values)
+            {
+                var clearCell = new DataBufferCell(cell.DataBufferCellPk, 0, new DataCellStatus(false));
+                clearCubeData.SetCell(si, clearCell);
+            }
+            api.Data.SetDataBuffer(clearCubeData, destInfo);
+        }
+
+        #endregion
+
+        #region "Extensibility Unbal Helpers"
+
+        private void ExecuteDataBufferCode(int CalcID, ref DataBuffer currCubeBuffer, ref DataBuffer destBuffer, ref DataBuffer clearCubeBuffer, ExpressionDestinationInfo destInfo, string dim1MemName, string dim2MemName, string dim3MemName, string dim4MemName,
+            SqlDataReader reader, string bal_buffer_calc, string UnbalCalc)
+        {
+            try
+            {
+                UnbalsrcdataBuffers.Clear();
+                const string memFilterStringPrefix = "|!MemberList_";
+                const string memFilterStringSuffix = "_Filter.Name!|";
+
+                string src_cell_SQL = @"
+                SELECT Calc_Src_ID_Order, Open_Parens, Math_Operator, Entity, Cons, Scenario,
+                Time, Origin, IC, View, Acct, Flow, UD1, UD2, UD3, UD4, UD5, UD6, UD7, UD8, 
+                Calc_Close_Parens, UnbalSrc_Cell_Buffer, UnbalOriginOverride, UnbalICOverride, 
+                UnbalAcctOverride, UnbalFlowOverride, UnbalUD1Override, UnbalUD2Override, UnbalUD3Override, 
+                UnbalUD4Override, UnbalUD5Override, UnbalUD6Override, UnbalUD7Override, UnbalUD8Override, 
+                UnbalSrc_Cell_Buffer_Filter, OS_Dynamic_Calc_Script, Override_Value, Calc_Src_Type
+                FROM FMM_SrcCell
+                WHERE CalcID = @CalcID AND Calc_Src_ID_Order > 1
+                ORDER BY Calc_Src_ID_Order";
+
+                var dbConnApp = BRApi.Database.CreateApplicationDbConnInfo(si);
+                using (var connection = new SqlConnection(dbConnApp.ConnectionString))
+                {
+                    connection.Open();
+
+                    // Load source cells
+                    var srcCellTable = LoadSourceCellTable(src_cell_SQL, CalcID, connection, dim1MemName, dim2MemName, dim3MemName, dim4MemName, memFilterStringPrefix, memFilterStringSuffix);
+
+                    int src_buffers = srcCellTable.Rows.Count > 0 ? Convert.ToInt32(srcCellTable.Rows[srcCellTable.Rows.Count - 1]["Calc_Src_ID_Order"]) : 0;
+
+                    // Load destination cell info
+                    var destInfos = LoadDestinationCellInfo(reader, dim1MemName, dim2MemName, dim3MemName, dim4MemName, memFilterStringPrefix, memFilterStringSuffix);
+
+                    var os_Curr_Cube_Buffer = reader["OS_Curr_Cube_Buffer_Filter"].ToString();
+                    var Buffer = reader["Buffer_Filter"].ToString();
+
+                    var balancedBuffer = api.Data.GetDataBufferUsingFormula($"FilterMembers({bal_buffer_calc},{Buffer})");
+
+                    if (balancedBuffer.DataBufferCells.Values.Count == 0)
+                        return;
+
+                    BRApi.ErrorLog.LogMessage(si, $"Processing {balancedBuffer.DataBufferCells.Values.Count} balanced buffer cells");
+
+                    var table = new DataTable();
+
+                    foreach (var balBuffer_Cell in balancedBuffer.DataBufferCells.Values)
+                    {
+                        var destCell = new DataBufferCell(UpdateCellDefinition(balBuffer_Cell,
+                            destInfos[0], destInfos[4], destInfos[2], destInfos[3],
+                            destInfos[5], destInfos[6], destInfos[7], destInfos[8],
+                            destInfos[9], destInfos[10], destInfos[11], destInfos[12]));
+
+                        var expression = BuildExpression(UnbalCalc, balBuffer_Cell, srcCellTable, src_buffers);
+
+                        var result = table.Compute(expression, string.Empty);
+                        UpdateValue(ref destCell, ref currCubeBuffer, ref destBuffer, Convert.ToDecimal(result));
+                        currCubeBuffer.DataBufferCells.Remove(destCell.DataBufferCellPk);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorHandler.LogWrite(si, new XFException(si, ex));
+                throw;
+            }
+        }
+
+        private DataTable LoadSourceCellTable(string sql, int calcID, SqlConnection connection,
+            string dim1MemName, string dim2MemName, string dim3MemName, string dim4MemName,
+            string memFilterStringPrefix, string memFilterStringSuffix)
+        {
+            var srcCellTable = new DataTable("srcCellTable");
+            var command = new SqlCommand(sql, connection);
+            command.Parameters.Add(new SqlParameter("@CalcID", SqlDbType.Int) { Value = calcID });
+
+            using (var reader = command.ExecuteReader())
+            {
+                if (!reader.HasRows) return srcCellTable;
+
+                // Create columns
+                for (int i = 0; i < reader.FieldCount; i++)
+                    srcCellTable.Columns.Add(reader.GetName(i));
+
+                var dimensionMap = new Dictionary<int, string>
+            {
+                { 1, dim1MemName },
+                { 2, dim2MemName },
+                { 3, dim3MemName },
+                { 4, dim4MemName }
+            };
+
+                while (reader.Read())
+                {
+                    var row = srcCellTable.NewRow();
+                    for (int i = 0; i < reader.FieldCount; i++)
+                    {
+                        string value = reader[i].ToString();
+                        row[reader.GetName(i)] = ReplaceMemberListFilter(value, dimensionMap, memFilterStringPrefix, memFilterStringSuffix);
+                    }
+                    srcCellTable.Rows.Add(row);
+
+                    // Load buffer if not Dynamic Calc
+                    if (row["Calc_Src_Type"].ToString() != "Dynamic Calc")
+                    {
+                        string bufferName = $"SrcBuffer{row["Calc_Src_ID_Order"]}";
+                        if (!UnbalsrcdataBuffers.ContainsKey(bufferName))
+                        {
+                            string unbalBuffer = row["UnbalSrc_Cell_Buffer"].ToString();
+                            string unbalBufferFilter = row["UnbalSrc_Cell_Buffer_Filter"].ToString();
+                            var dataBuffer = api.Data.GetDataBufferUsingFormula($"FilterMembers({unbalBuffer}, {unbalBufferFilter})");
+                            UnbalsrcdataBuffers[bufferName] = dataBuffer;
+                        }
+                    }
+                }
+            }
+
+            return srcCellTable;
+        }
+
+        private List<string> LoadDestinationCellInfo(SqlDataReader reader,
+            string dim1MemName, string dim2MemName, string dim3MemName, string dim4MemName,
+            string memFilterStringPrefix, string memFilterStringSuffix)
+        {
+            var dimensionMap = new Dictionary<int, string>
+            {
+            { 1, dim1MemName },
+            { 2, dim2MemName },
+            { 3, dim3MemName },
+            { 4, dim4MemName }
+            };
+
+            var destInfos = new List<string>();
+            var columnNames = new[] { "Acct", "View", "Origin", "IC", "Flow", "UD1", "UD2", "UD3", "UD4", "UD5", "UD6", "UD7", "UD8" };
+
+            foreach (var col in columnNames)
+            {
+                string value = reader[col] != DBNull.Value ? reader[col].ToString() : null;
+                value = ReplaceMemberListFilter(value, dimensionMap, memFilterStringPrefix, memFilterStringSuffix);
+
+                if (value != null && value.Contains("#"))
+                    value = value.Substring(value.IndexOf("#") + 1);
+
+                destInfos.Add(value);
+            }
+
+            return destInfos;
+        }
+
+        private string ReplaceMemberListFilter(string value, Dictionary<int, string> dimensionMap,
+            string prefix, string suffix)
+        {
+            if (string.IsNullOrEmpty(value) || !value.Contains(prefix))
+                return value;
+
+            foreach (var kvp in dimensionMap)
+            {
+                string searchStr = $"{prefix}{kvp.Key}{suffix}";
+                if (value.Contains(searchStr))
+                {
+                    value = value.Replace(searchStr, kvp.Value);
+                    break;
+                }
+            }
+
+            return value;
+        }
+
+        private string BuildExpression(string baseCalc, DataBufferCell balBuffer_Cell, DataTable srcCellTable, int src_buffers)
+        {
+            var expression = baseCalc.Replace("BalancedBuffer", balBuffer_Cell.CellAmount.XFToString());
+
+            for (int i = 2; i <= src_buffers; i++)
+            {
+                var srcRow = srcCellTable.AsEnumerable().FirstOrDefault(r => Convert.ToInt32(r["Calc_Src_ID_Order"]) == i);
+                if (srcRow == null) continue;
+
+                if (XFEqualsIgnoreCase(srcRow["Calc_Src_Type"].ToString(), "Dynamic Calc"))
+                {
+                    var dynCalcValue = getdynamic_calc_value(balBuffer_Cell, srcRow);
+                    expression = expression.Replace($"DynamicCalc{i}", dynCalcValue.XFToString());
+                }
+                else if (XFEqualsIgnoreCase(srcRow["Calc_Src_Type"].ToString(), "Stored Cell"))
+                {
+                    string bufferName = $"SrcBuffer{i}";
+                    if (UnbalsrcdataBuffers.ContainsKey(bufferName))
+                    {
+                        var srcBufferValue = get_src_UnbalBuffer_value(balBuffer_Cell, UnbalsrcdataBuffers[bufferName], srcRow);
+                        expression = expression.Replace($"SrcBufferValue{i}", srcBufferValue.XFToString());
+                    }
+                }
+            }
+
+            return expression;
+        }
+        #endregion
+
+        #region "Unbalanced Buffer Helpers"
+
+        private decimal getdynamic_calc_value(DataBufferCell balanced_Src_Cell, DataRow srcRow)
+        {
+            var dyncalc_mbrScriptBuilder = api.Data.CreateMemberScriptBuilder(srcRow["OS_Dynamic_Calc_Script"].ToString());
+            api.Data.ApplyDataBufferCellPkToMemberScriptBuilder(dyncalc_mbrScriptBuilder, balanced_Src_Cell.DataBufferCellPk);
+
+            // Define override mappings to reduce repetitive code
+            var overrideMappings = new Dictionary<string, (string overrideColumn, string[] prefixes, Action<string> setter)>
+            {
+                { "Origin", ("UnbalOriginOverride", new[] { "O#" }, v => dyncalc_mbrScriptBuilder.SetOrigin(v)) },
+                { "IC", ("UnbalICOverride", new[] { "IC#" }, v => dyncalc_mbrScriptBuilder.SetIC(v)) },
+                { "Account", ("UnbalAcctOverride", new[] { "A#" }, v => dyncalc_mbrScriptBuilder.SetAccount(v)) },
+                { "Flow", ("UnbalFlowOverride", new[] { "F#" }, v => dyncalc_mbrScriptBuilder.SetFlow(v)) },
+                { "UD1", ("UnbalUD1Override", new[] { "UD1#", "U1#" }, v => dyncalc_mbrScriptBuilder.SetUD1(v)) },
+                { "UD2", ("UnbalUD2Override", new[] { "UD2#", "U2#" }, v => dyncalc_mbrScriptBuilder.SetUD2(v)) },
+                { "UD3", ("UnbalUD3Override", new[] { "UD3#", "U3#" }, v => dyncalc_mbrScriptBuilder.SetUD3(v)) },
+                { "UD4", ("UnbalUD4Override", new[] { "UD4#", "U4#" }, v => dyncalc_mbrScriptBuilder.SetUD4(v)) },
+                { "UD5", ("UnbalUD5Override", new[] { "UD5#", "U5#" }, v => dyncalc_mbrScriptBuilder.SetUD5(v)) },
+                { "UD6", ("UnbalUD6Override", new[] { "UD6#", "U6#" }, v => dyncalc_mbrScriptBuilder.SetUD6(v)) },
+                { "UD7", ("UnbalUD7Override", new[] { "UD7#", "U7#" }, v => dyncalc_mbrScriptBuilder.SetUD7(v)) },
+                { "UD8", ("UnbalUD8Override", new[] { "UD8#", "U8#" }, v => dyncalc_mbrScriptBuilder.SetUD8(v)) }
+            };
+
+            // Apply overrides using the mapping
+            foreach (var mapping in overrideMappings)
+            {
+                var overrideColumn = mapping.Value.overrideColumn;
+                var columnName = mapping.Key == "Account" ? "Acct" : mapping.Key;
+
+                if (srcRow[overrideColumn] != DBNull.Value && !string.IsNullOrEmpty(srcRow[overrideColumn].ToString()))
+                {
+                    var value = srcRow[columnName].ToString();
+                    foreach (var prefix in mapping.Value.prefixes)
+                    {
+                        value = value.Replace(prefix, string.Empty);
+                    }
+                    mapping.Value.setter(value);
+                }
+            }
+
+            var dyncalc_DataCell = api.Data.GetDataCell(dyncalc_mbrScriptBuilder.GetMemberScript());
+            return dyncalc_DataCell.CellAmount;
+        }
+
+        private decimal get_src_UnbalBuffer_value(DataBufferCell balanced_Src_Cell, DataBuffer UnbalDataBuffer, DataRow srcRow)
+        {
+            var overrides = new Dictionary<string, string>
+            {
+            { "Acct", "UnbalAcctOverride" },
+            { "Flow", "UnbalFlowOverride" },
+            { "Origin", "UnbalOriginOverride" },
+            { "IC", "UnbalICOverride" },
+            { "UD1", "UnbalUD1Override" },
+            { "UD2", "UnbalUD2Override" },
+            { "UD3", "UnbalUD3Override" },
+            { "UD4", "UnbalUD4Override" },
+            { "UD5", "UnbalUD5Override" },
+            { "UD6", "UnbalUD6Override" },
+            { "UD7", "UnbalUD7Override" },
+            { "UD8", "UnbalUD8Override" }
+            };
+
+            var prefixes = new Dictionary<string, string[]>
+            {
+            { "Acct", new[] { "A#" } },
+            { "Flow", new[] { "F#" } },
+            { "Origin", new[] { "O#" } },
+            { "IC", new[] { "IC#" } },
+            { "UD1", new[] { "UD1#", "U1#" } },
+            { "UD2", new[] { "UD2#", "U2#" } },
+            { "UD3", new[] { "UD3#", "U3#" } },
+            { "UD4", new[] { "UD4#", "U4#" } },
+            { "UD5", new[] { "UD5#", "U5#" } },
+            { "UD6", new[] { "UD6#", "U6#" } },
+            { "UD7", new[] { "UD7#", "U7#" } },
+            { "UD8", new[] { "UD8#", "U8#" } }
+            };
+
+            var driverValues = new Dictionary<string, string>();
+
+            foreach (var kvp in overrides)
+            {
+                var dimName = kvp.Key;
+                var overrideColumn = kvp.Value;
+
+                if (srcRow[overrideColumn] != DBNull.Value && !string.IsNullOrEmpty(srcRow[overrideColumn].ToString()))
+                {
+                    var value = srcRow[dimName].ToString();
+                    foreach (var prefix in prefixes[dimName])
+                    {
+                        value = value.Replace(prefix, string.Empty);
+                    }
+                    driverValues[dimName] = value.Replace("[", string.Empty).Replace("]", string.Empty);
+                }
+                else
+                {
+                    driverValues[dimName] = string.Empty;
+                }
+            }
+
+            return GetBCValue(ref balanced_Src_Cell, UnbalDataBuffer,
+            driverValues["Acct"], driverValues["Flow"], driverValues["Origin"],
+            driverValues["IC"], driverValues["UD1"], driverValues["UD2"],
+            driverValues["UD3"], driverValues["UD4"], driverValues["UD5"],
+            driverValues["UD6"], driverValues["UD7"], driverValues["UD8"]);
+        }
+
+        private List<Func<DataBufferCell, bool>> get_filter_Conditions(DataBufferCell balanced_Src_Cell, DataRow srcRow)
+        {
+            var filterConditions = new List<Func<DataBufferCell, bool>>();
+
+            // Define dimension getters and row column names
+            var dimensionGetters = new[]
+            {
+            (name: "Origin", getter: new Func<DataBufferCell, string>(cell => cell.DataBufferCellPk.GetOriginName(api))),
+            (name: "Flow", getter: new Func<DataBufferCell, string>(cell => cell.DataBufferCellPk.GetFlowName(api))),
+            (name: "Acct", getter: new Func<DataBufferCell, string>(cell => cell.DataBufferCellPk.GetAccountName(api))),
+            (name: "IC", getter: new Func<DataBufferCell, string>(cell => cell.DataBufferCellPk.GetICName(api))),
+            (name: "UD1", getter: new Func<DataBufferCell, string>(cell => cell.DataBufferCellPk.GetUD1Name(api))),
+            (name: "UD2", getter: new Func<DataBufferCell, string>(cell => cell.DataBufferCellPk.GetUD2Name(api))),
+            (name: "UD3", getter: new Func<DataBufferCell, string>(cell => cell.DataBufferCellPk.GetUD3Name(api))),
+            (name: "UD4", getter: new Func<DataBufferCell, string>(cell => cell.DataBufferCellPk.GetUD4Name(api))),
+            (name: "UD5", getter: new Func<DataBufferCell, string>(cell => cell.DataBufferCellPk.GetUD5Name(api))),
+            (name: "UD6", getter: new Func<DataBufferCell, string>(cell => cell.DataBufferCellPk.GetUD6Name(api))),
+            (name: "UD7", getter: new Func<DataBufferCell, string>(cell => cell.DataBufferCellPk.GetUD7Name(api))),
+            (name: "UD8", getter: new Func<DataBufferCell, string>(cell => cell.DataBufferCellPk.GetUD8Name(api)))
+            };
+
+            // Cache balanced cell values to avoid repeated calls
+            var balancedValues = new Dictionary<string, string>();
+            foreach (var dim in dimensionGetters)
+            {
+                balancedValues[dim.name] = dim.getter(balanced_Src_Cell);
+            }
+
+            // Build filter conditions dynamically
+            foreach (var dim in dimensionGetters)
+            {
+                if (srcRow[dim.name] != DBNull.Value && !string.IsNullOrEmpty(srcRow[dim.name].ToString()))
+                {
+                    var balancedValue = balancedValues[dim.name];
+                    filterConditions.Add(cell => dim.getter(cell) == balancedValue);
+                }
+            }
+
+            return filterConditions;
+        }
+
+        private List<DataBufferCell> GetFilteredCells(DataBuffer Unbalalloc, params Func<DataBufferCell, bool>[] filterConditions)
+        {
+            if (Unbalalloc == null || Unbalalloc.DataBufferCells == null)
+            {
+                return new List<DataBufferCell>(); // Return an empty list if Unbalalloc or DataBufferCells is null
+            }
+
+            return Unbalalloc.DataBufferCells.Values
+                .Where(cell => filterConditions.All(condition => condition(cell)))
+                .ToList();
+        }
+
+        private void UpdateExpressionForRow(DataBufferCell balBuffer_Cell, DataRow srcRow, Dictionary<string, DataBuffer> UnbalsrcdataBuffers, ref Dictionary<DataBufferCell, string> cell_Expressions, DataBufferCell Cell, int i)
+        {
+            var acct = string.Empty;
+            var flow = string.Empty;
+            var origin = string.Empty;
+            var ic = string.Empty;
+            var ud1 = string.Empty;
+            var ud2 = string.Empty;
+            var ud3 = string.Empty;
+            var ud4 = string.Empty;
+            var ud5 = string.Empty;
+            var ud6 = string.Empty;
+            var ud7 = string.Empty;
+            var ud8 = string.Empty;
+            // Ensure that there is an entry for this cell in the dictionary
+            if (!cell_Expressions.ContainsKey(Cell))
+            {
+                cell_Expressions[Cell] = string.Empty; // or some initial expression if needed
+            }
+
+            // Retrieve the current expression for this cell
+            string curr_expression = cell_Expressions[Cell];
+
+
+            if (srcRow["Calc_Src_Type"].ToString() == "Dynamic Calc")
+            {
+                var dyn_Calc = getdynamic_calc_value(balBuffer_Cell, srcRow);
+                curr_expression = curr_expression.Replace($"DynamicCalc{i}", dyn_Calc.XFToString());
+            }
+            else if (srcRow["Calc_Src_Type"].ToString() == "Stored Cell")
+            {
+                string searchName = $"SrcBuffer{i}";
+                var resultBuffer = new DataBuffer();
+
+                // Find the buffer corresponding to the search name
+                UnbalsrcdataBuffers.XFGetValue(searchName, resultBuffer);
+
+                // Get filter conditions based on the source row
+                var Unbalalloc_filter_conditions = get_filter_Conditions(balBuffer_Cell, srcRow);
+
+                // Apply the filter conditions to get the relevant cells
+                var filtered_Cells = GetFilteredCells(resultBuffer, Unbalalloc_filter_conditions.ToArray());
+
+                // Process the filtered cells
+                foreach (var UnbalAlloc_Buffer_Cell in filtered_Cells)
+                {
+                    if (srcRow["Override_Value"] != DBNull.Value)
+                    {
+                        if (srcRow["Override_Value"].ToString().XFContainsIgnoreCase("A#"))
+                        {
+                            acct = UnbalAlloc_Buffer_Cell.DataBufferCellPk.GetAccountName(api);
+                        }
+                        if (srcRow["Override_Value"].ToString().XFContainsIgnoreCase("O#"))
+                        {
+                            origin = UnbalAlloc_Buffer_Cell.DataBufferCellPk.GetOriginName(api);
+                        }
+                        if (srcRow["Override_Value"].ToString().XFContainsIgnoreCase("F#"))
+                        {
+                            flow = UnbalAlloc_Buffer_Cell.DataBufferCellPk.GetFlowName(api);
+                        }
+                        if (srcRow["Override_Value"].ToString().XFContainsIgnoreCase("IC#") || srcRow["Override_Value"].ToString().XFContainsIgnoreCase("I#"))
+                        {
+                            ic = UnbalAlloc_Buffer_Cell.DataBufferCellPk.GetICName(api);
+                        }
+                        if (srcRow["Override_Value"].ToString().XFContainsIgnoreCase("U1#") || srcRow["Override_Value"].ToString().XFContainsIgnoreCase("UD1#"))
+                        {
+                            ud1 = UnbalAlloc_Buffer_Cell.DataBufferCellPk.GetUD1Name(api);
+                        }
+                        if (srcRow["Override_Value"].ToString().XFContainsIgnoreCase("U2#") || srcRow["Override_Value"].ToString().XFContainsIgnoreCase("UD2#"))
+                        {
+                            ud2 = UnbalAlloc_Buffer_Cell.DataBufferCellPk.GetUD2Name(api);
+                        }
+                        if (srcRow["Override_Value"].ToString().XFContainsIgnoreCase("U3#") || srcRow["Override_Value"].ToString().XFContainsIgnoreCase("UD3#"))
+                        {
+                            ud3 = UnbalAlloc_Buffer_Cell.DataBufferCellPk.GetUD3Name(api);
+                        }
+                        if (srcRow["Override_Value"].ToString().XFContainsIgnoreCase("U4#") || srcRow["Override_Value"].ToString().XFContainsIgnoreCase("UD4#"))
+                        {
+                            ud4 = UnbalAlloc_Buffer_Cell.DataBufferCellPk.GetUD4Name(api);
+                        }
+                        if (srcRow["Override_Value"].ToString().XFContainsIgnoreCase("U5#") || srcRow["Override_Value"].ToString().XFContainsIgnoreCase("UD5#"))
+                        {
+                            ud5 = UnbalAlloc_Buffer_Cell.DataBufferCellPk.GetUD5Name(api);
+                        }
+                        if (srcRow["Override_Value"].ToString().XFContainsIgnoreCase("U6#") || srcRow["Override_Value"].ToString().XFContainsIgnoreCase("UD6#"))
+                        {
+                            ud6 = UnbalAlloc_Buffer_Cell.DataBufferCellPk.GetUD6Name(api);
+                        }
+                        if (srcRow["Override_Value"].ToString().XFContainsIgnoreCase("U7#") || srcRow["Override_Value"].ToString().XFContainsIgnoreCase("UD7#"))
+                        {
+                            ud7 = UnbalAlloc_Buffer_Cell.DataBufferCellPk.GetUD7Name(api);
+                        }
+                        if (srcRow["Override_Value"].ToString().XFContainsIgnoreCase("U8#") || srcRow["Override_Value"].ToString().XFContainsIgnoreCase("UD8#"))
+                        {
+                            ud8 = UnbalAlloc_Buffer_Cell.DataBufferCellPk.GetUD8Name(api);
+                        }
+                        var Unbalalloc_DestCell = new DataBufferCell(UpdateCellDefinition(Cell, acct, flow, origin,
+                                ic, ud1, ud2, ud3, ud4, ud5, ud6, ud7, ud8));
+                        curr_expression = cell_Expressions[Cell];
+                        curr_expression = curr_expression.Replace($"SrcBuffer{i}", UnbalAlloc_Buffer_Cell.CellAmount.XFToString());
+                        cell_Expressions.Add(Unbalalloc_DestCell, curr_expression);
+
+
+                    }
+                }
+            }
+        }
+
+
+
+        #endregion
+
+
+        #endregion
+		
+        public void CustomCalculate(SessionInfo si, BRGlobals brGlobals, FinanceRulesApi api, FinanceRulesArgs args)
+        {
+            try
+            {
+                if (args.CustomCalculateArgs.FunctionName.XFEqualsIgnoreCase("GetCVDataBuffer"))
+                {
+                    var filter = globals.GetStringValue("Filter");
+
+                    DataBuffer dynDataBuffer = api.Data.GetDataBufferUsingFormula(filter);
+                    var dynResults = new Dictionary<MemberScriptBuilder, DataBufferCell>();
+
+                    foreach (var cell in dynDataBuffer.DataBufferCells.Values)
+                    {
+                        var msb = cell.DataBufferCellPk.CreateMemberScriptBuilder(api);
+                        dynResults[msb] = cell;
+                    }
+
+                    globals.SetObject("Results", dynResults);
+                    //dynDataBuffer.LogDataBuffer(api, " - Buffer", 200);
+                }
+                // else if block commented out in the original code
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw new XFException(si, ex);
+            }
+        }
+
+    }
+}
+]]></sourceCode>
+                                        </file>
+                                    </folder>
+                                </files>
+                            </workspaceAssembly>
+                        </workspaceAssemblies>
+                        <cubeViewGroups />
+                        <dataManagementGroups />
+                    </maintenanceUnit>
+                </maintenanceUnits>
+            </workspace>
+        </workspaces>
+    </applicationWorkspacesRoot>
+</OneStreamXF>

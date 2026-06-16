@@ -1,0 +1,59 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="OS Consultant Tools/**/Assemblies/**/*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="OneStream.Finance.Database" Condition="Exists('$(MSBuildThisFileDirectory)lib/OneStream/OneStream.Finance.Database.dll')">
+      <HintPath>lib/OneStream/OneStream.Finance.Database.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="OneStream.Finance.Engine" Condition="Exists('$(MSBuildThisFileDirectory)lib/OneStream/OneStream.Finance.Engine.dll')">
+      <HintPath>lib/OneStream/OneStream.Finance.Engine.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="OneStream.Shared.Common" Condition="Exists('$(MSBuildThisFileDirectory)lib/OneStream/OneStream.Shared.Common.dll')">
+      <HintPath>lib/OneStream/OneStream.Shared.Common.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="OneStream.Shared.Database" Condition="Exists('$(MSBuildThisFileDirectory)lib/OneStream/OneStream.Shared.Database.dll')">
+      <HintPath>lib/OneStream/OneStream.Shared.Database.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="OneStream.Shared.Engine" Condition="Exists('$(MSBuildThisFileDirectory)lib/OneStream/OneStream.Shared.Engine.dll')">
+      <HintPath>lib/OneStream/OneStream.Shared.Engine.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="OneStream.Shared.Wcf" Condition="Exists('$(MSBuildThisFileDirectory)lib/OneStream/OneStream.Shared.Wcf.dll')">
+      <HintPath>lib/OneStream/OneStream.Shared.Wcf.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="OneStream.Stage.Database" Condition="Exists('$(MSBuildThisFileDirectory)lib/OneStream/OneStream.Stage.Database.dll')">
+      <HintPath>lib/OneStream/OneStream.Stage.Database.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="OneStream.Stage.Engine" Condition="Exists('$(MSBuildThisFileDirectory)lib/OneStream/OneStream.Stage.Engine.dll')">
+      <HintPath>lib/OneStream/OneStream.Stage.Engine.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="OneStream.Data.DataFrame" Condition="Exists('$(MSBuildThisFileDirectory)lib/OneStream/OneStream.Data.DataFrame.dll')">
+      <HintPath>lib/OneStream/OneStream.Data.DataFrame.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="OneStream.Data.DataFrame.Abstractions" Condition="Exists('$(MSBuildThisFileDirectory)lib/OneStream/OneStream.Data.DataFrame.Abstractions.dll')">
+      <HintPath>lib/OneStream/OneStream.Data.DataFrame.Abstractions.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="OneStreamWorkspacesApi" Condition="Exists('$(MSBuildThisFileDirectory)lib/OneStream/OneStreamWorkspacesApi.dll')">
+      <HintPath>lib/OneStream/OneStreamWorkspacesApi.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+</Project>
