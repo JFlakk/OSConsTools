@@ -1,0 +1,139 @@
+{
+  "name": "My New Module",
+  "description": "Example module built from a JSON spec",
+  "accessGroup": "Everyone",
+  "maintenanceGroup": "Everyone",
+  "wsAssemblyService": "MY_Assembly.MY_SvcFactory",
+
+  "parameters": [
+    {
+      "parameterType": "BoundList",
+      "name": "BL_MY_Menu",
+      "description": "Navigation menu list",
+      "sortOrder": 100,
+      "parameterCommandType": "Method",
+      "methodType": "BusinessRule",
+      "methodQuery": "{Workspace.Current.MY_Assembly.MY_DataSets}{Get_Menu}{}",
+      "resultsTableName": "MY_MenuConfig",
+      "displayMember": "Name",
+      "valueMember": "MenuID"
+    },
+    {
+      "parameterType": "InputValue",
+      "name": "IV_MY_SelectedID",
+      "description": "Currently selected record ID",
+      "sortOrder": 200
+    },
+    {
+      "parameterType": "DelimitedList",
+      "name": "DL_MY_StatusOptions",
+      "description": "Status options for dropdowns",
+      "sortOrder": 300,
+      "defaultValue": "1",
+      "displayItems": "Active,Inactive,Pending",
+      "valueItems": "1,2,3"
+    },
+    {
+      "parameterType": "MemberList",
+      "name": "ML_MY_EntityList",
+      "description": "Entity dimension member list",
+      "sortOrder": 400,
+      "defaultValue": "~!Mbr_List_Default!~",
+      "cubeName": "~!Mbr_List_Cube!~",
+      "dimType": "Entity",
+      "dimName": "~!Mbr_List_Dim!~",
+      "memberFilter": "~!Mbr_List_Filter!~"
+    },
+    {
+      "parameterType": "LiteralValue",
+      "name": "LV_MY_BtnFormat",
+      "description": "Standard button format string",
+      "sortOrder": 500,
+      "defaultValue": "BackgroundColor = Transparent, BorderThickness = 0, Height = 30, HorizontalAlignment = Center"
+    }
+  ],
+
+  "components": [
+    {
+      "componentType": "Button",
+      "name": "btn_MY_Save",
+      "xfText": "Save",
+      "toolTip": "Save the current record",
+      "displayFormat": "|!LV_MY_BtnFormat!|",
+      "selectionChangedTaskType": "ExecuteDashboardExtenderBRConsServer",
+      "selectionChangedTaskArgs": "{Workspace.Current.MY_Assembly.MY_BR}{Save}{}",
+      "selectionChangedUIActionType": "Refresh",
+      "dashboardsToRedraw": "MY_Content_DB",
+      "buttonType": "Standard",
+      "imageUrl": "Std_DB_Save.png"
+    },
+    {
+      "componentType": "ListBox",
+      "name": "lbx_MY_Menu",
+      "xfText": "Navigation Menu",
+      "boundParameterName": "BL_MY_Menu",
+      "selectionChangedUIActionType": "Refresh"
+    },
+    {
+      "componentType": "CubeView",
+      "name": "cv_MY_MainView",
+      "cubeViewName": "MY_MainView",
+      "toolTip": "Main data grid"
+    },
+    {
+      "componentType": "EmbeddedDashboard",
+      "name": "Embedded MY_Content_DB",
+      "embeddedDashboardName": "MY_Content_DB"
+    }
+  ],
+
+  "assemblies": [
+    {
+      "assemblyName": "MY_Assembly",
+      "description": "My module business rules",
+      "compilerLanguage": "CSharp",
+      "folders": [
+        {
+          "name": "My Classes",
+          "files": [
+            {
+              "name": "MY_DataSets.cs",
+              "compilerActionType": "Compile",
+              "sourceCode": "using System;\nusing OneStreamWorkspacesApi;\nusing OneStreamWorkspacesApi.V800;\n\nnamespace Workspace.__WsNamespacePrefix.__WsAssemblyName\n{\n    public class MY_DataSets\n    {\n        public object Get_Menu(SessionInfo oSI, BRGlobals oBRGlobals, object oApp, XFLoadDashboardTaskResult oResult)\n        {\n            // TODO: implement\n            return Nothing.Value;\n        }\n    }\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+
+  "dashboardGroups": [
+    {
+      "name": "My Module Dashboards",
+      "description": "",
+      "accessGroup": "Administrators",
+      "dashboards": [
+        {
+          "name": "MY_TopLevel_DB",
+          "dashboardType": "TopLevel",
+          "layoutType": "Grid",
+          "loadDashboardTaskType": "ExecuteDashboardExtenderBRAllActions",
+          "loadDashboardTaskArgs": "{Workspace.Current.MY_Assembly.MY_BR}{LoadDB}{}",
+          "showTitle": true,
+          "columns": [{"width": "*"}],
+          "rows": [{"height": "Auto"}, {"height": "*"}],
+          "componentMembers": ["Embedded MY_Header_DB", "Embedded MY_Content_DB"]
+        },
+        {
+          "name": "MY_Content_DB",
+          "dashboardType": "Embedded",
+          "layoutType": "Grid",
+          "showTitle": true,
+          "columns": [{"width": "Auto"}, {"width": "*"}],
+          "rows": [{"height": "*"}],
+          "componentMembers": ["lbx_MY_Menu", "cv_MY_MainView"]
+        }
+      ]
+    }
+  ]
+}
