@@ -1,12 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Data.Common;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using Microsoft.CSharp;
-using Microsoft.Data.SqlClient;
 using OneStream.Finance.Database;
 using OneStream.Finance.Engine;
 using OneStream.Shared.Common;
@@ -54,29 +51,9 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardS
 		#region "Layout Dashboard Resolver"
 		private string Get_LayoutDB()
 		{
-			var AppMenuID = args.NameValuePairs.XFGetValue("BL_DDM_AppMenu", "NA");
-			
-			var dt = new DataTable("DDM_DynDBMenuLayoutConfig");
-			var dbConnApp = BRApi.Database.CreateApplicationDbConnInfo(si);
-			
-			using (var connection = new SqlConnection(dbConnApp.ConnectionString))
-			{
-			    var sql_gbl_get_datasets = new GBL_UI_Assembly.SQL_GBL_Get_DataSets(si, connection);
-			    var sqa = new SqlDataAdapter();
-			
-			    var sql = @"
-			        SELECT LayoutType
-			        FROM dbo.DDM_DynDBMenuLayoutConfig
-			        WHERE DynDBMenuID = @DynDBMenuID";
-			
-			    var sqlparams = new[]
-			    {
-			        new SqlParameter("@DynDBMenuID", SqlDbType.Int) { Value = AppMenuID }
-			    };
-			
-			    sql_gbl_get_datasets.Fill_Get_GBL_DT(si, sqa, dt, sql, sqlparams);
-			}
-			// 2) Allow an explicit LayoutType override via NameValuePairs (testing / direct calls).
+			var currDB = args.NameValuePairs.XFGetValue("currDB", string.Empty);
+
+			// Allow an explicit LayoutType override via NameValuePairs (testing / direct calls).
 			var layoutTypeOverride = args.NameValuePairs.XFGetValue("LayoutType", string.Empty);
 			if (!string.IsNullOrEmpty(layoutTypeOverride) && int.TryParse(layoutTypeOverride, out int overrideLayoutType))
 			{
@@ -86,7 +63,7 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardS
 				return Resolve_Layout_Dashboard(overrideLayoutType, dbName, cvName);
 			}
 
-			// 3) DB-driven: query DDM_DynDBMenuLayoutConfig for the currently selected menu.
+			// DB-driven: use DDM_Support to look up the config row for the currently selected menu.
 			var configMenuRow = DDM_Support.get_ConfigMenuRow(si, args.NameValuePairs);
 			if (configMenuRow == null)
 			{
@@ -96,8 +73,8 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardS
 
 			BRApi.ErrorLog.LogMessage(si, $"Get_LayoutDB: currDB='{currDB}'");
 
-			// 4) Delegate to DDM_Support (which uses DDM_ConfigHelpers) to resolve the dashboard
-			//    for the specific context (pane) that called this XFBR.
+			// Delegate to DDM_Support.get_PaneBinding to resolve the correct dashboard name
+			// for the specific pane context (currDB) that called this XFBR.
 			var paneBinding = DDM_Support.get_PaneBinding(configMenuRow, currDB);
 			BRApi.ErrorLog.LogMessage(si, $"Get_LayoutDB: resolved to '{paneBinding.DashboardName}'");
 			return paneBinding.DashboardName;
