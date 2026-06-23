@@ -49,7 +49,8 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
 		        },
 		        [LayoutType.CubeView] = new LayoutConfig 
 		        {
-		            DashboardName = "DDM_LayoutConfig_CV",
+		            Config_DashboardName = "DDM_LayoutConfig_CV",
+					DashboardName = "DDM_App_Content_CV",
 		            ParameterMappings = new() 
 		            { 
 		                { 0, new Dictionary<string, string> { { "IV_DDM_MenuLayout_SortOrder", "SortOrder" } } },
@@ -60,7 +61,8 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
 		        },
 		        [LayoutType.Dashboard_TopBottom] = new LayoutConfig 
 		        {
-		            DashboardName = "DDM_LayoutConfig_TB_DB",
+		            Config_DashboardName = "DDM_LayoutConfig_TB_DB",
+					DashboardName = "DDM_App_Content_TB_DB",
 		            ParameterMappings = new() 
 		            { 
 		                { 0, new Dictionary<string, string> { { "IV_DDM_MenuLayout_SortOrder", "SortOrder" } } },
@@ -75,7 +77,8 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
 		        },
 		        [LayoutType.Dashboard_LeftRight] = new LayoutConfig 
 		        {
-		            DashboardName = "DDM_LayoutConfig_LR_DB",
+		            Config_DashboardName = "DDM_LayoutConfig_LR_DB",
+					DashboardName = "DDM_App_Content_LR_DB",
 		            ParameterMappings = new() 
 		            { 
 		                { 0, new Dictionary<string, string> { { "IV_DDM_MenuLayout_L_Width", "L_Width" } } },
@@ -87,7 +90,8 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
 		        },
 		        [LayoutType.Dashboard_2Top1Bottom] = new LayoutConfig 
 		        {
-		            DashboardName = "DDM_LayoutConfig_2T1B_DB",
+		            Config_DashboardName = "DDM_LayoutConfig_2T1B_DB",
+					DashboardName = "DDM_App_Content_2T1B_DB",
 		            ParameterMappings = new() 
 		            { 
 		                { 0, new Dictionary<string, string> { { "IV_DDM_MenuLayout_L_Width", "L_Width" } } },
@@ -101,7 +105,8 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
 		        },
 		        [LayoutType.Dashboard_1Top2Bottom] = new LayoutConfig 
 		        {
-		            DashboardName = "DDM_LayoutConfig_1T2B_DB",
+		            Config_DashboardName = "DDM_LayoutConfig_1T2B_DB",
+					DashboardName = "DDM_App_Content_1T2B_DB",
 		            ParameterMappings = new() 
 		            { 
 		                { 0, new Dictionary<string, string> { { "IV_DDM_MenuLayout_Left_Width", "L_Width" } } },
@@ -115,7 +120,8 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
 		        },
 		        [LayoutType.Dashboard_2Left1Right] = new LayoutConfig 
 		        {
-		            DashboardName = "DDM_LayoutConfig_2L1R_DB",
+		            Config_DashboardName = "DDM_LayoutConfig_2L1R_DB",
+					DashboardName = "DDM_App_Content_2L1R_DB",
 		            ParameterMappings = new() 
 		            { 
 		                { 0, new Dictionary<string, string> { { "IV_DDM_MenuLayout_Left_Width", "L_Width" } } },
@@ -129,7 +135,8 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
 		        },
 		        [LayoutType.Dashboard_1Left2Right] = new LayoutConfig 
 		        {
-		            DashboardName = "DDM_LayoutConfig_1L2R_DB",
+		            Config_DashboardName = "DDM_LayoutConfig_1L2R_DB",
+					DashboardName = "DDM_App_Content_1L2R_DB",
 		            ParameterMappings = new() 
 		            { 
 		                { 0, new Dictionary<string, string> { { "IV_DDM_MenuLayout_Left_Width", "L_Width" } } },
@@ -143,7 +150,8 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
 		        },
 		        [LayoutType.Dashboard_2x2] = new LayoutConfig 
 		        {
-		            DashboardName = "DDM_LayoutConfig_2x2_DB",
+		            Config_DashboardName = "DDM_LayoutConfig_2x2_DB",
+					DashboardName = "DDM_App_Content_2x2_DB",
 		            ParameterMappings = new() 
 		            { 
 		                { 0, new Dictionary<string, string> { { "IV_DDM_MenuLayout_Left_Width", "L_Width" } } },
@@ -157,7 +165,8 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
 		        },
 		        [LayoutType.Dashboard_CustomDB] = new LayoutConfig 
 		        {
-		            DashboardName = "DDM_LayoutConfig_CustomDB",
+		            Config_DashboardName = "DDM_LayoutConfig_CustomDB",
+					DashboardName = "DDM_App_Content_DB",
 		            ParameterMappings = new() 
 		            { 
 		                { 0, new Dictionary<string, string> { { "IV_DDM_MenuLayout_Left_Width", "L_Width" } } },

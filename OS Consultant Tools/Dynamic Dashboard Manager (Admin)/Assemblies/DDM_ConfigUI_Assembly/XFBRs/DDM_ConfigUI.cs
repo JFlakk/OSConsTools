@@ -145,10 +145,10 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardS
 			var layoutType = args.NameValuePairs.XFGetValue("LayoutType","1").XFConvertToInt();
 			var configHelpers = new DDM_ConfigHelpers();
 			var layoutConfig = configHelpers.Get_LayoutConfig(layoutType);
-			BRApi.ErrorLog.LogMessage(si,$"hit LAYU {layoutConfig.DashboardName}");
+			BRApi.ErrorLog.LogMessage(si,$"hit LAYU {layoutConfig.Config_DashboardName}");
 			if (layoutConfig != null)
 			{
-			    return layoutConfig.DashboardName;
+			    return layoutConfig.Config_DashboardName;
 			}
 			else
 			{
