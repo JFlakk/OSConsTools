@@ -6,7 +6,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using Microsoft.CSharp;
-using Microsoft.Data.SqlClient;
 using OneStream.Finance.Database;
 using OneStream.Finance.Engine;
 using OneStream.Shared.Common;
@@ -54,28 +53,10 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardS
 		#region "Layout Dashboard Resolver"
 		private string Get_LayoutDB()
 		{
-			var AppMenuID = args.NameValuePairs.XFGetValue("BL_DDM_AppMenu", "NA");
-			
-			var dt = new DataTable("DDM_DynDBMenuLayoutConfig");
-			var dbConnApp = BRApi.Database.CreateApplicationDbConnInfo(si);
-			
-			using (var connection = new SqlConnection(dbConnApp.ConnectionString))
-			{
-			    var sql_gbl_get_datasets = new GBL_UI_Assembly.SQL_GBL_Get_DataSets(si, connection);
-			    var sqa = new SqlDataAdapter();
-			
-			    var sql = @"
-			        SELECT LayoutType
-			        FROM dbo.DDM_DynDBMenuLayoutConfig
-			        WHERE DynDBMenuID = @DynDBMenuID";
-			
-			    var sqlparams = new[]
-			    {
-			        new SqlParameter("@DynDBMenuID", SqlDbType.Int) { Value = AppMenuID }
-			    };
-			
-			    sql_gbl_get_datasets.Fill_Get_GBL_DT(si, sqa, dt, sql, sqlparams);
-			}
+			// 1) Identify which dashboard is calling this XFBR so multi-pane layouts can resolve
+			//    the correct pane content.  Defaults to the top-level content DB.
+			var currDB = args.NameValuePairs.XFGetValue("currDB", "DDM_App_Content_DB");
+
 			// 2) Allow an explicit LayoutType override via NameValuePairs (testing / direct calls).
 			var layoutTypeOverride = args.NameValuePairs.XFGetValue("LayoutType", string.Empty);
 			if (!string.IsNullOrEmpty(layoutTypeOverride) && int.TryParse(layoutTypeOverride, out int overrideLayoutType))
@@ -94,20 +75,28 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardS
 				return DefaultDashboard;
 			}
 
-			BRApi.ErrorLog.LogMessage(si, $"Get_LayoutDB: currDB='{currDB}'");
+			// 4) Read LayoutType from the config row and use DDM_ConfigHelpers.Get_LayoutConfig
+			//    to retrieve the LayoutConfig, then return the appropriate dashboard name.
+			int layoutTypeInt = configMenuRow.Table.Columns.Contains("LayoutType") && configMenuRow["LayoutType"] != DBNull.Value
+				? Convert.ToInt32(configMenuRow["LayoutType"])
+				: (int)DDM_ConfigHelpers.LayoutType.None;
 
-			// 4) Delegate to DDM_Support (which uses DDM_ConfigHelpers) to resolve the dashboard
-			//    for the specific context (pane) that called this XFBR.
-			var paneBinding = DDM_Support.get_PaneBinding(configMenuRow, currDB);
-			BRApi.ErrorLog.LogMessage(si, $"Get_LayoutDB: resolved to '{paneBinding.DashboardName}'");
-			return paneBinding.DashboardName;
+			var layoutConfig = new DDM_ConfigHelpers().Get_LayoutConfig(layoutTypeInt);
+			BRApi.ErrorLog.LogMessage(si, $"Get_LayoutDB: currDB='{currDB}', layoutType={layoutTypeInt}, layoutConfig='{layoutConfig?.DashboardName}'");
+
+			if (layoutConfig != null)
+			{
+				return layoutConfig.DashboardName;
+			}
+
+			return DefaultDashboard;
 		}
 
 		/// <summary>
 		/// Maps an explicit LayoutType override (plus optional DB_Name / CV_Name) to a layout
 		/// dashboard name, using <see cref="DDM_ConfigHelpers.LayoutType"/> enum values.
 		/// Only used for the NameValuePairs override path; the DB-driven path uses
-		/// <see cref="DDM_Support.get_PaneBinding"/> instead.
+		/// <see cref="DDM_ConfigHelpers.Get_LayoutConfig"/> instead.
 		/// </summary>
 		private string Resolve_Layout_Dashboard(int layoutTypeInt, string dbName, string cvName)
 		{
