@@ -14,6 +14,7 @@ using OneStream.Shared.Engine;
 using OneStream.Shared.Wcf;
 using OneStream.Stage.Database;
 using OneStream.Stage.Engine;
+using Workspace.OSConsTools.DDM_ConfigUI_Assembly;
 
 namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardStringFunction.DDM_UI
 {
@@ -27,30 +28,6 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardS
         #endregion
 		// Default returned when LayoutType is None/unmapped or required column value is missing.
 		private const string DefaultDashboard = "emb_Dynamic_DDM_App_Content_DB";
-
-		// LayoutType (int) -> layout dashboard name.
-		// Values 1 (Dashboard), 2 (CubeView) and 10 (CustomDB) are column-driven:
-		// the actual name/view comes from the menu row (DB_Name / CV_Name), so they are
-		// resolved from the passed-in column values rather than from this map.
-		// Built as a Dictionary so it can later be repointed at a DB lookup table
-		// (e.g. DDM_DynDBLayoutType) by changing only how this map is populated -
-		// every call site stays "_layoutDashboards[layoutType]".
-		private static readonly Dictionary<int, string> _layoutDashboards = new Dictionary<int, string>
-		{
-			{ 3, "DDM_App_Content_TB_DB"   }, // Dashboard_TopBottom
-			{ 4, "DDM_App_Content_LR_DB"   }, // Dashboard_LeftRight
-			{ 5, "DDM_App_Content_2T1B_DB" }, // Dashboard_2Top1Bottom
-			{ 6, "DDM_App_Content_1T2B_DB" }, // Dashboard_1Top2Bottom
-			{ 7, "DDM_App_Content_2L1R_DB" }, // Dashboard_2Left1Right
-			{ 8, "DDM_App_Content_1L2R_DB" }, // Dashboard_1Left2Right
-			{ 9, "DDM_App_Content_2x2_DB"  }  // Dashboard_2x2
-		};
-
-		// Mirrors DDM_ConfigHelpers.LayoutType for the column-driven cases.
-		private const int LayoutType_None        = 0;
-		private const int LayoutType_Dashboard   = 1;
-		private const int LayoutType_CubeView    = 2;
-		private const int LayoutType_CustomDB    = 10;
 
 		public object Main(SessionInfo si, BRGlobals globals, object api, DashboardStringFunctionArgs args)
 		{
@@ -85,100 +62,86 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardS
 
 		#region "Layout Dashboard Resolver"
 		/// <summary>
-		/// Returns the content layout dashboard name for the menu the user is currently on.
-		/// Determines the current menu from the dashboard substitution variables, reads that
-		/// menu's LayoutType (and DB_Name / CV_Name) from DDM_DynDBMenuLayoutConfig, and maps
-		/// it to a layout dashboard. Caller may override LayoutType / DB_Name / CV_Name via
-		/// NameValuePairs; otherwise everything is sourced from the DB.
+		/// Returns the content layout dashboard name for the pane / dashboard that called this XFBR.
+		/// <para>
+		/// The caller passes <c>currDB</c> (the name of the dashboard calling this function) via
+		/// NameValuePairs so the method knows which content area needs to be resolved.  The selected
+		/// menu is read from <c>BL_DDM_App_Menu</c>, the DB is queried for that menu's config row,
+		/// and <see cref="DDM_Support.get_PaneBinding"/> (which delegates to
+		/// <see cref="DDM_ConfigHelpers"/>) maps the config to the correct dashboard name.
+		/// </para>
+		/// Optional NameValuePairs overrides (handy for testing / explicit calls):
+		/// <list type="bullet">
+		///   <item><c>LayoutType</c> – integer matching <see cref="DDM_ConfigHelpers.LayoutType"/></item>
+		///   <item><c>DB_Name</c>   – dashboard name for Dashboard(1) / CustomDB(10)</item>
+		///   <item><c>CV_Name</c>   – cube view name for CubeView(2)</item>
+		/// </list>
 		/// </summary>
 		private string Get_LayoutDB(SessionInfo si, DashboardStringFunctionArgs args)
 		{
-			int layoutType;
-			var dbName = string.Empty;
-			var cvName = string.Empty;
+			// 1) Identify which dashboard is calling this XFBR so multi-pane layouts can resolve
+			//    the correct pane content.  Defaults to the top-level content DB.
+			var currDB = args.NameValuePairs.XFGetValue("currDB", "DDM_App_Content_DB");
 
-			// 1) Allow an explicit LayoutType override via NameValuePairs (testing / direct calls).
+			// 2) Allow an explicit LayoutType override via NameValuePairs (testing / direct calls).
 			var layoutTypeOverride = args.NameValuePairs.XFGetValue("LayoutType", string.Empty);
-
-			if (!string.IsNullOrEmpty(layoutTypeOverride) && int.TryParse(layoutTypeOverride, out layoutType))
+			if (!string.IsNullOrEmpty(layoutTypeOverride) && int.TryParse(layoutTypeOverride, out int overrideLayoutType))
 			{
-				dbName = args.NameValuePairs.XFGetValue("DB_Name", string.Empty);
-				cvName = args.NameValuePairs.XFGetValue("CV_Name", string.Empty);
-			}
-			else
-			{
-				// 2) DB-driven: figure out which menu (DB) we are currently on, then read its row.
-				// A DashboardStringFunction receives dashboard values through NameValuePairs,
-				// so the current menu id arrives as the BL_DDM_App_Menu pair (the dashboard
-				// binds |!BL_DDM_App_Menu!| when it calls this function). Default to "1" to
-				// match get_SelectedMenu's own default for the first/initial load.
-				var selectedMenu = -1;
-				var menuStr = args.NameValuePairs.XFGetValue(DDM_Support.Param_DashboardMenu, "1");
-				if (!string.IsNullOrEmpty(menuStr) && !int.TryParse(menuStr, out selectedMenu))
-				{
-					selectedMenu = -1;
-				}
-				BRApi.ErrorLog.LogMessage(si, $"Get_Layout_Dashboard: current menu id = {selectedMenu}");
-
-				var configMenuDT = DDM_Support.get_ConfigMenu(si, selectedMenu);
-				if (configMenuDT == null || configMenuDT.Rows.Count == 0)
-				{
-					BRApi.ErrorLog.LogMessage(si, "Get_Layout_Dashboard: no config row found; returning default.");
-					return DefaultDashboard;
-				}
-
-				var row = configMenuDT.Rows[0];
-
-				// LayoutType is a non-null int column, but stay defensive.
-				if (row["LayoutType"] == DBNull.Value || !int.TryParse(row["LayoutType"].ToString(), out layoutType))
-				{
-					BRApi.ErrorLog.LogMessage(si, "Get_Layout_Dashboard: LayoutType missing/invalid; returning default.");
-					return DefaultDashboard;
-				}
-
-				if (configMenuDT.Columns.Contains("DB_Name") && row["DB_Name"] != DBNull.Value)
-				{
-					dbName = row["DB_Name"].ToString();
-				}
-				if (configMenuDT.Columns.Contains("CV_Name") && row["CV_Name"] != DBNull.Value)
-				{
-					cvName = row["CV_Name"].ToString();
-				}
+				var dbName = args.NameValuePairs.XFGetValue("DB_Name", string.Empty);
+				var cvName = args.NameValuePairs.XFGetValue("CV_Name", string.Empty);
+				BRApi.ErrorLog.LogMessage(si, $"Get_LayoutDB: LayoutType override={overrideLayoutType}, DB_Name='{dbName}', currDB='{currDB}'");
+				return Resolve_Layout_Dashboard(overrideLayoutType, dbName, cvName);
 			}
 
-			BRApi.ErrorLog.LogMessage(si, $"Get_Layout_Dashboard: LayoutType={layoutType}, DB_Name='{dbName}', CV_Name='{cvName}'");
-
-			return Resolve_Layout_Dashboard(layoutType, dbName, cvName);
-		}
-
-		/// <summary>
-		/// Pure mapping from a LayoutType (plus the row's DB_Name / CV_Name for the
-		/// column-driven cases) to a layout dashboard name. No SI / DB dependency.
-		/// </summary>
-		private string Resolve_Layout_Dashboard(int layoutType, string dbName, string cvName)
-		{
-			// Column-driven cases: name comes from the menu row, not the map.
-			if (layoutType == LayoutType_Dashboard || layoutType == LayoutType_CustomDB)
+			// 3) DB-driven: query DDM_DynDBMenuLayoutConfig for the currently selected menu.
+			var configMenuRow = DDM_Support.get_ConfigMenuRow(si, args.NameValuePairs);
+			if (configMenuRow == null)
 			{
-				return string.IsNullOrEmpty(dbName) ? DefaultDashboard : dbName;
-			}
-
-			if (layoutType == LayoutType_CubeView)
-			{
-				// The CV shell hosts the cube view; the caller sets CubeViewName from CV_Name.
-				return "DDM_App_Content_CV";
-			}
-
-			if (layoutType == LayoutType_None)
-			{
+				BRApi.ErrorLog.LogMessage(si, "Get_LayoutDB: no config row found; returning default.");
 				return DefaultDashboard;
 			}
 
-			// Fixed grid layouts (3-9).
-			string dashboardName;
-			return _layoutDashboards.TryGetValue(layoutType, out dashboardName)
-				? dashboardName
-				: DefaultDashboard;
+			BRApi.ErrorLog.LogMessage(si, $"Get_LayoutDB: currDB='{currDB}'");
+
+			// 4) Delegate to DDM_Support (which uses DDM_ConfigHelpers) to resolve the dashboard
+			//    for the specific context (pane) that called this XFBR.
+			var paneBinding = DDM_Support.get_PaneBinding(configMenuRow, currDB);
+			BRApi.ErrorLog.LogMessage(si, $"Get_LayoutDB: resolved to '{paneBinding.DashboardName}'");
+			return paneBinding.DashboardName;
+		}
+
+		/// <summary>
+		/// Maps an explicit LayoutType override (plus optional DB_Name / CV_Name) to a layout
+		/// dashboard name, using <see cref="DDM_ConfigHelpers.LayoutType"/> enum values.
+		/// Only used for the NameValuePairs override path; the DB-driven path uses
+		/// <see cref="DDM_Support.get_PaneBinding"/> instead.
+		/// </summary>
+		private string Resolve_Layout_Dashboard(int layoutTypeInt, string dbName, string cvName)
+		{
+			switch ((DDM_ConfigHelpers.LayoutType)layoutTypeInt)
+			{
+				case DDM_ConfigHelpers.LayoutType.Dashboard:
+				case DDM_ConfigHelpers.LayoutType.Dashboard_CustomDB:
+					return string.IsNullOrEmpty(dbName) ? DefaultDashboard : dbName;
+
+				case DDM_ConfigHelpers.LayoutType.CubeView:
+					// The CV shell hosts the cube view; the caller sets CubeViewName from CV_Name.
+					return "DDM_App_Content_CV";
+
+				case DDM_ConfigHelpers.LayoutType.None:
+					return DefaultDashboard;
+
+				case DDM_ConfigHelpers.LayoutType.Dashboard_TopBottom:    return "DDM_App_Content_TB_DB";
+				case DDM_ConfigHelpers.LayoutType.Dashboard_LeftRight:    return "DDM_App_Content_LR_DB";
+				case DDM_ConfigHelpers.LayoutType.Dashboard_2Top1Bottom:  return "DDM_App_Content_2T1B_DB";
+				case DDM_ConfigHelpers.LayoutType.Dashboard_1Top2Bottom:  return "DDM_App_Content_1T2B_DB";
+				case DDM_ConfigHelpers.LayoutType.Dashboard_2Left1Right:  return "DDM_App_Content_2L1R_DB";
+				case DDM_ConfigHelpers.LayoutType.Dashboard_1Left2Right:  return "DDM_App_Content_1L2R_DB";
+				case DDM_ConfigHelpers.LayoutType.Dashboard_2x2:          return "DDM_App_Content_2x2_DB";
+
+				default:
+					return DefaultDashboard;
+			}
 		}
 		#endregion
 	}
