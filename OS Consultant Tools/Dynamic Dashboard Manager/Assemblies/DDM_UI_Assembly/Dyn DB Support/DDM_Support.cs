@@ -31,17 +31,6 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
         private const string DefaultLayoutDashboardName = "DDM_App_Content_DB";
         private const string DefaultCubeViewName = "Default";
 
-        private static readonly Dictionary<int, string> LayoutDashboardMap = new Dictionary<int, string>
-        {
-            { (int)DDM_ConfigHelpers.LayoutType.Dashboard_TopBottom, "DDM_App_Content_TB_DB" },
-            { (int)DDM_ConfigHelpers.LayoutType.Dashboard_LeftRight, "DDM_App_Content_LR_DB" },
-            { (int)DDM_ConfigHelpers.LayoutType.Dashboard_2Top1Bottom, "DDM_App_Content_2T1B_DB" },
-            { (int)DDM_ConfigHelpers.LayoutType.Dashboard_1Top2Bottom, "DDM_App_Content_1T2B_DB" },
-            { (int)DDM_ConfigHelpers.LayoutType.Dashboard_2Left1Right, "DDM_App_Content_2L1R_DB" },
-            { (int)DDM_ConfigHelpers.LayoutType.Dashboard_1Left2Right, "DDM_App_Content_1L2R_DB" },
-            { (int)DDM_ConfigHelpers.LayoutType.Dashboard_2x2, "DDM_App_Content_2x2_DB" }
-        };
-
         public class DDM_PaneBinding
         {
             public DDM_ConfigHelpers.DBPaneContents ContentType { get; set; } = DDM_ConfigHelpers.DBPaneContents.Dashboard;
@@ -232,20 +221,20 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
             }
 
             int layoutType = get_IntColumn(configMenuRow, "LayoutType", (int)DDM_ConfigHelpers.LayoutType.None);
-            switch ((DDM_ConfigHelpers.LayoutType)layoutType)
+            return (DDM_ConfigHelpers.LayoutType)layoutType switch
             {
-                case DDM_ConfigHelpers.LayoutType.Dashboard:
-                case DDM_ConfigHelpers.LayoutType.Dashboard_CustomDB:
-                    return get_StringColumn(configMenuRow, "DB_Name", DefaultLayoutDashboardName);
-
-                case DDM_ConfigHelpers.LayoutType.CubeView:
-                    return "DDM_App_Content_CV";
-            }
-
-            string mappedDashboard;
-            return LayoutDashboardMap.TryGetValue(layoutType, out mappedDashboard)
-                ? mappedDashboard
-                : DefaultLayoutDashboardName;
+                DDM_ConfigHelpers.LayoutType.Dashboard or
+                DDM_ConfigHelpers.LayoutType.Dashboard_CustomDB    => get_StringColumn(configMenuRow, "DB_Name", DefaultLayoutDashboardName),
+                DDM_ConfigHelpers.LayoutType.CubeView              => "DDM_App_Content_CV",
+                DDM_ConfigHelpers.LayoutType.Dashboard_TopBottom   => "DDM_App_Content_TB_DB",
+                DDM_ConfigHelpers.LayoutType.Dashboard_LeftRight   => "DDM_App_Content_LR_DB",
+                DDM_ConfigHelpers.LayoutType.Dashboard_2Top1Bottom => "DDM_App_Content_2T1B_DB",
+                DDM_ConfigHelpers.LayoutType.Dashboard_1Top2Bottom => "DDM_App_Content_1T2B_DB",
+                DDM_ConfigHelpers.LayoutType.Dashboard_2Left1Right => "DDM_App_Content_2L1R_DB",
+                DDM_ConfigHelpers.LayoutType.Dashboard_1Left2Right => "DDM_App_Content_1L2R_DB",
+                DDM_ConfigHelpers.LayoutType.Dashboard_2x2        => "DDM_App_Content_2x2_DB",
+                _                                                  => DefaultLayoutDashboardName
+            };
         }
 
         public static DDM_PaneBinding get_PaneBinding(DataRow configMenuRow, string dynamicDashboardName)
