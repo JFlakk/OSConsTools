@@ -6,6 +6,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using Microsoft.CSharp;
+using Microsoft.Data.SqlClient;
 using OneStream.Finance.Database;
 using OneStream.Finance.Engine;
 using OneStream.Shared.Common;
@@ -20,7 +21,7 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardS
 {
 	public class MainClass
 	{
-		#region "Global Variables"
+        #region "Global Variables"
         private SessionInfo si;
         private BRGlobals globals;
         private object api;
@@ -33,23 +34,13 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardS
 		{
 			try
 			{
-				if (args.FunctionName.XFEqualsIgnoreCase("SayHello"))
-				{
-					return "Hello";
-				}
-
-				// Resolve the content layout dashboard for the menu the user is currently on.
-				// Self-contained: reads the selected menu from the dashboard's substitution
-				// variables (BL_DDM_App_Menu) and looks up its LayoutType / DB_Name / CV_Name
-				// from DDM_DynDBMenuLayoutConfig. No caller arguments required.
-				//
-				// Optional NameValuePairs overrides (handy for testing / explicit calls):
-				//   LayoutType - integer matching DDM_ConfigHelpers.LayoutType
-				//   DB_Name    - dashboard name for Dashboard(1) / CustomDB(10)
-				//   CV_Name    - cube view name for CubeView(2)
+				this.si = si;
+                this.globals = globals;
+                this.api = api;
+                this.args = args;
 				if (args.FunctionName.XFEqualsIgnoreCase("Get_LayoutDB"))
 				{
-					return Get_LayoutDB(si, args);
+					return Get_LayoutDB();
 				}
 
 				return null;
@@ -61,28 +52,30 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardS
 		}
 
 		#region "Layout Dashboard Resolver"
-		/// <summary>
-		/// Returns the content layout dashboard name for the pane / dashboard that called this XFBR.
-		/// <para>
-		/// The caller passes <c>currDB</c> (the name of the dashboard calling this function) via
-		/// NameValuePairs so the method knows which content area needs to be resolved.  The selected
-		/// menu is read from <c>BL_DDM_App_Menu</c>, the DB is queried for that menu's config row,
-		/// and <see cref="DDM_Support.get_PaneBinding"/> (which delegates to
-		/// <see cref="DDM_ConfigHelpers"/>) maps the config to the correct dashboard name.
-		/// </para>
-		/// Optional NameValuePairs overrides (handy for testing / explicit calls):
-		/// <list type="bullet">
-		///   <item><c>LayoutType</c> – integer matching <see cref="DDM_ConfigHelpers.LayoutType"/></item>
-		///   <item><c>DB_Name</c>   – dashboard name for Dashboard(1) / CustomDB(10)</item>
-		///   <item><c>CV_Name</c>   – cube view name for CubeView(2)</item>
-		/// </list>
-		/// </summary>
-		private string Get_LayoutDB(SessionInfo si, DashboardStringFunctionArgs args)
+		private string Get_LayoutDB()
 		{
-			// 1) Identify which dashboard is calling this XFBR so multi-pane layouts can resolve
-			//    the correct pane content.  Defaults to the top-level content DB.
-			var currDB = args.NameValuePairs.XFGetValue("currDB", "DDM_App_Content_DB");
-
+			var AppMenuID = args.NameValuePairs.XFGetValue("BL_DDM_AppMenu", "NA");
+			
+			var dt = new DataTable("DDM_DynDBMenuLayoutConfig");
+			var dbConnApp = BRApi.Database.CreateApplicationDbConnInfo(si);
+			
+			using (var connection = new SqlConnection(dbConnApp.ConnectionString))
+			{
+			    var sql_gbl_get_datasets = new GBL_UI_Assembly.SQL_GBL_Get_DataSets(si, connection);
+			    var sqa = new SqlDataAdapter();
+			
+			    var sql = @"
+			        SELECT LayoutType
+			        FROM dbo.DDM_DynDBMenuLayoutConfig
+			        WHERE DynDBMenuID = @DynDBMenuID";
+			
+			    var sqlparams = new[]
+			    {
+			        new SqlParameter("@DynDBMenuID", SqlDbType.Int) { Value = AppMenuID }
+			    };
+			
+			    sql_gbl_get_datasets.Fill_Get_GBL_DT(si, sqa, dt, sql, sqlparams);
+			}
 			// 2) Allow an explicit LayoutType override via NameValuePairs (testing / direct calls).
 			var layoutTypeOverride = args.NameValuePairs.XFGetValue("LayoutType", string.Empty);
 			if (!string.IsNullOrEmpty(layoutTypeOverride) && int.TryParse(layoutTypeOverride, out int overrideLayoutType))
