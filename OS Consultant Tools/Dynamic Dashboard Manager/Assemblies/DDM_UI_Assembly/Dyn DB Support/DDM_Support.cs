@@ -220,11 +220,11 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
                 return DefaultLayoutDashboardName;
             }
 
-            int layoutType = get_IntColumn(configMenuRow, "LayoutType", (int)DDM_ConfigHelpers.LayoutType.None);
+            int layoutType = GBL_UI_Assembly.GBL_Helpers.GetIntColumn(configMenuRow, "LayoutType", (int)DDM_ConfigHelpers.LayoutType.None);
             return (DDM_ConfigHelpers.LayoutType)layoutType switch
             {
                 DDM_ConfigHelpers.LayoutType.Dashboard or
-                DDM_ConfigHelpers.LayoutType.Dashboard_CustomDB    => get_StringColumn(configMenuRow, "DB_Name", DefaultLayoutDashboardName),
+                DDM_ConfigHelpers.LayoutType.Dashboard_CustomDB    => GBL_UI_Assembly.GBL_Helpers.GetStringColumn(configMenuRow, "DB_Name", DefaultLayoutDashboardName),
                 DDM_ConfigHelpers.LayoutType.CubeView              => "DDM_App_Content_CV",
                 DDM_ConfigHelpers.LayoutType.Dashboard_TopBottom   => "DDM_App_Content_TB_DB",
                 DDM_ConfigHelpers.LayoutType.Dashboard_LeftRight   => "DDM_App_Content_LR_DB",
@@ -245,7 +245,7 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
                 return paneBinding;
             }
 
-            int layoutType = get_IntColumn(configMenuRow, "LayoutType", (int)DDM_ConfigHelpers.LayoutType.None);
+            int layoutType = GBL_UI_Assembly.GBL_Helpers.GetIntColumn(configMenuRow, "LayoutType", (int)DDM_ConfigHelpers.LayoutType.None);
             var paneName = get_PaneName(dynamicDashboardName);
 
             if (dynamicDashboardName.XFEqualsIgnoreCase("DDM_App_Content_DB"))
@@ -254,7 +254,7 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
                 if (layoutType == (int)DDM_ConfigHelpers.LayoutType.CubeView)
                 {
                     paneBinding.ContentType = DDM_ConfigHelpers.DBPaneContents.CubeView;
-                    paneBinding.CubeViewName = get_StringColumn(configMenuRow, "CV_Name", DefaultCubeViewName);
+                    paneBinding.CubeViewName = GBL_UI_Assembly.GBL_Helpers.GetStringColumn(configMenuRow, "CV_Name", DefaultCubeViewName);
                 }
                 else
                 {
@@ -347,7 +347,7 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
             foreach (var columnName in typeColumnCandidates)
             {
                 int parsedType;
-                if (try_GetIntColumn(row, columnName, out parsedType))
+                if (GBL_UI_Assembly.GBL_Helpers.TryGetIntColumn(row, columnName, out parsedType))
                 {
                     if (parsedType == (int)DDM_ConfigHelpers.DBPaneContents.CubeView
                         || parsedType == (int)DDM_ConfigHelpers.LayoutType.CubeView)
@@ -403,7 +403,7 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
 
             foreach (var columnName in candidateColumns)
             {
-                var columnValue = get_StringColumn(row, columnName, string.Empty);
+                var columnValue = GBL_UI_Assembly.GBL_Helpers.GetStringColumn(row, columnName, string.Empty);
                 if (!string.IsNullOrEmpty(columnValue))
                 {
                     return columnValue;
@@ -411,35 +411,6 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
             }
 
             return isCubeView ? DefaultCubeViewName : DefaultLayoutDashboardName;
-        }
-
-        private static bool try_GetIntColumn(DataRow row, string columnName, out int value)
-        {
-            value = 0;
-            if (row == null || !row.Table.Columns.Contains(columnName) || row[columnName] == DBNull.Value)
-            {
-                return false;
-            }
-            return int.TryParse(row[columnName].ToString(), out value);
-        }
-
-        private static int get_IntColumn(DataRow row, string columnName, int defaultValue)
-        {
-            int columnValue;
-            return try_GetIntColumn(row, columnName, out columnValue) ? columnValue : defaultValue;
-        }
-
-        private static string get_StringColumn(DataRow row, string columnName, string defaultValue)
-        {
-            if (row != null && row.Table.Columns.Contains(columnName) && row[columnName] != DBNull.Value)
-            {
-                var value = row[columnName].ToString();
-                if (!string.IsNullOrEmpty(value))
-                {
-                    return value;
-                }
-            }
-            return defaultValue;
         }
 
         public static DataTable get_HeaderItems(SessionInfo si, Dictionary<string, string> customSubstVarsAlreadyResolved, int option_Type)
