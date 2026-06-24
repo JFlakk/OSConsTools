@@ -109,15 +109,15 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardE
 				{
 				    if (show_hide_val == "Hide")
 				    {
-				        UpdateCustomSubstVar(Load_Dashboard_Task_Result, "IV_DDM_App_Display_Show_Menu_Btn", "True");
-				        UpdateCustomSubstVar(Load_Dashboard_Task_Result, "IV_DDM_App_Display_Hide_Menu_Btn", "False");
-				        UpdateCustomSubstVar(Load_Dashboard_Task_Result, "IV_DDM_App_Menu_Width", "0");
+				        GBL_UI_Assembly.GBL_Helpers.UpdateLoadDashboardSubstVar(Load_Dashboard_Task_Result, "IV_DDM_App_Display_Show_Menu_Btn", "True");
+				        GBL_UI_Assembly.GBL_Helpers.UpdateLoadDashboardSubstVar(Load_Dashboard_Task_Result, "IV_DDM_App_Display_Hide_Menu_Btn", "False");
+				        GBL_UI_Assembly.GBL_Helpers.UpdateLoadDashboardSubstVar(Load_Dashboard_Task_Result, "IV_DDM_App_Menu_Width", "0");
 				    }
 				    else if (show_hide_val == "Show")
 				    {
-				        UpdateCustomSubstVar(Load_Dashboard_Task_Result, "IV_DDM_App_Display_Show_Menu_Btn", "False");
-				        UpdateCustomSubstVar(Load_Dashboard_Task_Result, "IV_DDM_App_Display_Hide_Menu_Btn", "True");
-				        UpdateCustomSubstVar(Load_Dashboard_Task_Result, "IV_DDM_App_Menu_Width", "Auto");
+				        GBL_UI_Assembly.GBL_Helpers.UpdateLoadDashboardSubstVar(Load_Dashboard_Task_Result, "IV_DDM_App_Display_Show_Menu_Btn", "False");
+				        GBL_UI_Assembly.GBL_Helpers.UpdateLoadDashboardSubstVar(Load_Dashboard_Task_Result, "IV_DDM_App_Display_Hide_Menu_Btn", "True");
+				        GBL_UI_Assembly.GBL_Helpers.UpdateLoadDashboardSubstVar(Load_Dashboard_Task_Result, "IV_DDM_App_Menu_Width", "Auto");
 				    }
 				}
                 Load_Dashboard_Task_Result = Get_Default_Menu_Options(si, globals, api, db_args, Load_Dashboard_Task_Result, wfUnitPk.ProfileKey, "Post-Initial");
@@ -134,15 +134,15 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardE
 				{
 				    if (show_hide_val == "Hide")
 				    {
-				        UpdateCustomSubstVar(Load_Dashboard_Task_Result, "IV_DDM_App_Display_Show_Menu_Btn", "True");
-				        UpdateCustomSubstVar(Load_Dashboard_Task_Result, "IV_DDM_App_Display_Hide_Menu_Btn", "False");
-				        UpdateCustomSubstVar(Load_Dashboard_Task_Result, "IV_DDM_App_Menu_Width", "0");
+				        GBL_UI_Assembly.GBL_Helpers.UpdateLoadDashboardSubstVar(Load_Dashboard_Task_Result, "IV_DDM_App_Display_Show_Menu_Btn", "True");
+				        GBL_UI_Assembly.GBL_Helpers.UpdateLoadDashboardSubstVar(Load_Dashboard_Task_Result, "IV_DDM_App_Display_Hide_Menu_Btn", "False");
+				        GBL_UI_Assembly.GBL_Helpers.UpdateLoadDashboardSubstVar(Load_Dashboard_Task_Result, "IV_DDM_App_Menu_Width", "0");
 				    }
 				    else if (show_hide_val == "Show")
 				    {
-				        UpdateCustomSubstVar(Load_Dashboard_Task_Result, "IV_DDM_App_Display_Show_Menu_Btn", "False");
-				        UpdateCustomSubstVar(Load_Dashboard_Task_Result, "IV_DDM_App_Display_Hide_Menu_Btn", "True");
-				        UpdateCustomSubstVar(Load_Dashboard_Task_Result, "IV_DDM_App_Menu_Width", "Auto");
+				        GBL_UI_Assembly.GBL_Helpers.UpdateLoadDashboardSubstVar(Load_Dashboard_Task_Result, "IV_DDM_App_Display_Show_Menu_Btn", "False");
+				        GBL_UI_Assembly.GBL_Helpers.UpdateLoadDashboardSubstVar(Load_Dashboard_Task_Result, "IV_DDM_App_Display_Hide_Menu_Btn", "True");
+				        GBL_UI_Assembly.GBL_Helpers.UpdateLoadDashboardSubstVar(Load_Dashboard_Task_Result, "IV_DDM_App_Menu_Width", "Auto");
 				    }
 				}
                 Load_Dashboard_Task_Result = Get_Default_Menu_Options(si, globals, api, db_args, Load_Dashboard_Task_Result, wfUnitPk.ProfileKey, "Post-Initial");
@@ -203,7 +203,7 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardE
             {
                 DataRow row = dt.Rows[0];
 
-                 UpdateCustomSubstVar(XF_Load_Dashboard_Task_Result, "BL_DDM_App_Menu", row["DynDBMenuID"].ToString());
+                 GBL_UI_Assembly.GBL_Helpers.UpdateLoadDashboardSubstVar(XF_Load_Dashboard_Task_Result, "BL_DDM_App_Menu", row["DynDBMenuID"].ToString());
   
             }
 			
@@ -211,18 +211,6 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardE
             return XF_Load_Dashboard_Task_Result;
         }
 
-
-        private void UpdateCustomSubstVar(XFLoadDashboardTaskResult result, string key, string value)
-        {
-            if (result.ModifiedCustomSubstVars.ContainsKey(key))
-            {
-                result.ModifiedCustomSubstVars.XFSetValue(key, value);
-            }
-            else
-            {
-                result.ModifiedCustomSubstVars.Add(key, value);
-            }
-        }
 
         #endregion
 
