@@ -75,8 +75,10 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
         internal static WsDynamicComponentCollection get_DynamicComponentContent(SessionInfo si, IWsasDynamicDashboardsApiV800 api, DashboardWorkspace workspace,
             DashboardMaintUnit maintUnit, WsDynamicDashboardEx dynamicDashboardEx, Dictionary<string, string> customSubstVarsAlreadyResolved)
 		{
+			BRApi.ErrorLog.LogMessage(si,"HIt Here");
             var configMenuRow = DDM_Support.get_ConfigMenuRow(si, customSubstVarsAlreadyResolved);
-            var paneBinding = DDM_Support.get_PaneBinding(configMenuRow, dynamicDashboardEx.DynamicDashboard.Name);
+			BRApi.ErrorLog.LogMessage(si,"HIt Here 2");
+            var paneBinding = DDM_Support.get_PaneBinding(si, configMenuRow, dynamicDashboardEx.DynamicDashboard.Name);
 
             BRApi.ErrorLog.LogMessage(si, $"DDM content binding: Dashboard={dynamicDashboardEx.DynamicDashboard.Name}, Type={paneBinding.ContentType}, DashboardTarget={paneBinding.DashboardName}, CubeViewTarget={paneBinding.CubeViewName}");
 
@@ -97,7 +99,7 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
                 bindingApplied = try_BindEmbeddedDashboard(dynComponents, paneBinding.DashboardName);
                 if (!bindingApplied)
                 {
-                    bindingApplied = try_BindEmbeddedDashboardByName(dynComponents, "emb_Dynamic_DDM_App_Content_DB", paneBinding.DashboardName);
+                    bindingApplied = try_BindEmbeddedDashboardByName(dynComponents, "Embedded DDM_App_Content_DB", paneBinding.DashboardName);
                 }
             }
 
