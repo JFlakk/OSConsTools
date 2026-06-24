@@ -237,7 +237,7 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
             };
         }
 
-        public static DDM_PaneBinding get_PaneBinding(DataRow configMenuRow, string dynamicDashboardName)
+        public static DDM_PaneBinding get_PaneBinding(SessionInfo si, DataRow configMenuRow, string dynamicDashboardName)
         {
             var paneBinding = new DDM_PaneBinding();
             if (configMenuRow == null)
@@ -245,9 +245,11 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
                 return paneBinding;
             }
 
+			BRApi.ErrorLog.LogMessage(si,$"Hit5");
             int layoutType = GBL_UI_Assembly.GBL_Helpers.GetIntColumn(configMenuRow, "LayoutType", (int)DDM_ConfigHelpers.LayoutType.None);
-            var paneName = get_PaneName(dynamicDashboardName);
-
+			BRApi.ErrorLog.LogMessage(si,$"Hit6");
+            var paneName = dynamicDashboardName;
+BRApi.ErrorLog.LogMessage(si,$"Hit7");
             if (dynamicDashboardName.XFEqualsIgnoreCase("DDM_App_Content_DB"))
             {
                 paneBinding.DashboardName = get_LayoutDashboardName(configMenuRow);
@@ -297,14 +299,17 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
         private static string get_PaneName(string dynamicDashboardName)
         {
             const string prefix = "DDM_App_Content_";
-            const string suffix = "_DB";
+            const string suffix = "DB";
 
-            if (!string.IsNullOrEmpty(dynamicDashboardName)
-                && dynamicDashboardName.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)
-                && dynamicDashboardName.EndsWith(suffix, StringComparison.OrdinalIgnoreCase))
-            {
-                return dynamicDashboardName.Substring(prefix.Length, dynamicDashboardName.Length - prefix.Length - suffix.Length);
-            }
+			if (!string.IsNullOrEmpty(dynamicDashboardName)
+			    && dynamicDashboardName.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)
+			    && dynamicDashboardName.EndsWith(suffix, StringComparison.OrdinalIgnoreCase)
+			    && !dynamicDashboardName.Equals(prefix + suffix, StringComparison.OrdinalIgnoreCase)) // Ensures it's not just Prefix + Suffix
+			{
+			    return dynamicDashboardName.Substring(prefix.Length, dynamicDashboardName.Length - prefix.Length - suffix.Length);
+			}
+			else if (dynamicDashboardName.Equals(prefix + suffix, StringComparison.OrdinalIgnoreCase))
+			{}
 
             return string.Empty;
         }
