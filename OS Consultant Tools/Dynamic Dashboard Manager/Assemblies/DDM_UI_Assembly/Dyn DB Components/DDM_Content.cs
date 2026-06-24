@@ -106,16 +106,18 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
 		        // If binding to an existing placeholder failed, dynamically create and append the component.
 		        if (!bindingApplied && !string.IsNullOrWhiteSpace(paneBinding.DashboardName))
 		        {
-		            var newEmbeddedDash = new WsDynamicDshbrd
-		                // Give it a safe, unique component name
-		                newEmbeddedDash.DynamicComponentEx.DynamicComponent.Component.Name = paneBinding.DashboardName.Replace(" ", ""); 
-		                newEmbeddedDash.DynamicComponentEx.DynamicComponent.Component.DashboardComponentType = DashboardComponentType.EmbeddedDashboard;
-		
-		            // Add the new component to the collection's items
-		            dynComponents.Components.Add(newEmbeddedDash);
-		            
-		            bindingApplied = true;
-		            BRApi.ErrorLog.LogMessage(si, $"DDM explicitly injected new Embedded Dashboard component for: {paneBinding.DashboardName}");
+		            var storedCompName = "Embedded " + dynamicDashboardEx.DynamicDashboard.Name;
+		            BRApi.ErrorLog.LogMessage(si, $"DDM injection: looking up stored component [{storedCompName}] for dashboard [{paneBinding.DashboardName}]");
+		            var storedComp = EngineDashboardComponents.GetComponent(api.DbConnAppOrFW, workspace.UniqueID, maintUnit.UniqueID, storedCompName, false, true);
+		            if (storedComp != null)
+		            {
+		                var newCompEx = api.GetDynamicComponentForDynamicDashboard(si, workspace, dynamicDashboardEx, storedComp, string.Empty, null, TriStateBool.TrueValue, WsDynamicItemStateType.EntireObject);
+		                newCompEx.DynamicComponent.Component.EmbeddedDashboardName = paneBinding.DashboardName;
+		                newCompEx.DynamicComponent.Component.Name = storedComp.Name;
+		                BRApi.ErrorLog.LogMessage(si, $"DDM explicitly injected Embedded Dashboard component [{storedComp.Name}] -> [{paneBinding.DashboardName}]");
+		                dynComponents.Components.Add(new WsDynamicDbrdCompMemberEx(new WsDynamicDbrdCompMember(), newCompEx));
+		                bindingApplied = true;
+		            }
 		        }
 		    }
 		
