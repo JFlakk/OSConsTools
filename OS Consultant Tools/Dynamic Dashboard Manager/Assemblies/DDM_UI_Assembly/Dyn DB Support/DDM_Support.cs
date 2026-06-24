@@ -26,7 +26,7 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
     {
         //Params
         public const string Param_CubeName = "IV_DDM_App_CubeName";
-        public const string Param_DashboardMenu = "BL_DDM_App_Menu";
+        public const string Param_DashboardMenu = "BL_DDM_AppMenu";
 
         private const string DefaultLayoutDashboardName = "DDM_App_Content_DB";
         private const string DefaultCubeViewName = "Default";
@@ -204,7 +204,7 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
 
         public static DataRow get_ConfigMenuRow(SessionInfo si, Dictionary<string, string> customSubstVars)
         {
-            int menuOptionID = get_SelectedMenu(si, customSubstVars);
+            var menuOptionID = get_SelectedMenu(si, customSubstVars);
             var configMenuDt = get_ConfigMenu(si, menuOptionID);
             if (configMenuDt != null && configMenuDt.Rows.Count > 0)
             {
