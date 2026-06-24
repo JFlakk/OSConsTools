@@ -3155,7 +3155,7 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
 			BRApi.ErrorLog.LogMessage(si,$"Hit5");
             int layoutType = GBL_UI_Assembly.GBL_Helpers.GetIntColumn(configMenuRow, "LayoutType", (int)DDM_ConfigHelpers.LayoutType.None);
 			BRApi.ErrorLog.LogMessage(si,$"Hit6");
-            var paneName = dynamicDashboardName;
+            var paneName = ExtractPaneIdentifier(dynamicDashboardName);
 BRApi.ErrorLog.LogMessage(si,$"Hit7");
             if (dynamicDashboardName.XFEqualsIgnoreCase("DDM_App_Content_DB"))
             {
@@ -3186,6 +3186,27 @@ BRApi.ErrorLog.LogMessage(si,$"Hit7");
             }
 
             return paneBinding;
+        }
+
+        // Extracts the bare pane identifier from a full content-dashboard name.
+        // e.g. "DDM_App_Content_B_DB"  -> "B"
+        //      "DDM_App_Content_TL_DB" -> "TL"
+        //      Any other name          -> returned unchanged
+        private static string ExtractPaneIdentifier(string dashboardName)
+        {
+            const string prefix = "DDM_App_Content_";
+            const string suffix = "_DB";
+            if (!string.IsNullOrEmpty(dashboardName)
+                && dashboardName.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)
+                && dashboardName.EndsWith(suffix, StringComparison.OrdinalIgnoreCase))
+            {
+                var paneLength = dashboardName.Length - prefix.Length - suffix.Length;
+                if (paneLength > 0)
+                {
+                    return dashboardName.Substring(prefix.Length, paneLength);
+                }
+            }
+            return dashboardName;
         }
 
         public static int get_SelectedMenu(SessionInfo si, Dictionary<string, string> customSubstVars)
