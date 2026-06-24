@@ -88,10 +88,17 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
             bool bindingApplied = false;
             if (paneBinding.ContentType == DDM_ConfigHelpers.DBPaneContents.CubeView)
             {
+                // First try to bind an existing CV component already in the collection
                 bindingApplied = try_BindCubeView(dynComponents, paneBinding.CubeViewName);
                 if (!bindingApplied)
                 {
                     bindingApplied = try_BindCubeViewByName(dynComponents, "cv_DDM_Dynamic", paneBinding.CubeViewName);
+                }
+
+                // If no CV component was found in the existing collection, add one dynamically
+                if (!bindingApplied)
+                {
+                    bindingApplied = try_AddCubeViewComponent(si, api, workspace, dynamicDashboardEx, dynComponents, paneBinding.CubeViewName);
                 }
             }
             else
@@ -109,6 +116,80 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
             }
 
               return dynComponents;
+        }
+
+        private static bool try_AddCubeViewComponent(SessionInfo si, IWsasDynamicDashboardsApiV800 api, DashboardWorkspace workspace,
+            WsDynamicDashboardEx dynamicDashboardEx, WsDynamicComponentCollection dynComponents, string cubeViewName)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(cubeViewName))
+                {
+                    cubeViewName = DefaultCubeViewName;
+                }
+
+                // Fetch the stored CV component template from the dashboard
+                var storedCvComponent = api.GetStoredComponentForDynamicDashboard(si, workspace, dynamicDashboardEx.DynamicDashboard, "cv_DDM_Dynamic");
+                if (storedCvComponent?.Component == null)
+                {
+                    BRApi.ErrorLog.LogMessage(si, "DDM: stored component 'cv_DDM_Dynamic' not found; cannot add CV component dynamically.");
+                    return false;
+                }
+
+                // Set the CubeViewName on the stored component's XmlData before adding
+                if (!string.IsNullOrEmpty(storedCvComponent.Component.XmlData))
+                {
+                    try
+                    {
+                        var xmlData = XElement.Parse(storedCvComponent.Component.XmlData);
+                        xmlData.SetElementValue("CubeViewName", cubeViewName);
+                        storedCvComponent.Component.XmlData = xmlData.ToString();
+                    }
+                    catch
+                    {
+                        // XmlData is not CV XML; proceed and let the dynamic component handle it
+                    }
+                }
+
+                // Build a dynamic component from the stored template
+                var cvDynComp = api.GetDynamicComponentForDynamicDashboard(si, workspace, dynamicDashboardEx,
+                    storedCvComponent.Component, string.Empty, null, TriStateBool.TrueValue, WsDynamicItemStateType.EntireObject);
+
+                if (cvDynComp?.DynamicComponent?.Component == null)
+                {
+                    BRApi.ErrorLog.LogMessage(si, "DDM: failed to get dynamic CV component from stored template.");
+                    return false;
+                }
+
+                // Apply the CubeViewName to the resolved dynamic component as well
+                if (!string.IsNullOrEmpty(cvDynComp.DynamicComponent.Component.XmlData))
+                {
+                    try
+                    {
+                        var xmlData = XElement.Parse(cvDynComp.DynamicComponent.Component.XmlData);
+                        if (xmlData.Element("CubeViewName") != null)
+                        {
+                            xmlData.SetElementValue("CubeViewName", cubeViewName);
+                            cvDynComp.DynamicComponent.Component.XmlData = xmlData.ToString();
+                        }
+                    }
+                    catch
+                    {
+                        // Not CV XML; ignore
+                    }
+                }
+
+                var compMember = new WsDynamicDbrdCompMember();
+                dynComponents.Components.Add(new WsDynamicDbrdCompMemberEx(compMember, cvDynComp));
+
+                BRApi.ErrorLog.LogMessage(si, $"DDM: dynamically added CV component '{cvDynComp.DynamicComponent.Component.Name}' with CubeView='{cubeViewName}'.");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                BRApi.ErrorLog.LogMessage(si, $"DDM: error adding CV component dynamically: {ex.Message}");
+                return false;
+            }
         }
 		
         // menu label
