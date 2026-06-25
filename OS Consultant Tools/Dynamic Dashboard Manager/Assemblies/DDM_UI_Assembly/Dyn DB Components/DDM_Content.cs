@@ -76,16 +76,28 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
 		    DashboardMaintUnit maintUnit, WsDynamicDashboardEx dynamicDashboardEx, Dictionary<string, string> customSubstVarsAlreadyResolved)
 		{
 		    var configMenuRow = DDM_Support.get_ConfigMenuRow(si, customSubstVarsAlreadyResolved);
-			var dbName = configMenuRow["DB_Name"]?.ToString();
-		    //var paneBinding = DDM_Support.get_PaneBinding(si, configMenuRow, dynamicDashboardEx.DynamicDashboard.Name);
-		
+		    var paneBinding = DDM_Support.get_PaneBinding(si, configMenuRow, dynamicDashboardEx.DynamicDashboard.Name);
+
 		    var dynComponents = api.GetDynamicComponentsForDynamicDashboard(si, workspace, dynamicDashboardEx, string.Empty, null, TriStateBool.Unknown, WsDynamicItemStateType.Unknown);
-			//var bindingApplied = try_BindEmbeddedDashboard(dynComponents, dbName);
-			
-			BRApi.ErrorLog.LogMessage(si, $"No Embedded {dynamicDashboardEx.DynamicDashboard.Name} - Embedded {dbName}");
+
+		    BRApi.ErrorLog.LogMessage(si, $"DDM: Pane [{dynamicDashboardEx.DynamicDashboard.Name}] ContentType=[{paneBinding.ContentType}] DB=[{paneBinding.DashboardName}] CV=[{paneBinding.CubeViewName}]");
+
+		    // --- CubeView pane ---
+		    if (paneBinding.ContentType == DDM_ConfigHelpers.DBPaneContents.CubeView)
+		    {
+		        var boundCV = try_BindCubeViewByName(dynComponents, dynamicDashboardEx.DynamicDashboard.Name, paneBinding.CubeViewName);
+		        if (!boundCV)
+		        {
+		            try_BindCubeView(dynComponents, paneBinding.CubeViewName);
+		        }
+		        return dynComponents;
+		    }
+
+		    // --- Dashboard (SB / Scoreboard) pane ---
+		    var dbName = paneBinding.DashboardName;
 
 			var compMbr = dynComponents.GetComponentUsingBasedOnName(dynamicDashboardEx.DynamicDashboard.Name);
-		
+
 		    if (compMbr?.DynamicComponentEx?.DynamicComponent?.Component != null)
 		    {
 		        compMbr.DynamicComponentEx.DynamicComponent.Component.EmbeddedDashboardName = dbName;
@@ -93,8 +105,8 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
 		    }
 			var wsID = BRApi.Dashboards.Workspaces.GetWorkspaceIDFromName(si, false, "10 CMD PGM");
 			var mu = BRApi.Dashboards.MaintUnits.GetMaintUnit(si, false, wsID, "CMD PGM WF");
-		
-		    // 2) No component exists in workspace setup, so inject one dynamically
+
+		    // No component exists in workspace setup, so inject one dynamically
 		    var storedCompName = $"Embedded {dbName}";
 		    var storedComp = EngineDashboardComponents.GetComponent(
 		        api.DbConnAppOrFW,
@@ -104,13 +116,13 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
 		        false,
 		        true
 		    );
-		
+
 		    if (storedComp == null)
 		    {
 		        BRApi.ErrorLog.LogMessage(si, $"DDM: Could not find stored component [{storedCompName}] in maint unit.");
 		        return dynComponents;
 		    }
-		
+
 		    var newCompEx = api.GetDynamicComponentForDynamicDashboard(
 		        si,
 		        workspace,
@@ -121,25 +133,25 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
 		        TriStateBool.TrueValue,
 		        WsDynamicItemStateType.EntireObject
 		    );
-		
+
 		    if (newCompEx?.DynamicComponent?.Component == null)
 		    {
 		        BRApi.ErrorLog.LogMessage(si, "DDM: newCompEx returned null component; cannot inject.");
 		        return dynComponents;
 		    }
-		
+
 		    newCompEx.DynamicComponent.Component.EmbeddedDashboardName = dbName;
 		    newCompEx.DynamicComponent.Component.Name = storedComp.Name;
 
 			var newMember = new WsDynamicDbrdCompMemberEx();
-			newMember.DynamicComponentEx = newCompEx;   // <-- if your property is named differently, use that name
-			
+			newMember.DynamicComponentEx = newCompEx;
+
 			dynComponents.Components.Add(newMember);
-		
+
 		    BRApi.ErrorLog.LogMessage(si, $"DDM: Injected new embedded component [{storedComp.Name}] -> [{dbName}]");
 		    return dynComponents;
 		}
-		
+
         // menu label
         internal static WsDynamicDashboardEx get_DynamicContent(SessionInfo si, IWsasDynamicDashboardsApiV800 api, DashboardWorkspace workspace, DashboardMaintUnit maintUnit,
             WsDynamicComponentEx parentDynamicComponentEx, Dashboard storedDashboard, Dictionary<string, string> customSubstVarsAlreadyResolved)
