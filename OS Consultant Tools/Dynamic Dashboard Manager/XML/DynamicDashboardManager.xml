@@ -1445,6 +1445,7 @@
                                             <ScrollPosition>Default</ScrollPosition>
                                         </DashboardDefinition>
                                         <componentMembers>
+                                            <componentMember name="cv_DDM_Dynamic_App_Content" left="" top="" width="" height="" dockPosition="Left" />
                                             <componentMember name="sp_BL_DDM_AppMenu" left="" top="" width="" height="" dockPosition="Left" />
                                         </componentMembers>
                                     </dashboard>

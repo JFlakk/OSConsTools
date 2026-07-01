@@ -82,17 +82,9 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
 
 			BRApi.ErrorLog.LogMessage(si, $"DDM content: BasedOnName={dynamicDashboardEx.DynamicDashboard.BasedOnName}, ContentType={paneBinding.ContentType}, DB={paneBinding.DashboardName}, CV={paneBinding.CubeViewName}");
 
-			// When DDM_App_Content_DB is the single-pane container and the content type is
-			// CubeView, redirect to DDM_App_Content_CV.  Its own dynamic service call will
-			// bind the cube view name onto cv_DDM_Dynamic_App_Content.
-			if (paneBinding.ContentType == DDM_ConfigHelpers.DBPaneContents.CubeView
-			    && dynamicDashboardEx.DynamicDashboard.BasedOnName.XFEqualsIgnoreCase("DDM_App_Content_DB"))
-			{
-				return embed_Dashboard(si, api, dynComponents, dynamicDashboardEx, maintUnit, "DDM_App_Content_CV");
-			}
-
-			// When DDM_App_Content_CV (or a multi-pane pane dashboard) is rendered and the
-			// content type is CubeView, bind the cube view name directly.
+			// When the content type is CubeView, bind the cube view name onto
+			// cv_DDM_Dynamic_App_Content, which is embedded directly in the dashboard
+			// (DDM_App_Content_DB, DDM_App_Content_CV, or any multi-pane pane dashboard).
 			if (paneBinding.ContentType == DDM_ConfigHelpers.DBPaneContents.CubeView)
 			{
 				bool bound = try_BindCubeView(dynComponents, paneBinding.CubeViewName);
