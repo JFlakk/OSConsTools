@@ -76,44 +76,70 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
 		    DashboardMaintUnit maintUnit, WsDynamicDashboardEx dynamicDashboardEx, Dictionary<string, string> customSubstVarsAlreadyResolved)
 		{
 		    var configMenuRow = DDM_Support.get_ConfigMenuRow(si, customSubstVarsAlreadyResolved);
-			var dbName = configMenuRow["DB_Name"]?.ToString();
-		    //var paneBinding = DDM_Support.get_PaneBinding(si, configMenuRow, dynamicDashboardEx.DynamicDashboard.Name);
-		
+		    var paneBinding = DDM_Support.get_PaneBinding(si, configMenuRow, dynamicDashboardEx.DynamicDashboard.BasedOnName);
+
 		    var dynComponents = api.GetDynamicComponentsForDynamicDashboard(si, workspace, dynamicDashboardEx, string.Empty, null, TriStateBool.Unknown, WsDynamicItemStateType.Unknown);
-			//var bindingApplied = try_BindEmbeddedDashboard(dynComponents, dbName);
-			
-			BRApi.ErrorLog.LogMessage(si, $"No Embedded {dynamicDashboardEx.DynamicDashboard.Name} - Embedded {dbName}");
+
+			BRApi.ErrorLog.LogMessage(si, $"DDM content: BasedOnName={dynamicDashboardEx.DynamicDashboard.BasedOnName}, ContentType={paneBinding.ContentType}, DB={paneBinding.DashboardName}, CV={paneBinding.CubeViewName}");
+
+			// When DDM_App_Content_DB is the single-pane container and the content type is
+			// CubeView, redirect to DDM_App_Content_CV.  Its own dynamic service call will
+			// bind the cube view name onto cv_DDM_Dynamic_App_Content.
+			if (paneBinding.ContentType == DDM_ConfigHelpers.DBPaneContents.CubeView
+			    && dynamicDashboardEx.DynamicDashboard.BasedOnName.XFEqualsIgnoreCase("DDM_App_Content_DB"))
+			{
+				return embed_Dashboard(si, api, dynComponents, dynamicDashboardEx, maintUnit, "DDM_App_Content_CV");
+			}
+
+			// When DDM_App_Content_CV (or a multi-pane pane dashboard) is rendered and the
+			// content type is CubeView, bind the cube view name directly.
+			if (paneBinding.ContentType == DDM_ConfigHelpers.DBPaneContents.CubeView)
+			{
+				bool bound = try_BindCubeView(dynComponents, paneBinding.CubeViewName);
+				if (!bound)
+				{
+					try_BindCubeViewByName(dynComponents, "cv_DDM_Dynamic_App_Content", paneBinding.CubeViewName);
+				}
+				return dynComponents;
+			}
+
+			// Dashboard content: embed the target dashboard inside the pane container.
+			return embed_Dashboard(si, api, dynComponents, dynamicDashboardEx, maintUnit, paneBinding.DashboardName);
+		}
+
+		private static WsDynamicComponentCollection embed_Dashboard(SessionInfo si, IWsasDynamicDashboardsApiV800 api, WsDynamicComponentCollection dynComponents,
+		    WsDynamicDashboardEx dynamicDashboardEx, DashboardMaintUnit maintUnit, string dashboardName)
+		{
+			BRApi.ErrorLog.LogMessage(si, $"DDM embed: {dynamicDashboardEx.DynamicDashboard.Name} -> {dashboardName}");
 
 			var compMbr = dynComponents.GetComponentUsingBasedOnName(dynamicDashboardEx.DynamicDashboard.Name);
-		
+
 		    if (compMbr?.DynamicComponentEx?.DynamicComponent?.Component != null)
 		    {
-		        compMbr.DynamicComponentEx.DynamicComponent.Component.EmbeddedDashboardName = dbName;
+		        compMbr.DynamicComponentEx.DynamicComponent.Component.EmbeddedDashboardName = dashboardName;
 		        return dynComponents;
 		    }
-			var wsID = BRApi.Dashboards.Workspaces.GetWorkspaceIDFromName(si, false, "10 CMD PGM");
-			var mu = BRApi.Dashboards.MaintUnits.GetMaintUnit(si, false, wsID, "CMD PGM WF");
-		
-		    // 2) No component exists in workspace setup, so inject one dynamically
-		    var storedCompName = $"Embedded {dbName}";
+
+		    // No component exists in workspace setup, so inject one dynamically.
+		    var storedCompName = $"Embedded {dashboardName}";
 		    var storedComp = EngineDashboardComponents.GetComponent(
 		        api.DbConnAppOrFW,
-		        mu.WorkspaceID,
-		        mu.UniqueID,
+		        maintUnit.WorkspaceID,
+		        maintUnit.UniqueID,
 		        storedCompName,
 		        false,
 		        true
 		    );
-		
+
 		    if (storedComp == null)
 		    {
 		        BRApi.ErrorLog.LogMessage(si, $"DDM: Could not find stored component [{storedCompName}] in maint unit.");
 		        return dynComponents;
 		    }
-		
+
 		    var newCompEx = api.GetDynamicComponentForDynamicDashboard(
 		        si,
-		        workspace,
+		        dynamicDashboardEx.DynamicDashboard.Workspace,
 		        dynamicDashboardEx,
 		        storedComp,
 		        string.Empty,
@@ -121,22 +147,22 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
 		        TriStateBool.TrueValue,
 		        WsDynamicItemStateType.EntireObject
 		    );
-		
+
 		    if (newCompEx?.DynamicComponent?.Component == null)
 		    {
 		        BRApi.ErrorLog.LogMessage(si, "DDM: newCompEx returned null component; cannot inject.");
 		        return dynComponents;
 		    }
-		
-		    newCompEx.DynamicComponent.Component.EmbeddedDashboardName = dbName;
+
+		    newCompEx.DynamicComponent.Component.EmbeddedDashboardName = dashboardName;
 		    newCompEx.DynamicComponent.Component.Name = storedComp.Name;
 
 			var newMember = new WsDynamicDbrdCompMemberEx();
-			newMember.DynamicComponentEx = newCompEx;   // <-- if your property is named differently, use that name
-			
+			newMember.DynamicComponentEx = newCompEx;
+
 			dynComponents.Components.Add(newMember);
-		
-		    BRApi.ErrorLog.LogMessage(si, $"DDM: Injected new embedded component [{storedComp.Name}] -> [{dbName}]");
+
+		    BRApi.ErrorLog.LogMessage(si, $"DDM: Injected new embedded component [{storedComp.Name}] -> [{dashboardName}]");
 		    return dynComponents;
 		}
 		
