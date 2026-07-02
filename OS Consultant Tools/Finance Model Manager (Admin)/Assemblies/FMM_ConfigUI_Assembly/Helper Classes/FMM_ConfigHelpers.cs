@@ -139,9 +139,9 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
 					ParameterMappings = new()
 					{
 						{ 0, new Dictionary<string, string> { { "IV_FMM_CustTableConfig_Name", "Name" } } },
-						{ 1, new Dictionary<string, string> { { "BL_FMM_CubeConfig_ScenType", "Type" } } },
-						{ 2, new Dictionary<string, string> { { "IV_FMM_CubeConfig_Descr", "Descr" } } },
-						{ 3, new Dictionary<string, string> { { "IV_FMM_CubeConfig_EntityMFB", "Audit" } } }
+						{ 1, new Dictionary<string, string> { { "DL_FMM_CustTableConfig_Type", "Type" } } },
+						{ 2, new Dictionary<string, string> { { "IV_FMM_CustTableConfig_Descr", "Descr" } } },
+						{ 3, new Dictionary<string, string> { { "IV_FMM_CustTableConfig_Audit", "Audit" } } }
 					}
 				},
 				[SaveType.View] = new CustTableConfig
@@ -159,6 +159,150 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
 		#endregion
 		#region "CustTableConfig Assignment"
 
+		#endregion
+		#region "FK Config"
+		public class FKConfig : IConfigMappings
+		{
+			public Dictionary<int, Dictionary<string, string>> ParameterMappings { get; init; }
+		}
+
+		public static class FKConfigRegistry
+		{
+			public static readonly Dictionary<SaveType, FKConfig> Configs = new()
+			{
+				[SaveType.Add] = new FKConfig
+				{
+					ParameterMappings = new()
+					{
+						{ 0, new Dictionary<string, string> { { "IV_FMM_CustTableFKConfig_Name", "Name" } } },
+						{ 1, new Dictionary<string, string> { { "BL_FMM_FK_SrcCustTableID", "SrcCustTableID" } } },
+						{ 2, new Dictionary<string, string> { { "BL_FMM_FK_TgtCustTableID", "TgtCustTableID" } } },
+						{ 3, new Dictionary<string, string> { { "IV_FMM_CustTableFKConfig_DeleteAction", "DeleteAction" } } },
+						{ 4, new Dictionary<string, string> { { "IV_FMM_CustTableFKConfig_UpdateAction", "UpdateAction" } } },
+						{ 5, new Dictionary<string, string> { { "IV_FMM_CustTableFKConfig_Descr", "Descr" } } }
+					}
+				},
+				[SaveType.Update] = new FKConfig
+				{
+					ParameterMappings = new()
+					{
+						{ 0, new Dictionary<string, string> { { "IV_FMM_CustTableFKConfig_Name", "Name" } } },
+						{ 1, new Dictionary<string, string> { { "BL_FMM_FK_SrcCustTableID", "SrcCustTableID" } } },
+						{ 2, new Dictionary<string, string> { { "BL_FMM_FK_TgtCustTableID", "TgtCustTableID" } } },
+						{ 3, new Dictionary<string, string> { { "IV_FMM_CustTableFKConfig_DeleteAction", "DeleteAction" } } },
+						{ 4, new Dictionary<string, string> { { "IV_FMM_CustTableFKConfig_UpdateAction", "UpdateAction" } } },
+						{ 5, new Dictionary<string, string> { { "IV_FMM_CustTableFKConfig_Descr", "Descr" } } }
+					}
+				},
+				[SaveType.View] = new FKConfig
+				{
+					ParameterMappings = new()
+					{
+						{ 0, new Dictionary<string, string> { { "IV_FMM_CustTableFKConfig_Name", "Name" } } },
+						{ 1, new Dictionary<string, string> { { "IV_FMM_CustTableFKConfig_SrcCustTableID", "SrcCustTableID" } } },
+						{ 2, new Dictionary<string, string> { { "IV_FMM_CustTableFKConfig_TgtCustTableID", "TgtCustTableID" } } },
+						{ 3, new Dictionary<string, string> { { "IV_FMM_CustTableFKConfig_DeleteAction", "DeleteAction" } } },
+						{ 4, new Dictionary<string, string> { { "IV_FMM_CustTableFKConfig_UpdateAction", "UpdateAction" } } },
+						{ 5, new Dictionary<string, string> { { "IV_FMM_CustTableFKConfig_Descr", "Descr" } } },
+						{ 6, new Dictionary<string, string> { { "IV_FMM_CustTableFKConfig_CreateDate", "CreateDate" } } },
+						{ 7, new Dictionary<string, string> { { "IV_FMM_CustTableFKConfig_CreateUser", "CreateUser" } } },
+						{ 8, new Dictionary<string, string> { { "IV_FMM_CustTableFKConfig_UpdateDate", "UpdateDate" } } },
+						{ 9, new Dictionary<string, string> { { "IV_FMM_CustTableFKConfig_UpdateUser", "UpdateUser" } } }
+					}
+				}
+			};
+		}
+		#endregion
+		#region "FK Col Config"
+		public class FKColConfig : IConfigMappings
+		{
+			public Dictionary<int, Dictionary<string, string>> ParameterMappings { get; init; }
+		}
+
+		public static class FKColConfigRegistry
+		{
+			public static readonly Dictionary<SaveType, FKColConfig> Configs = new()
+			{
+				[SaveType.Add] = new FKColConfig
+				{
+					ParameterMappings = new()
+					{
+						{ 0, new Dictionary<string, string> { { "BL_FMM_CustTableCols_Src", "SrcColID" } } },
+						{ 1, new Dictionary<string, string> { { "BL_FMM_CustTableCols_Tgt", "TgtColID" } } },
+						{ 2, new Dictionary<string, string> { { "IV_FMM_FKCol_ColOrdinal", "ColOrdinal" } } }
+					}
+				},
+				[SaveType.Update] = new FKColConfig
+				{
+					ParameterMappings = new()
+					{
+						{ 0, new Dictionary<string, string> { { "BL_FMM_CustTableCols_Src", "SrcColID" } } },
+						{ 1, new Dictionary<string, string> { { "BL_FMM_CustTableCols_Tgt", "TgtColID" } } },
+						{ 2, new Dictionary<string, string> { { "IV_FMM_FKCol_ColOrdinal", "ColOrdinal" } } }
+					}
+				},
+				[SaveType.View] = new FKColConfig
+				{
+					ParameterMappings = new()
+					{
+						{ 0, new Dictionary<string, string> { { "IV_FMM_FKCol_SrcColID", "SrcColID" } } },
+						{ 1, new Dictionary<string, string> { { "IV_FMM_FKCol_TgtColID", "TgtColID" } } },
+						{ 2, new Dictionary<string, string> { { "IV_FMM_FKCol_ColOrdinal", "ColOrdinal" } } },
+						{ 3, new Dictionary<string, string> { { "IV_FMM_FKCol_CreateDate", "CreateDate" } } },
+						{ 4, new Dictionary<string, string> { { "IV_FMM_FKCol_CreateUser", "CreateUser" } } },
+						{ 5, new Dictionary<string, string> { { "IV_FMM_FKCol_UpdateDate", "UpdateDate" } } },
+						{ 6, new Dictionary<string, string> { { "IV_FMM_FKCol_UpdateUser", "UpdateUser" } } }
+					}
+				}
+			};
+		}
+		#endregion
+		#region "Index Col Config"
+		public class IndexColConfig : IConfigMappings
+		{
+			public Dictionary<int, Dictionary<string, string>> ParameterMappings { get; init; }
+		}
+
+		public static class IndexColConfigRegistry
+		{
+			public static readonly Dictionary<SaveType, IndexColConfig> Configs = new()
+			{
+				[SaveType.Add] = new IndexColConfig
+				{
+					ParameterMappings = new()
+					{
+						{ 0, new Dictionary<string, string> { { "BL_FMM_CustTableCols_All", "CustTableColID" } } },
+						{ 1, new Dictionary<string, string> { { "IV_FMM_IndexCol_KeyOrdinal", "KeyOrdinal" } } },
+						{ 2, new Dictionary<string, string> { { "IV_FMM_IndexCol_IsIncluded", "IsIncluded" } } },
+						{ 3, new Dictionary<string, string> { { "IV_FMM_IndexCol_SortDirection", "SortDirection" } } }
+					}
+				},
+				[SaveType.Update] = new IndexColConfig
+				{
+					ParameterMappings = new()
+					{
+						{ 0, new Dictionary<string, string> { { "BL_FMM_CustTableCols_All", "CustTableColID" } } },
+						{ 1, new Dictionary<string, string> { { "IV_FMM_IndexCol_KeyOrdinal", "KeyOrdinal" } } },
+						{ 2, new Dictionary<string, string> { { "IV_FMM_IndexCol_IsIncluded", "IsIncluded" } } },
+						{ 3, new Dictionary<string, string> { { "IV_FMM_IndexCol_SortDirection", "SortDirection" } } }
+					}
+				},
+				[SaveType.View] = new IndexColConfig
+				{
+					ParameterMappings = new()
+					{
+						{ 0, new Dictionary<string, string> { { "IV_FMM_IndexCol_CustTableColID", "CustTableColID" } } },
+						{ 1, new Dictionary<string, string> { { "IV_FMM_IndexCol_KeyOrdinal", "KeyOrdinal" } } },
+						{ 2, new Dictionary<string, string> { { "IV_FMM_IndexCol_IsIncluded", "IsIncluded" } } },
+						{ 3, new Dictionary<string, string> { { "IV_FMM_IndexCol_SortDirection", "SortDirection" } } },
+						{ 4, new Dictionary<string, string> { { "IV_FMM_IndexCol_CreateDate", "CreateDate" } } },
+						{ 5, new Dictionary<string, string> { { "IV_FMM_CustTableIndexColConfig_CreateUser", "CreateUser" } } },
+						{ 6, new Dictionary<string, string> { { "IV_FMM_IndexCol_UpdateDate", "UpdateDate" } } },
+						{ 7, new Dictionary<string, string> { { "IV_FMM_IndexCol_UpdateUser", "UpdateUser" } } }
+					}
+				}
+			};
+		}
 		#endregion
 		#region "UI Config"
 		
@@ -792,6 +936,21 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
 		public static void SetCustTableConfigParams(SessionInfo si, ref Dictionary<string, string> substVars)
 		{
 			SetConfigParams(si, ref substVars, "IV_FMM_CustTableConfig_AddUpdate", "BL_FMM_CustTableConfigID", "SELECT * FROM FMM_CustTableConfig WHERE CustTableConfigID = @CustTableConfigID", "@CustTableConfigID", "FMM_CustTableConfig", st => CustTableConfigRegistry.Configs.GetValueOrDefault(st));
+		}
+
+		public static void SetFKConfigParams(SessionInfo si, ref Dictionary<string, string> substVars)
+		{
+			SetConfigParams(si, ref substVars, "IV_FMM_CustTableFKConfig_AddUpdate", "BL_FMM_CustTableFKID", "SELECT * FROM FMM_CustTableFKConfig WHERE CustTableFKID = @CustTableFKID", "@CustTableFKID", "FMM_CustTableFKConfig", st => FKConfigRegistry.Configs.GetValueOrDefault(st));
+		}
+
+		public static void SetFKColConfigParams(SessionInfo si, ref Dictionary<string, string> substVars)
+		{
+			SetConfigParams(si, ref substVars, "IV_FMM_FKCol_AddUpdate", "BL_FMM_CustTableFKColID", "SELECT * FROM FMM_CustTableFKCol WHERE CustTableFKColID = @CustTableFKColID", "@CustTableFKColID", "FMM_CustTableFKCol", st => FKColConfigRegistry.Configs.GetValueOrDefault(st));
+		}
+
+		public static void SetIndexColConfigParams(SessionInfo si, ref Dictionary<string, string> substVars)
+		{
+			SetConfigParams(si, ref substVars, "IV_FMM_IndexCol_AddUpdate", "BL_FMM_CustTableIndexColID", "SELECT * FROM FMM_CustTableIndexCol WHERE CustTableIndexColID = @CustTableIndexColID", "@CustTableIndexColID", "FMM_CustTableIndexCol", st => IndexColConfigRegistry.Configs.GetValueOrDefault(st));
 		}
 
 		public static void SetModelConfigParams(SessionInfo si, ref Dictionary<string, string> substVars)

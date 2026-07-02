@@ -149,6 +149,26 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardD
                         {
                             return get_FMM_CustTables("Audit");
                         }
+                        else if (args.DataSetName.XFEqualsIgnoreCase("get_FMM_CustTableCols"))
+                        {
+                            return get_FMM_CustTableCols();
+                        }
+                        else if (args.DataSetName.XFEqualsIgnoreCase("get_FMM_CustTableFKs"))
+                        {
+                            return get_FMM_CustTableFKs();
+                        }
+                        else if (args.DataSetName.XFEqualsIgnoreCase("get_FMM_CustTableIndexes"))
+                        {
+                            return get_FMM_CustTableIndexes();
+                        }
+                        else if (args.DataSetName.XFEqualsIgnoreCase("get_FMM_FKCols"))
+                        {
+                            return get_FMM_FKCols();
+                        }
+                        else if (args.DataSetName.XFEqualsIgnoreCase("get_FMM_IndexCols"))
+                        {
+                            return get_FMM_IndexCols();
+                        }
                         //Return WF Profile Hierarchy for WF Root Profile selected
                         else if (args.DataSetName.XFEqualsIgnoreCase("get_FMM_WFProfile_TreeView"))
                         {
@@ -392,8 +412,28 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardD
                                         CASE Type 
                                             {cases} 
                                         ELSE CAST(Type AS VARCHAR) 
-                                        END) AS Name,CustTableConfigID as Value
+                                        END) AS Name,
+                                        CustTableConfigID as Value,
+                                        Name as CustTable,
+                                        CustTableConfigID as CustTableID
                                         FROM FMM_CustTableConfig
+                                        ORDER BY Type,Name";
+                            sqlparams = new SqlParameter[]
+                            {
+                            };
+                            break;
+                        case "AUDIT":
+                            dt.TableName = "FMM_CustTableConfig";
+                            sql = $@"SELECT CONCAT(Name, ' - ',
+                                        CASE Type 
+                                            {cases} 
+                                        ELSE CAST(Type AS VARCHAR) 
+                                        END) AS Name,
+                                        CustTableConfigID as Value,
+                                        Name as CustTable,
+                                        CustTableConfigID as CustTableID
+                                        FROM FMM_CustTableConfig
+                                        WHERE Audit = 1
                                         ORDER BY Type,Name";
                             sqlparams = new SqlParameter[]
                             {
@@ -404,6 +444,136 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardD
                     sql_gbl_get_datasets.Fill_Get_GBL_DT(si, sqa, dt, sql, sqlparams);
                 }
 
+                return dt;
+            }
+            catch (Exception ex)
+            {
+                throw ErrorHandler.LogWrite(si, new XFException(si, ex));
+            }
+        }
+
+        private DataTable get_FMM_CustTableCols()
+        {
+            try
+            {
+                var custTableID = args.NameValuePairs.XFGetValue("CustTableID", "-1").XFConvertToInt();
+                var dt = new DataTable("FMM_CustTableDef");
+                var dbConnApp = BRApi.Database.CreateApplicationDbConnInfo(si);
+                using (var connection = new SqlConnection(dbConnApp.ConnectionString))
+                {
+                    var sqa = new SqlDataAdapter();
+                    var sql_gbl = new GBL_UI_Assembly.SQL_GBL_Get_DataSets(si, connection);
+                    var sql = @"SELECT CustTableColID, Name, ColOrder, DataType, PrimaryKey, IsNullable, Descr, Status
+                                FROM FMM_CustTableDef
+                                WHERE CustTableID = @CustTableID
+                                ORDER BY ColOrder";
+                    var sqlparams = new SqlParameter[] { new SqlParameter("@CustTableID", SqlDbType.Int) { Value = custTableID } };
+                    sql_gbl.Fill_Get_GBL_DT(si, sqa, dt, sql, sqlparams);
+                }
+                return dt;
+            }
+            catch (Exception ex)
+            {
+                throw ErrorHandler.LogWrite(si, new XFException(si, ex));
+            }
+        }
+
+        private DataTable get_FMM_CustTableFKs()
+        {
+            try
+            {
+                var custTableID = args.NameValuePairs.XFGetValue("CustTableID", "-1").XFConvertToInt();
+                var dt = new DataTable("FMM_CustTableFKConfig");
+                var dbConnApp = BRApi.Database.CreateApplicationDbConnInfo(si);
+                using (var connection = new SqlConnection(dbConnApp.ConnectionString))
+                {
+                    var sqa = new SqlDataAdapter();
+                    var sql_gbl = new GBL_UI_Assembly.SQL_GBL_Get_DataSets(si, connection);
+                    var sql = @"SELECT CustTableFKID, Name, SrcCustTableID, TgtCustTableID, DeleteAction, UpdateAction, Descr, Status
+                                FROM FMM_CustTableFKConfig
+                                WHERE CustTableID = @CustTableID
+                                ORDER BY Name";
+                    var sqlparams = new SqlParameter[] { new SqlParameter("@CustTableID", SqlDbType.Int) { Value = custTableID } };
+                    sql_gbl.Fill_Get_GBL_DT(si, sqa, dt, sql, sqlparams);
+                }
+                return dt;
+            }
+            catch (Exception ex)
+            {
+                throw ErrorHandler.LogWrite(si, new XFException(si, ex));
+            }
+        }
+
+        private DataTable get_FMM_CustTableIndexes()
+        {
+            try
+            {
+                var custTableID = args.NameValuePairs.XFGetValue("CustTableID", "-1").XFConvertToInt();
+                var dt = new DataTable("FMM_CustTableIndex");
+                var dbConnApp = BRApi.Database.CreateApplicationDbConnInfo(si);
+                using (var connection = new SqlConnection(dbConnApp.ConnectionString))
+                {
+                    var sqa = new SqlDataAdapter();
+                    var sql_gbl = new GBL_UI_Assembly.SQL_GBL_Get_DataSets(si, connection);
+                    var sql = @"SELECT CustTableIndexID, Name, Type, IsClustered, IsUnique, FillFactor, Description, Status
+                                FROM FMM_CustTableIndex
+                                WHERE CustTableID = @CustTableID
+                                ORDER BY Name";
+                    var sqlparams = new SqlParameter[] { new SqlParameter("@CustTableID", SqlDbType.Int) { Value = custTableID } };
+                    sql_gbl.Fill_Get_GBL_DT(si, sqa, dt, sql, sqlparams);
+                }
+                return dt;
+            }
+            catch (Exception ex)
+            {
+                throw ErrorHandler.LogWrite(si, new XFException(si, ex));
+            }
+        }
+
+        private DataTable get_FMM_FKCols()
+        {
+            try
+            {
+                var custTableFKID = args.NameValuePairs.XFGetValue("CustTableFKID", "-1").XFConvertToInt();
+                var dt = new DataTable("FMM_CustTableFKCol");
+                var dbConnApp = BRApi.Database.CreateApplicationDbConnInfo(si);
+                using (var connection = new SqlConnection(dbConnApp.ConnectionString))
+                {
+                    var sqa = new SqlDataAdapter();
+                    var sql_gbl = new GBL_UI_Assembly.SQL_GBL_Get_DataSets(si, connection);
+                    var sql = @"SELECT CustTableFKColID, SrcColID, TgtColID, ColOrdinal, CreateDate, CreateUser, UpdateDate, UpdateUser
+                                FROM FMM_CustTableFKCol
+                                WHERE CustTableFKID = @CustTableFKID
+                                ORDER BY ColOrdinal";
+                    var sqlparams = new SqlParameter[] { new SqlParameter("@CustTableFKID", SqlDbType.Int) { Value = custTableFKID } };
+                    sql_gbl.Fill_Get_GBL_DT(si, sqa, dt, sql, sqlparams);
+                }
+                return dt;
+            }
+            catch (Exception ex)
+            {
+                throw ErrorHandler.LogWrite(si, new XFException(si, ex));
+            }
+        }
+
+        private DataTable get_FMM_IndexCols()
+        {
+            try
+            {
+                var custTableIndexID = args.NameValuePairs.XFGetValue("CustTableIndexID", "-1").XFConvertToInt();
+                var dt = new DataTable("FMM_CustTableIndexCol");
+                var dbConnApp = BRApi.Database.CreateApplicationDbConnInfo(si);
+                using (var connection = new SqlConnection(dbConnApp.ConnectionString))
+                {
+                    var sqa = new SqlDataAdapter();
+                    var sql_gbl = new GBL_UI_Assembly.SQL_GBL_Get_DataSets(si, connection);
+                    var sql = @"SELECT CustTableIndexColID, CustTableColID, KeyOrdinal, IsIncluded, SortDirection, CreateDate, CreateUser, UpdateDate, UpdateUser
+                                FROM FMM_CustTableIndexCol
+                                WHERE CustTableIndexID = @CustTableIndexID
+                                ORDER BY KeyOrdinal";
+                    var sqlparams = new SqlParameter[] { new SqlParameter("@CustTableIndexID", SqlDbType.Int) { Value = custTableIndexID } };
+                    sql_gbl.Fill_Get_GBL_DT(si, sqa, dt, sql, sqlparams);
+                }
                 return dt;
             }
             catch (Exception ex)

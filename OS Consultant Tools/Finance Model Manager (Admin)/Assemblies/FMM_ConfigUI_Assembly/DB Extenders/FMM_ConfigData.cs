@@ -140,6 +140,9 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardE
                             case var fn when fn.XFEqualsIgnoreCase("CustTableDef_Save"):
                                 saveResult = CustTableDef_Save();
                                 return saveResult;
+                            case var fn when fn.XFEqualsIgnoreCase("CustTableIndex_Save"):
+                                saveResult = CustTableIndex_Save();
+                                return saveResult;
                         }
                         break;
 
@@ -188,6 +191,42 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardE
                                 return changed_Result;
                             case var fn when fn.XFEqualsIgnoreCase("CustTable_Select"):
                                 changed_Result = CustTable_Select();
+                                return changed_Result;
+                            case var fn when fn.XFEqualsIgnoreCase("CustTableFK_Add"):
+                                changed_Result = CustTableFK_Add();
+                                return changed_Result;
+                            case var fn when fn.XFEqualsIgnoreCase("CustTableFK_SaveAdd"):
+                                changed_Result = CustTableFK_Save("Add");
+                                return changed_Result;
+                            case var fn when fn.XFEqualsIgnoreCase("CustTableFK_SaveUpdate"):
+                                changed_Result = CustTableFK_Save("Update");
+                                return changed_Result;
+                            case var fn when fn.XFEqualsIgnoreCase("CustTableFK_Select"):
+                                changed_Result = CustTableFK_Select();
+                                return changed_Result;
+                            case var fn when fn.XFEqualsIgnoreCase("FKCol_Add"):
+                                changed_Result = FKCol_Add();
+                                return changed_Result;
+                            case var fn when fn.XFEqualsIgnoreCase("FKCol_SaveAdd"):
+                                changed_Result = FKCol_Save("Add");
+                                return changed_Result;
+                            case var fn when fn.XFEqualsIgnoreCase("FKCol_SaveUpdate"):
+                                changed_Result = FKCol_Save("Update");
+                                return changed_Result;
+                            case var fn when fn.XFEqualsIgnoreCase("CustTableIndex_Add"):
+                                changed_Result = CustTableIndex_Add();
+                                return changed_Result;
+                            case var fn when fn.XFEqualsIgnoreCase("CustTableIndex_Select"):
+                                changed_Result = CustTableIndex_Select();
+                                return changed_Result;
+                            case var fn when fn.XFEqualsIgnoreCase("IndexCol_Add"):
+                                changed_Result = IndexCol_Add();
+                                return changed_Result;
+                            case var fn when fn.XFEqualsIgnoreCase("IndexCol_SaveAdd"):
+                                changed_Result = IndexCol_Save("Add");
+                                return changed_Result;
+                            case var fn when fn.XFEqualsIgnoreCase("IndexCol_SaveUpdate"):
+                                changed_Result = IndexCol_Save("Update");
                                 return changed_Result;
                             case var fn when fn.XFEqualsIgnoreCase("CalcConfig_SaveAdd"):
                                 gbl_ModelType = args.SelectionChangedTaskInfo.CustomSubstVarsWithUserSelectedValues.XFGetValue("DL_FMM_CalcType");
@@ -794,14 +833,14 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardE
                     var FMM_CustTableConfig_DT = new DataTable();
 
                     var sql = @"SELECT * 
-						    FROM FMM_CustTable 
-							WHERE CustTableID = @CustTableID";
+						    FROM FMM_CustTableConfig 
+							WHERE CustTableConfigID = @CustTableConfigID";
 
                     if (runType == "Add")
                     {
                         sqlparams = new SqlParameter[]
                         {
-                            new SqlParameter("@CustTableID", SqlDbType.Int) { Value = custTableID }
+                            new SqlParameter("@CustTableConfigID", SqlDbType.Int) { Value = custTableID }
                         };
 
                         cmdBuilder.FillDataTable(si, sqa, FMM_CustTableConfig_DT, sql, sqlparams);
@@ -833,7 +872,6 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardE
                             }
                         }
 
-                        new_DataRow["CustTableID"] = custTableID;
                         new_DataRow["Status"] = 1;
                         new_DataRow["CreateDate"] = DateTime.Now;
                         new_DataRow["CreateUser"] = si.UserName;
@@ -863,17 +901,17 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardE
                             BRApi.ErrorLog.LogMessage(si, $"COLUMN: {colName.PadRight(20)} | TYPE: {colType.PadRight(10)} | VALUE: {displayValue}");
                         }
                         FMM_CustTableConfig_DT.Rows.Add(new_DataRow);
-                        cmdBuilder.UpdateTable(si, "FMM_CustTable", FMM_CustTableConfig_DT, sqa);
+                        cmdBuilder.UpdateTable(si, "FMM_CustTableConfig", FMM_CustTableConfig_DT, sqa);
                         saveResult.IsOK = true;
                         saveResult.Message = "New Cube Config Saved.";
                         saveResult.ShowMessageBox = true;
                     }
                     else if (runType == "Update")
                     {
-                        custTableID = Convert.ToInt32(args.SelectionChangedTaskInfo.CustomSubstVarsWithUserSelectedValues.XFGetValue("IV_FMM_custTableID", "0"));
+                        custTableID = Convert.ToInt32(args.SelectionChangedTaskInfo.CustomSubstVarsWithUserSelectedValues.XFGetValue("BL_FMM_CustTableConfigID", "0"));
                         sqlparams = new SqlParameter[]
                         {
-                            new SqlParameter("@custTableID", SqlDbType.Int) { Value = custTableID }
+                            new SqlParameter("@CustTableConfigID", SqlDbType.Int) { Value = custTableID }
                         };
 
                         cmdBuilder.FillDataTable(si, sqa, FMM_CustTableConfig_DT, sql, sqlparams);
@@ -896,7 +934,7 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardE
                             rowToUpdate["UpdateDate"] = DateTime.Now;
                             rowToUpdate["UpdateUser"] = si.UserName;
 
-                            cmdBuilder.UpdateTable(si, "FMM_CustTable", FMM_CustTableConfig_DT, sqa);
+                            cmdBuilder.UpdateTable(si, "FMM_CustTableConfig", FMM_CustTableConfig_DT, sqa);
 
                             saveResult.IsOK = true;
                             saveResult.Message = "Cube Config Updates Saved.";
@@ -905,10 +943,10 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardE
                     }
                     else if (runType == "Delete")
                     {
-                        custTableID = Convert.ToInt32(args.SelectionChangedTaskInfo.CustomSubstVarsWithUserSelectedValues.XFGetValue("IV_FMM_custTableID", "0"));
+                        custTableID = Convert.ToInt32(args.SelectionChangedTaskInfo.CustomSubstVarsWithUserSelectedValues.XFGetValue("BL_FMM_CustTableConfigID", "0"));
                         sqlparams = new SqlParameter[]
                         {
-                            new SqlParameter("@custTableID", SqlDbType.Int) { Value = custTableID }
+                            new SqlParameter("@CustTableConfigID", SqlDbType.Int) { Value = custTableID }
                         };
 
                         cmdBuilder.FillDataTable(si, sqa, FMM_CustTableConfig_DT, sql, sqlparams);
@@ -919,16 +957,16 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardE
                             FMM_CustTableConfig_DT.Rows[0].Delete();
 
                             // Commit the deletion to the database
-                            cmdBuilder.UpdateTable(si, "FMM_CustTable", FMM_CustTableConfig_DT, sqa);
+                            cmdBuilder.UpdateTable(si, "FMM_CustTableConfig", FMM_CustTableConfig_DT, sqa);
 
                             saveResult.IsOK = true;
-                            saveResult.Message = "Cube Config Deleted Successfully.";
+                            saveResult.Message = "Custom Table Config Deleted Successfully.";
                             saveResult.ShowMessageBox = true;
                         }
                         else
                         {
                             saveResult.IsOK = false;
-                            saveResult.Message = "Could not find the Cube Config record to delete.";
+                            saveResult.Message = "Could not find the Custom Table Config record to delete.";
                             saveResult.ShowMessageBox = true;
                         }
                     }
@@ -1130,6 +1168,473 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardE
             catch (Exception ex)
             {
                 throw ErrorHandler.LogWrite(si, new XFException(si, ex));
+            }
+        }
+        private XFSqlTableEditorSaveDataTaskResult CustTableIndex_Save()
+        {
+            try
+            {
+                var saveResult = new XFSqlTableEditorSaveDataTaskResult();
+                var custTableConfigID = args.SqlTableEditorSaveDataTaskInfo.CustomSubstVars.XFGetValue("BL_FMM_CustTableConfigID", "0").XFConvertToInt();
+
+                var dbConnApp = BRApi.Database.CreateApplicationDbConnInfo(si);
+                using (var connection = new SqlConnection(dbConnApp.ConnectionString))
+                {
+                    connection.Open();
+                    var cmdBuilder = new GBL_UI_Assembly.SQA_GBL_Command_Builder(si, connection);
+                    var sqa = new SqlDataAdapter();
+                    var custTableIndexDt = new DataTable();
+
+                    var sql = @"SELECT *
+                                FROM FMM_CustTableIndex
+                                WHERE CustTableID = @CustTableID";
+                    var sqlparams = new[]
+                    {
+                        new SqlParameter("@CustTableID", SqlDbType.Int) { Value = custTableConfigID }
+                    };
+
+                    cmdBuilder.FillDataTable(si, sqa, custTableIndexDt, sql, sqlparams);
+
+                    if (custTableIndexDt.Columns.Contains("CustTableIndexID"))
+                        custTableIndexDt.PrimaryKey = new[] { custTableIndexDt.Columns["CustTableIndexID"]! };
+
+                    foreach (XFEditedDataRow xfRow in args.SqlTableEditorSaveDataTaskInfo.EditedDataRows)
+                    {
+                        if (xfRow.InsertUpdateOrDelete == DbInsUpdateDelType.Insert)
+                        {
+                            var newRow = custTableIndexDt.NewRow();
+                            newRow["CustTableID"] = custTableConfigID;
+                            newRow["Name"] = xfRow.ModifiedDataRow["Name"];
+                            newRow["Type"] = xfRow.ModifiedDataRow["Type"];
+                            newRow["IsClustered"] = xfRow.ModifiedDataRow["IsClustered"];
+                            newRow["IsUnique"] = xfRow.ModifiedDataRow["IsUnique"];
+                            newRow["FillFactor"] = xfRow.ModifiedDataRow["FillFactor"];
+                            newRow["Description"] = xfRow.ModifiedDataRow["Description"];
+                            newRow["Status"] = xfRow.ModifiedDataRow["Status"] != DBNull.Value ? xfRow.ModifiedDataRow["Status"] : 1;
+                            newRow["CreateDate"] = DateTime.Now;
+                            newRow["CreateUser"] = si.UserName;
+                            newRow["UpdateDate"] = DateTime.Now;
+                            newRow["UpdateUser"] = si.UserName;
+                            custTableIndexDt.Rows.Add(newRow);
+                        }
+                        else if (xfRow.InsertUpdateOrDelete == DbInsUpdateDelType.Update)
+                        {
+                            if (xfRow.ModifiedDataRow["CustTableIndexID"] == DBNull.Value) continue;
+                            var custTableIndexID = Convert.ToInt32(xfRow.ModifiedDataRow["CustTableIndexID"]);
+                            var rowsToUpdate = custTableIndexDt.Select($"CustTableIndexID = {custTableIndexID}");
+                            if (rowsToUpdate.Length > 0)
+                            {
+                                var rowToUpdate = rowsToUpdate[0];
+                                rowToUpdate["Name"] = xfRow.ModifiedDataRow["Name"];
+                                rowToUpdate["Type"] = xfRow.ModifiedDataRow["Type"];
+                                rowToUpdate["IsClustered"] = xfRow.ModifiedDataRow["IsClustered"];
+                                rowToUpdate["IsUnique"] = xfRow.ModifiedDataRow["IsUnique"];
+                                rowToUpdate["FillFactor"] = xfRow.ModifiedDataRow["FillFactor"];
+                                rowToUpdate["Description"] = xfRow.ModifiedDataRow["Description"];
+                                if (xfRow.ModifiedDataRow["Status"] != DBNull.Value)
+                                    rowToUpdate["Status"] = xfRow.ModifiedDataRow["Status"];
+                                rowToUpdate["UpdateDate"] = DateTime.Now;
+                                rowToUpdate["UpdateUser"] = si.UserName;
+                            }
+                        }
+                        else if (xfRow.InsertUpdateOrDelete == DbInsUpdateDelType.Delete)
+                        {
+                            if (xfRow.OriginalDataRow["CustTableIndexID"] == DBNull.Value) continue;
+                            var custTableIndexID = Convert.ToInt32(xfRow.OriginalDataRow["CustTableIndexID"]);
+                            var rowsToDelete = custTableIndexDt.Select($"CustTableIndexID = {custTableIndexID}");
+                            foreach (var row in rowsToDelete) row.Delete();
+                        }
+                    }
+
+                    cmdBuilder.UpdateTable(si, "FMM_CustTableIndex", custTableIndexDt, sqa);
+                    saveResult.IsOK = true;
+                    saveResult.ShowMessageBox = false;
+                }
+
+                saveResult.CancelDefaultSave = true;
+                return saveResult;
+            }
+            catch (Exception ex)
+            {
+                throw ErrorHandler.LogWrite(si, new XFException(si, ex));
+            }
+        }
+
+        private XFSelectionChangedTaskResult CustTableFK_Add()
+        {
+            try
+            {
+                var selectResult = new XFSelectionChangedTaskResult();
+                selectResult.ChangeCustomSubstVarsInDashboard = true;
+                var gbl_helpers = new GBL_UI_Assembly.GBL_Helpers();
+                gbl_helpers.UpdateCustomSubstVar(ref selectResult, "BL_FMM_CustTableFKID", string.Empty);
+                gbl_helpers.UpdateCustomSubstVar(ref selectResult, "IV_FMM_CustTableFKConfig_AddUpdate", "Add");
+                var saveType = FMM_ConfigHelpers.SaveType.None;
+                if (FMM_ConfigHelpers.FKConfigRegistry.Configs.TryGetValue(saveType, out var config))
+                {
+                    foreach (var step in config.ParameterMappings)
+                        foreach (var map in step.Value)
+                            gbl_helpers.UpdateCustomSubstVar(ref selectResult, map.Key, string.Empty);
+                }
+                return selectResult;
+            }
+            catch (Exception ex)
+            {
+                throw ErrorHandler.LogWrite(si, new XFException(si, ex));
+            }
+        }
+
+        private XFSelectionChangedTaskResult CustTableFK_Select()
+        {
+            var selectResult = new XFSelectionChangedTaskResult();
+            selectResult.ChangeCustomSubstVarsInDashboard = true;
+            var gbl_helpers = new GBL_UI_Assembly.GBL_Helpers();
+            var fkID = args.SelectionChangedTaskInfo.CustomSubstVarsWithUserSelectedValues.XFGetValue("BL_FMM_CustTableFKID", "0").XFConvertToInt();
+            gbl_helpers.UpdateCustomSubstVar(ref selectResult, "BL_FMM_CustTableFKID", fkID.XFToString());
+            gbl_helpers.UpdateCustomSubstVar(ref selectResult, "IV_FMM_CustTableFKConfig_AddUpdate", "Update");
+            var modifiedVars = selectResult.ModifiedCustomSubstVars;
+            FMM_ConfigHelpers.SetFKConfigParams(si, ref modifiedVars);
+            selectResult.ModifiedCustomSubstVars = modifiedVars;
+            return selectResult;
+        }
+
+        private XFSelectionChangedTaskResult CustTableFK_Save(string runType)
+        {
+            try
+            {
+                var saveResult = new XFSelectionChangedTaskResult();
+                var gbl_helpers = new GBL_UI_Assembly.GBL_Helpers();
+                var uiErrorMessageList = new List<string>();
+                var custTableID = args.SelectionChangedTaskInfo.CustomSubstVars.XFGetValue("BL_FMM_CustTableConfigID", "0").XFConvertToInt();
+                var fkID = 0;
+
+                var dbConnApp = BRApi.Database.CreateApplicationDbConnInfo(si);
+                using (SqlConnection connection = new SqlConnection(dbConnApp.ConnectionString))
+                {
+                    connection.Open();
+                    var sqa = new SqlDataAdapter();
+                    var cmdBuilder = new GBL_UI_Assembly.SQA_GBL_Command_Builder(si, connection);
+                    var dt = new DataTable();
+                    var sql = @"SELECT * FROM FMM_CustTableFKConfig WHERE CustTableFKID = @CustTableFKID";
+
+                    if (runType == "Add")
+                    {
+                        var sqlparams = new SqlParameter[] { new SqlParameter("@CustTableFKID", SqlDbType.Int) { Value = 0 } };
+                        cmdBuilder.FillDataTable(si, sqa, dt, sql, sqlparams);
+
+                        var newRow = dt.NewRow();
+                        var saveTypeInt = 1;
+                        var saveType = (FMM_ConfigHelpers.SaveType)saveTypeInt;
+                        if (FMM_ConfigHelpers.FKConfigRegistry.Configs.TryGetValue(saveType, out var config))
+                        {
+                            foreach (var step in config.ParameterMappings)
+                                foreach (var map in step.Value)
+                                {
+                                    var val = args.SelectionChangedTaskInfo.CustomSubstVars.XFGetValue(map.Key, string.Empty);
+                                    if (dt.Columns.Contains(map.Value))
+                                    {
+                                        var err = gbl_helpers.checkBlankValue(ref newRow, map.Value, val);
+                                        if (err == "Error") uiErrorMessageList.Add(map.Value);
+                                        else if (err == "Success") newRow[map.Value] = val;
+                                    }
+                                }
+                        }
+                        newRow["CustTableID"] = custTableID;
+                        newRow["Status"] = 1;
+                        newRow["CreateDate"] = DateTime.Now;
+                        newRow["CreateUser"] = si.UserName;
+                        newRow["UpdateDate"] = DateTime.Now;
+                        newRow["UpdateUser"] = si.UserName;
+
+                        if (uiErrorMessageList.Count > 0)
+                        {
+                            saveResult.IsOK = false;
+                            saveResult.Message = "The following fields cannot be blank: " + string.Join(", ", uiErrorMessageList);
+                            saveResult.ShowMessageBox = true;
+                            return saveResult;
+                        }
+                        dt.Rows.Add(newRow);
+                        cmdBuilder.UpdateTable(si, "FMM_CustTableFKConfig", dt, sqa);
+                        saveResult.IsOK = true;
+                        saveResult.Message = "FK Config Saved.";
+                        saveResult.ShowMessageBox = true;
+                    }
+                    else if (runType == "Update")
+                    {
+                        fkID = Convert.ToInt32(args.SelectionChangedTaskInfo.CustomSubstVarsWithUserSelectedValues.XFGetValue("BL_FMM_CustTableFKID", "0"));
+                        var sqlparams = new SqlParameter[] { new SqlParameter("@CustTableFKID", SqlDbType.Int) { Value = fkID } };
+                        cmdBuilder.FillDataTable(si, sqa, dt, sql, sqlparams);
+
+                        if (dt.Rows.Count > 0)
+                        {
+                            var rowToUpdate = dt.Rows[0];
+                            var saveType = (FMM_ConfigHelpers.SaveType)2;
+                            if (FMM_ConfigHelpers.FKConfigRegistry.Configs.TryGetValue(saveType, out var config))
+                                foreach (var step in config.ParameterMappings)
+                                    foreach (var map in step.Value)
+                                        rowToUpdate[map.Value] = args.SelectionChangedTaskInfo.CustomSubstVarsWithUserSelectedValues.XFGetValue(map.Key, string.Empty);
+                            rowToUpdate["UpdateDate"] = DateTime.Now;
+                            rowToUpdate["UpdateUser"] = si.UserName;
+                            cmdBuilder.UpdateTable(si, "FMM_CustTableFKConfig", dt, sqa);
+                            saveResult.IsOK = true;
+                            saveResult.Message = "FK Config Updated.";
+                            saveResult.ShowMessageBox = true;
+                        }
+                    }
+                }
+                return saveResult;
+            }
+            catch (Exception ex)
+            {
+                return new XFSelectionChangedTaskResult { IsOK = false, Message = $"An error occurred: {ex.Message}", ShowMessageBox = true };
+            }
+        }
+
+        private XFSelectionChangedTaskResult FKCol_Add()
+        {
+            try
+            {
+                var selectResult = new XFSelectionChangedTaskResult();
+                selectResult.ChangeCustomSubstVarsInDashboard = true;
+                var gbl_helpers = new GBL_UI_Assembly.GBL_Helpers();
+                gbl_helpers.UpdateCustomSubstVar(ref selectResult, "BL_FMM_CustTableFKColID", string.Empty);
+                gbl_helpers.UpdateCustomSubstVar(ref selectResult, "IV_FMM_FKCol_AddUpdate", "Add");
+                var saveType = FMM_ConfigHelpers.SaveType.None;
+                if (FMM_ConfigHelpers.FKColConfigRegistry.Configs.TryGetValue(saveType, out var config))
+                    foreach (var step in config.ParameterMappings)
+                        foreach (var map in step.Value)
+                            gbl_helpers.UpdateCustomSubstVar(ref selectResult, map.Key, string.Empty);
+                return selectResult;
+            }
+            catch (Exception ex)
+            {
+                throw ErrorHandler.LogWrite(si, new XFException(si, ex));
+            }
+        }
+
+        private XFSelectionChangedTaskResult FKCol_Save(string runType)
+        {
+            try
+            {
+                var saveResult = new XFSelectionChangedTaskResult();
+                var gbl_helpers = new GBL_UI_Assembly.GBL_Helpers();
+                var uiErrorMessageList = new List<string>();
+                var fkID = args.SelectionChangedTaskInfo.CustomSubstVars.XFGetValue("BL_FMM_CustTableFKID", "0").XFConvertToInt();
+                var fkColID = 0;
+
+                var dbConnApp = BRApi.Database.CreateApplicationDbConnInfo(si);
+                using (SqlConnection connection = new SqlConnection(dbConnApp.ConnectionString))
+                {
+                    connection.Open();
+                    var sqa = new SqlDataAdapter();
+                    var cmdBuilder = new GBL_UI_Assembly.SQA_GBL_Command_Builder(si, connection);
+                    var dt = new DataTable();
+                    var sql = @"SELECT * FROM FMM_CustTableFKCol WHERE CustTableFKColID = @CustTableFKColID";
+
+                    if (runType == "Add")
+                    {
+                        var sqlparams = new SqlParameter[] { new SqlParameter("@CustTableFKColID", SqlDbType.Int) { Value = 0 } };
+                        cmdBuilder.FillDataTable(si, sqa, dt, sql, sqlparams);
+
+                        var newRow = dt.NewRow();
+                        var saveType = (FMM_ConfigHelpers.SaveType)1;
+                        if (FMM_ConfigHelpers.FKColConfigRegistry.Configs.TryGetValue(saveType, out var config))
+                            foreach (var step in config.ParameterMappings)
+                                foreach (var map in step.Value)
+                                {
+                                    var val = args.SelectionChangedTaskInfo.CustomSubstVars.XFGetValue(map.Key, string.Empty);
+                                    if (dt.Columns.Contains(map.Value))
+                                    {
+                                        var err = gbl_helpers.checkBlankValue(ref newRow, map.Value, val);
+                                        if (err == "Error") uiErrorMessageList.Add(map.Value);
+                                        else if (err == "Success") newRow[map.Value] = val;
+                                    }
+                                }
+                        newRow["CustTableFKID"] = fkID;
+                        newRow["CreateDate"] = DateTime.Now;
+                        newRow["CreateUser"] = si.UserName;
+                        newRow["UpdateDate"] = DateTime.Now;
+                        newRow["UpdateUser"] = si.UserName;
+
+                        if (uiErrorMessageList.Count > 0)
+                        {
+                            saveResult.IsOK = false;
+                            saveResult.Message = "The following fields cannot be blank: " + string.Join(", ", uiErrorMessageList);
+                            saveResult.ShowMessageBox = true;
+                            return saveResult;
+                        }
+                        dt.Rows.Add(newRow);
+                        cmdBuilder.UpdateTable(si, "FMM_CustTableFKCol", dt, sqa);
+                        saveResult.IsOK = true;
+                        saveResult.Message = "FK Column Saved.";
+                        saveResult.ShowMessageBox = true;
+                    }
+                    else if (runType == "Update")
+                    {
+                        fkColID = Convert.ToInt32(args.SelectionChangedTaskInfo.CustomSubstVarsWithUserSelectedValues.XFGetValue("BL_FMM_CustTableFKColID", "0"));
+                        var sqlparams = new SqlParameter[] { new SqlParameter("@CustTableFKColID", SqlDbType.Int) { Value = fkColID } };
+                        cmdBuilder.FillDataTable(si, sqa, dt, sql, sqlparams);
+
+                        if (dt.Rows.Count > 0)
+                        {
+                            var rowToUpdate = dt.Rows[0];
+                            var saveType = (FMM_ConfigHelpers.SaveType)2;
+                            if (FMM_ConfigHelpers.FKColConfigRegistry.Configs.TryGetValue(saveType, out var config))
+                                foreach (var step in config.ParameterMappings)
+                                    foreach (var map in step.Value)
+                                        rowToUpdate[map.Value] = args.SelectionChangedTaskInfo.CustomSubstVarsWithUserSelectedValues.XFGetValue(map.Key, string.Empty);
+                            rowToUpdate["UpdateDate"] = DateTime.Now;
+                            rowToUpdate["UpdateUser"] = si.UserName;
+                            cmdBuilder.UpdateTable(si, "FMM_CustTableFKCol", dt, sqa);
+                            saveResult.IsOK = true;
+                            saveResult.Message = "FK Column Updated.";
+                            saveResult.ShowMessageBox = true;
+                        }
+                    }
+                }
+                return saveResult;
+            }
+            catch (Exception ex)
+            {
+                return new XFSelectionChangedTaskResult { IsOK = false, Message = $"An error occurred: {ex.Message}", ShowMessageBox = true };
+            }
+        }
+
+        private XFSelectionChangedTaskResult CustTableIndex_Add()
+        {
+            try
+            {
+                var selectResult = new XFSelectionChangedTaskResult();
+                selectResult.ChangeCustomSubstVarsInDashboard = true;
+                var gbl_helpers = new GBL_UI_Assembly.GBL_Helpers();
+                gbl_helpers.UpdateCustomSubstVar(ref selectResult, "BL_FMM_CustTableIndexID", string.Empty);
+                gbl_helpers.UpdateCustomSubstVar(ref selectResult, "IV_FMM_CustTableIndex_AddUpdate", "Add");
+                return selectResult;
+            }
+            catch (Exception ex)
+            {
+                throw ErrorHandler.LogWrite(si, new XFException(si, ex));
+            }
+        }
+
+        private XFSelectionChangedTaskResult CustTableIndex_Select()
+        {
+            var selectResult = new XFSelectionChangedTaskResult();
+            selectResult.ChangeCustomSubstVarsInDashboard = true;
+            var gbl_helpers = new GBL_UI_Assembly.GBL_Helpers();
+            var indexID = args.SelectionChangedTaskInfo.CustomSubstVarsWithUserSelectedValues.XFGetValue("BL_FMM_CustTableIndexID", "0").XFConvertToInt();
+            gbl_helpers.UpdateCustomSubstVar(ref selectResult, "BL_FMM_CustTableIndexID", indexID.XFToString());
+            gbl_helpers.UpdateCustomSubstVar(ref selectResult, "IV_FMM_CustTableIndex_AddUpdate", "Update");
+            return selectResult;
+        }
+
+        private XFSelectionChangedTaskResult IndexCol_Add()
+        {
+            try
+            {
+                var selectResult = new XFSelectionChangedTaskResult();
+                selectResult.ChangeCustomSubstVarsInDashboard = true;
+                var gbl_helpers = new GBL_UI_Assembly.GBL_Helpers();
+                gbl_helpers.UpdateCustomSubstVar(ref selectResult, "BL_FMM_CustTableIndexColID", string.Empty);
+                gbl_helpers.UpdateCustomSubstVar(ref selectResult, "IV_FMM_IndexCol_AddUpdate", "Add");
+                var saveType = FMM_ConfigHelpers.SaveType.None;
+                if (FMM_ConfigHelpers.IndexColConfigRegistry.Configs.TryGetValue(saveType, out var config))
+                    foreach (var step in config.ParameterMappings)
+                        foreach (var map in step.Value)
+                            gbl_helpers.UpdateCustomSubstVar(ref selectResult, map.Key, string.Empty);
+                return selectResult;
+            }
+            catch (Exception ex)
+            {
+                throw ErrorHandler.LogWrite(si, new XFException(si, ex));
+            }
+        }
+
+        private XFSelectionChangedTaskResult IndexCol_Save(string runType)
+        {
+            try
+            {
+                var saveResult = new XFSelectionChangedTaskResult();
+                var gbl_helpers = new GBL_UI_Assembly.GBL_Helpers();
+                var uiErrorMessageList = new List<string>();
+                var indexID = args.SelectionChangedTaskInfo.CustomSubstVars.XFGetValue("BL_FMM_CustTableIndexID", "0").XFConvertToInt();
+                var indexColID = 0;
+
+                var dbConnApp = BRApi.Database.CreateApplicationDbConnInfo(si);
+                using (SqlConnection connection = new SqlConnection(dbConnApp.ConnectionString))
+                {
+                    connection.Open();
+                    var sqa = new SqlDataAdapter();
+                    var cmdBuilder = new GBL_UI_Assembly.SQA_GBL_Command_Builder(si, connection);
+                    var dt = new DataTable();
+                    var sql = @"SELECT * FROM FMM_CustTableIndexCol WHERE CustTableIndexColID = @CustTableIndexColID";
+
+                    if (runType == "Add")
+                    {
+                        var sqlparams = new SqlParameter[] { new SqlParameter("@CustTableIndexColID", SqlDbType.Int) { Value = 0 } };
+                        cmdBuilder.FillDataTable(si, sqa, dt, sql, sqlparams);
+
+                        var newRow = dt.NewRow();
+                        var saveType = (FMM_ConfigHelpers.SaveType)1;
+                        if (FMM_ConfigHelpers.IndexColConfigRegistry.Configs.TryGetValue(saveType, out var config))
+                            foreach (var step in config.ParameterMappings)
+                                foreach (var map in step.Value)
+                                {
+                                    var val = args.SelectionChangedTaskInfo.CustomSubstVars.XFGetValue(map.Key, string.Empty);
+                                    if (dt.Columns.Contains(map.Value))
+                                    {
+                                        var err = gbl_helpers.checkBlankValue(ref newRow, map.Value, val);
+                                        if (err == "Error") uiErrorMessageList.Add(map.Value);
+                                        else if (err == "Success") newRow[map.Value] = val;
+                                    }
+                                }
+                        newRow["CustTableIndexID"] = indexID;
+                        newRow["CreateDate"] = DateTime.Now;
+                        newRow["CreateUser"] = si.UserName;
+                        newRow["UpdateDate"] = DateTime.Now;
+                        newRow["UpdateUser"] = si.UserName;
+
+                        if (uiErrorMessageList.Count > 0)
+                        {
+                            saveResult.IsOK = false;
+                            saveResult.Message = "The following fields cannot be blank: " + string.Join(", ", uiErrorMessageList);
+                            saveResult.ShowMessageBox = true;
+                            return saveResult;
+                        }
+                        dt.Rows.Add(newRow);
+                        cmdBuilder.UpdateTable(si, "FMM_CustTableIndexCol", dt, sqa);
+                        saveResult.IsOK = true;
+                        saveResult.Message = "Index Column Saved.";
+                        saveResult.ShowMessageBox = true;
+                    }
+                    else if (runType == "Update")
+                    {
+                        indexColID = Convert.ToInt32(args.SelectionChangedTaskInfo.CustomSubstVarsWithUserSelectedValues.XFGetValue("BL_FMM_CustTableIndexColID", "0"));
+                        var sqlparams = new SqlParameter[] { new SqlParameter("@CustTableIndexColID", SqlDbType.Int) { Value = indexColID } };
+                        cmdBuilder.FillDataTable(si, sqa, dt, sql, sqlparams);
+
+                        if (dt.Rows.Count > 0)
+                        {
+                            var rowToUpdate = dt.Rows[0];
+                            var saveType = (FMM_ConfigHelpers.SaveType)2;
+                            if (FMM_ConfigHelpers.IndexColConfigRegistry.Configs.TryGetValue(saveType, out var config))
+                                foreach (var step in config.ParameterMappings)
+                                    foreach (var map in step.Value)
+                                        rowToUpdate[map.Value] = args.SelectionChangedTaskInfo.CustomSubstVarsWithUserSelectedValues.XFGetValue(map.Key, string.Empty);
+                            rowToUpdate["UpdateDate"] = DateTime.Now;
+                            rowToUpdate["UpdateUser"] = si.UserName;
+                            cmdBuilder.UpdateTable(si, "FMM_CustTableIndexCol", dt, sqa);
+                            saveResult.IsOK = true;
+                            saveResult.Message = "Index Column Updated.";
+                            saveResult.ShowMessageBox = true;
+                        }
+                    }
+                }
+                return saveResult;
+            }
+            catch (Exception ex)
+            {
+                return new XFSelectionChangedTaskResult { IsOK = false, Message = $"An error occurred: {ex.Message}", ShowMessageBox = true };
             }
         }
         #endregion

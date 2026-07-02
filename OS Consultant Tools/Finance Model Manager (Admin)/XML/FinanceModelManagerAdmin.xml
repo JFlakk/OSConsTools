@@ -6464,7 +6464,7 @@
                             </component>
                             <component name="btn_FMM_CustTableConfig_SaveUpdate" description="" xfText="Save Custom Table" toolTip="Save Update Custom Table Config" componentType="Button" templateParameterValues="" brText1="" brText2="" boundParameterName="" paramValueForButtonClick="" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="SaveDataForAllComponents" selectionChangedPovActionType="NoAction" selectionChangedTaskType="ExecuteDashboardExtenderBusinessRule" selectionChangedUIActionType="NoAction" selectionChangedNavigationType="NoAction">
                                 <displayFormat>|!LV_Std_btn_Format!|</displayFormat>
-                                <selectionChangedTaskArgs>{Workspace.Current.FMM_ConfigUI_Assembly.FMM_ConfigData}{CubeConfig_SaveUpdate}{}</selectionChangedTaskArgs>
+                                <selectionChangedTaskArgs>{Workspace.Current.FMM_ConfigUI_Assembly.FMM_ConfigData}{CustTableConfig_SaveUpdate}{}</selectionChangedTaskArgs>
                                 <componentDefinition>
                                     <XFButtonDefinition ButtonType="Standard">
                                         <ImageFileSourceType>DashboardFile</ImageFileSourceType>
