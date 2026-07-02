@@ -52,8 +52,8 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
                     //case WsAssemblyServiceType.FinanceCore:
                     //    return new WsasFinanceCore();
 
-                    //case WsAssemblyServiceType.FinanceCustomCalculate:
-                    //    return new WsasFinanceCustomCalculate();
+                    case WsAssemblyServiceType.FinanceCustomCalculate:
+                        return new FMM_CustCalcSvc();
 
                     //case WsAssemblyServiceType.FinanceGetDataCell:
                     //    return new WsasFinanceGetDataCell();

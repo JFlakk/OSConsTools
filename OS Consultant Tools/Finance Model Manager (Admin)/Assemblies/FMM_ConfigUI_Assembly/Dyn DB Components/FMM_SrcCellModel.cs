@@ -69,6 +69,12 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
         public string ud7 { get; set; } = string.Empty;
         public string ud8 { get; set; } = string.Empty;
 
+        // Table calc-specific fields (columns Table_Calc_Expression, Table_Join_Expression,
+        // Table_Filter_Expression, Table_JoinType on FMM_SrcCellConfig)
+        public string TableCalcExpression { get; set; } = string.Empty;
+        public string TableJoinExpression { get; set; } = string.Empty;
+        public string TableFilterExpression { get; set; } = string.Empty;
+        public string TableJoinType { get; set; } = string.Empty;
 
         // Dynamic accessor based on passed-in dimension list
         public string this[string dimension]

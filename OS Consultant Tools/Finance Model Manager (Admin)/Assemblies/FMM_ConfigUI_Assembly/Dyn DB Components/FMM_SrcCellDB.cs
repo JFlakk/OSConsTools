@@ -290,6 +290,16 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
             if (enabledProperties.Contains("UD8") && dr.Table.Columns.Contains("UD8"))
                 model.ud8 = dr.Field<string>("UD8");
 
+            // Table calc-specific fields
+            if (enabledProperties.Contains("Table_Calc_Expression") && dr.Table.Columns.Contains("Table_Calc_Expression"))
+                model.TableCalcExpression = dr.Field<string>("Table_Calc_Expression") ?? string.Empty;
+            if (enabledProperties.Contains("Table_Join_Expression") && dr.Table.Columns.Contains("Table_Join_Expression"))
+                model.TableJoinExpression = dr.Field<string>("Table_Join_Expression") ?? string.Empty;
+            if (enabledProperties.Contains("Table_Filter_Expression") && dr.Table.Columns.Contains("Table_Filter_Expression"))
+                model.TableFilterExpression = dr.Field<string>("Table_Filter_Expression") ?? string.Empty;
+            if (enabledProperties.Contains("Table_JoinType") && dr.Table.Columns.Contains("Table_JoinType"))
+                model.TableJoinType = dr.Field<string>("Table_JoinType") ?? string.Empty;
+
             return model;
         }
 

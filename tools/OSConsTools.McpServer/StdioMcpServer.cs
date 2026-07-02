@@ -126,6 +126,7 @@ internal sealed class StdioMcpServer
                 GetOptionalString(arguments, "query"),
                 GetOptionalInt(arguments, "limit", 10)),
             "get_index_stats" => _index.GetIndexStats(),
+            "get_table_calc_schema" => _index.GetTableCalcSchema(),
             _ => throw new InvalidOperationException($"Unknown tool '{toolName}'.")
         };
 
@@ -204,6 +205,14 @@ internal sealed class StdioMcpServer
             new McpToolDefinition(
                 "get_index_stats",
                 "Show the current DLL, C# source, and XML binding index counts and scan warnings.",
+                new
+                {
+                    type = "object",
+                    properties = new { }
+                }),
+            new McpToolDefinition(
+                "get_table_calc_schema",
+                "Return the FMM Table CalcType parameter-name → DB-column mappings for FMM_SrcCellConfig and FMM_DestCell, along with runtime entry-point details and example expression formats. Use this to understand how to configure or query a Table-to-Table calculation.",
                 new
                 {
                     type = "object",

@@ -26,7 +26,18 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardE
 				switch (args.FunctionType)
 				{
 					case DashboardExtenderFunctionType.LoadDashboard:
-						if (args.FunctionName.XFEqualsIgnoreCase("TestFunction"))
+						if (args.FunctionName.XFEqualsIgnoreCase("RunMigrations"))
+						{
+							if (args.LoadDashboardTaskInfo.Reason == LoadDashboardReasonType.Initialize && args.LoadDashboardTaskInfo.Action == LoadDashboardActionType.BeforeFirstGetParameters)
+							{
+								RunTableCalcMigrations(si);
+								var loadDashboardTaskResult = new XFLoadDashboardTaskResult();
+								loadDashboardTaskResult.ChangeCustomSubstVarsInDashboard = false;
+								loadDashboardTaskResult.ModifiedCustomSubstVars = null;
+								return loadDashboardTaskResult;
+							}
+						}
+						else if (args.FunctionName.XFEqualsIgnoreCase("TestFunction"))
 						{
 							// Implement Load Dashboard logic here.
 							if (args.LoadDashboardTaskInfo.Reason == LoadDashboardReasonType.Initialize && args.LoadDashboardTaskInfo.Action == LoadDashboardActionType.BeforeFirstGetParameters)
@@ -84,6 +95,45 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardE
 			catch (Exception ex)
 			{
 				throw ErrorHandler.LogWrite(si, new XFException(si, ex));
+			}
+		}
+
+		/// <summary>
+		/// Adds any new columns required by the Table CalcType feature if they do not already exist.
+		/// Safe to run multiple times (idempotent).
+		/// </summary>
+		private void RunTableCalcMigrations(SessionInfo si)
+		{
+			using (var dbConn = BRApi.Database.CreateApplicationDbConnInfo(si))
+			{
+				// FMM_SrcCellConfig: Table_JoinType
+				AddColumnIfMissing(si, dbConn, "FMM_SrcCellConfig", "Table_JoinType", "NVARCHAR(50)");
+
+				// FMM_DestCell: DestTableName and CalcMode
+				AddColumnIfMissing(si, dbConn, "FMM_DestCell", "DestTableName", "NVARCHAR(255)");
+				AddColumnIfMissing(si, dbConn, "FMM_DestCell", "CalcMode", "NVARCHAR(50)");
+			}
+		}
+
+		private void AddColumnIfMissing(SessionInfo si, DbConnInfoApp dbConn, string tableName, string columnName, string columnType)
+		{
+			var checkSql = @"
+                SELECT COUNT(1)
+                FROM INFORMATION_SCHEMA.COLUMNS
+                WHERE TABLE_NAME = @tableName
+                  AND COLUMN_NAME = @columnName";
+
+			var checkParams = new List<DbParamInfo>
+			{
+				new DbParamInfo("@tableName", tableName),
+				new DbParamInfo("@columnName", columnName)
+			};
+
+			var exists = BRApi.Database.ExecuteScalar(dbConn, false, checkSql, checkParams);
+			if (Convert.ToInt32(exists) == 0)
+			{
+				var alterSql = $"ALTER TABLE {tableName} ADD {columnName} {columnType} NULL";
+				BRApi.Database.ExecuteActionQuery(dbConn, alterSql, null, false, true);
 			}
 		}
 	}

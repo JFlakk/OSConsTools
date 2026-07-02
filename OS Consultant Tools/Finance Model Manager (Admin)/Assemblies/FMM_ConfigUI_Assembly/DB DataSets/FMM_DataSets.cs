@@ -170,6 +170,14 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardD
                         {
                             return get_FMM_UnitConfigs();
                         }
+                        else if (args.DataSetName.XFEqualsIgnoreCase("get_FMM_TableCalc_SrcCells"))
+                        {
+                            return get_FMM_TableCalc_SrcCells();
+                        }
+                        else if (args.DataSetName.XFEqualsIgnoreCase("get_FMM_TableCalc_DestTable"))
+                        {
+                            return get_FMM_TableCalc_DestTable();
+                        }
 
 
                         break;
@@ -1142,6 +1150,82 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardD
 
                 }
 
+                return dt;
+            }
+            catch (Exception ex)
+            {
+                throw ErrorHandler.LogWrite(si, new XFException(si, ex));
+            }
+        }
+
+        /// <summary>
+        /// Returns all FMM_SrcCellConfig rows for a given CalcConfigID where CalcType is Table,
+        /// ordered by SrcOrder. Used to populate the Table A / Table B config UI panels.
+        /// Expects NameValuePair key "CalcConfigID".
+        /// </summary>
+        private DataTable get_FMM_TableCalc_SrcCells()
+        {
+            try
+            {
+                int calcConfigID = args.NameValuePairs.XFGetValue("CalcConfigID", "0").XFConvertToInt();
+                var dt = new DataTable("FMM_TableCalc_SrcCells");
+                using (var dbConn = BRApi.Database.CreateApplicationDbConnInfo(si))
+                {
+                    var sql = @"
+                        SELECT sc.SrcCellConfigID, sc.CalcConfigID, sc.SrcOrder, sc.Type, sc.Item,
+                               sc.Table_Calc_Expression, sc.Table_Join_Expression,
+                               sc.Table_Filter_Expression, sc.Table_JoinType,
+                               sc.MapType, sc.MapSource, sc.MapLogic
+                        FROM FMM_SrcCellConfig sc
+                        INNER JOIN FMM_CalcConfig cc ON sc.CalcConfigID = cc.CalcConfigID
+                        WHERE sc.CalcConfigID = @calcConfigID
+                          AND cc.gbl_CalcLogic_Table = 1
+                        ORDER BY sc.SrcOrder";
+
+                    var paramList = new List<DbParamInfo>
+                    {
+                        new DbParamInfo("@calcConfigID", calcConfigID)
+                    };
+
+                    var result = BRApi.Database.ExecuteQuery(dbConn, false, sql, paramList);
+                    dt = result;
+                }
+                return dt;
+            }
+            catch (Exception ex)
+            {
+                throw ErrorHandler.LogWrite(si, new XFException(si, ex));
+            }
+        }
+
+        /// <summary>
+        /// Returns the configured destination table name and column definitions for a given CalcConfigID.
+        /// Used to populate the Dest Table panel in the admin UI.
+        /// Expects NameValuePair key "CalcConfigID".
+        /// </summary>
+        private DataTable get_FMM_TableCalc_DestTable()
+        {
+            try
+            {
+                int calcConfigID = args.NameValuePairs.XFGetValue("CalcConfigID", "0").XFConvertToInt();
+                var dt = new DataTable("FMM_TableCalc_DestTable");
+                using (var dbConn = BRApi.Database.CreateApplicationDbConnInfo(si))
+                {
+                    var sql = @"
+                        SELECT dc.DestCell_ID, dc.CalcConfigID, dc.DestTableName, dc.CalcMode,
+                               cc.Table_Calc_SQL_Logic
+                        FROM FMM_DestCell dc
+                        INNER JOIN FMM_CalcConfig cc ON dc.CalcConfigID = cc.CalcConfigID
+                        WHERE dc.CalcConfigID = @calcConfigID";
+
+                    var paramList = new List<DbParamInfo>
+                    {
+                        new DbParamInfo("@calcConfigID", calcConfigID)
+                    };
+
+                    var result = BRApi.Database.ExecuteQuery(dbConn, false, sql, paramList);
+                    dt = result;
+                }
                 return dt;
             }
             catch (Exception ex)

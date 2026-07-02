@@ -425,7 +425,9 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
 						{ 1, new Dictionary<string, string> { { "IV_FMM_CalcConfig_Name", "Name" } } },
 						{ 2, new Dictionary<string, string> { { "IV_FMM_CalcConfig_Explanation", "Explanation" } } },
 						{ 3, new Dictionary<string, string> { { "IV_FMM_CalcConfig_Condition", "Condition" } } },
-						{ 4, new Dictionary<string, string> { { "IV_FMM_CalcConfig_MultiDimAlloc", "MultiDim_Alloc" } } }
+						{ 4, new Dictionary<string, string> { { "IV_FMM_CalcConfig_MultiDimAlloc", "MultiDim_Alloc" } } },
+						{ 5, new Dictionary<string, string> { { "IV_FMM_DestTable_Name", "DestTableName" } } },
+						{ 6, new Dictionary<string, string> { { "IV_FMM_DestTable_CalcMode", "CalcMode" } } }
 					}
 				},
 				[CalcType.Cube] = new DestConfig
@@ -486,12 +488,13 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
 						{ 0, new Dictionary<string, string> { { "IV_FMM_SrcConfig_SrcOrder", "SrcOrder" } } },
 				        { 1, new Dictionary<string, string> { { "IV_FMM_SrcConfig_TableSrcType", "Type" } } },
 				        { 2, new Dictionary<string, string> { { "IV_FMM_SrcConfig_SrcItem", "Item" } } },
-//				        { 3, new Dictionary<string, string> { { "IV_FMM_SrcConfig_TableCalcExpr", "CalcExpression" } } },
-//				        { 4, new Dictionary<string, string> { { "IV_FMM_SrcConfig_JoinExpr", "JoinExpression" } } },
-//				        { 5, new Dictionary<string, string> { { "IV_FMM_SrcConfig_FilterExpr", "FilterExpr" } } },
-				        { 3, new Dictionary<string, string> { { "IV_FMM_SrcConfig_MapType", "MapType" } } },
-				        { 4, new Dictionary<string, string> { { "IV_FMM_SrcConfig_MapSource", "MapSource" } } },
-				        { 5, new Dictionary<string, string> { { "IV_FMM_SrcConfig_MapLogic", "MapLogic" } } }
+				        { 3, new Dictionary<string, string> { { "IV_FMM_SrcCellConfig_TableCalcExpr", "Table_Calc_Expression" } } },
+				        { 4, new Dictionary<string, string> { { "IV_FMM_SrcCellConfig_JoinExpr", "Table_Join_Expression" } } },
+				        { 5, new Dictionary<string, string> { { "IV_FMM_SrcCellConfig_FilterExpr", "Table_Filter_Expression" } } },
+				        { 6, new Dictionary<string, string> { { "DL_FMM_Table_JoinType", "Table_JoinType" } } },
+				        { 7, new Dictionary<string, string> { { "IV_FMM_SrcConfig_MapType", "MapType" } } },
+				        { 8, new Dictionary<string, string> { { "IV_FMM_SrcConfig_MapSource", "MapSource" } } },
+				        { 9, new Dictionary<string, string> { { "IV_FMM_SrcConfig_MapLogic", "MapLogic" } } }
 
 					}
 				},

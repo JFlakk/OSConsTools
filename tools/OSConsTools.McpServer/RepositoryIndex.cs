@@ -258,6 +258,69 @@ internal sealed record RepositoryIndex(
         };
     }
 
+    /// <summary>
+    /// Returns the SrcRegistry and DestRegistry parameter name → DB column mappings for
+    /// CalcType.Table, plus the known DB column names and their purpose. Use this to
+    /// understand what join/calc/filter expression format to pass when configuring a
+    /// Table calculation in FMM.
+    /// </summary>
+    public object GetTableCalcSchema()
+    {
+        return new
+        {
+            calcType = "Table",
+            description = "Table-to-Table calculation: join two or more custom SQL tables, apply a calc expression, and write results to a destination table.",
+            srcCellConfig = new
+            {
+                tableName = "FMM_SrcCellConfig",
+                notes = "Each row represents one source table in the join. SrcOrder = 0 is the primary (Table A). Higher SrcOrder rows are joined tables (Table B, C …).",
+                parameters = new[]
+                {
+                    new { paramName = "IV_FMM_SrcConfig_SrcOrder",        dbColumn = "SrcOrder",               description = "Ordinal position; 0 = primary driver table (Table A)." },
+                    new { paramName = "IV_FMM_SrcConfig_TableSrcType",    dbColumn = "Type",                   description = "Source type identifier (e.g. 'Table')." },
+                    new { paramName = "IV_FMM_SrcConfig_SrcItem",         dbColumn = "Item",                   description = "SQL table name or view for this source row." },
+                    new { paramName = "IV_FMM_SrcCellConfig_TableCalcExpr", dbColumn = "Table_Calc_Expression", description = "SELECT expression for the primary table (e.g. 'A.Amount * B.Rate AS Result'). Leave blank to select all." },
+                    new { paramName = "IV_FMM_SrcCellConfig_JoinExpr",    dbColumn = "Table_Join_Expression",  description = "ON clause for joining this row's table to the primary (e.g. 'A.EntityKey = B.EntityKey'). Required for SrcOrder > 0." },
+                    new { paramName = "IV_FMM_SrcCellConfig_FilterExpr",  dbColumn = "Table_Filter_Expression", description = "Optional WHERE clause applied to the primary table (e.g. 'A.Year = 2024')." },
+                    new { paramName = "DL_FMM_Table_JoinType",            dbColumn = "Table_JoinType",         description = "Join type: 1 = INNER JOIN (default), 2 = LEFT JOIN, 3 = FULL OUTER JOIN." },
+                    new { paramName = "IV_FMM_SrcConfig_MapType",         dbColumn = "MapType",                description = "Optional mapping type for post-calc transformation." },
+                    new { paramName = "IV_FMM_SrcConfig_MapSource",       dbColumn = "MapSource",              description = "Optional mapping source value." },
+                    new { paramName = "IV_FMM_SrcConfig_MapLogic",        dbColumn = "MapLogic",               description = "Optional mapping logic/expression." }
+                }
+            },
+            destCellConfig = new
+            {
+                tableName = "FMM_DestCell",
+                notes = "One row per calc; specifies the custom table to write results into.",
+                parameters = new[]
+                {
+                    new { paramName = "IV_FMM_CalcConfig_Location",    dbColumn = "Sequence",      description = "Execution sequence order." },
+                    new { paramName = "IV_FMM_CalcConfig_Name",        dbColumn = "Name",          description = "Human-readable name for the calc." },
+                    new { paramName = "IV_FMM_CalcConfig_Explanation", dbColumn = "Explanation",   description = "Description of what the calc does." },
+                    new { paramName = "IV_FMM_CalcConfig_Condition",   dbColumn = "Condition",     description = "Optional run condition." },
+                    new { paramName = "IV_FMM_CalcConfig_MultiDimAlloc", dbColumn = "MultiDim_Alloc", description = "Multi-dimensional allocation flag." },
+                    new { paramName = "IV_FMM_DestTable_Name",         dbColumn = "DestTableName", description = "Name of the destination custom SQL table to receive calc results." },
+                    new { paramName = "IV_FMM_DestTable_CalcMode",     dbColumn = "CalcMode",      description = "How to write results: 'Replace' truncates then inserts; 'Append' inserts without clearing." }
+                }
+            },
+            calcConfigAuditColumns = new[]
+            {
+                new { column = "Table_Calc_SQL_Logic", description = "Populated at runtime with the generated SQL used for the join/select. Visible in the SQL Preview panel." },
+                new { column = "Table_Calc_Logic",     description = "Human-readable description of the calc logic (optional admin note)." }
+            },
+            exampleJoinExpression = "A.EntityKey = B.EntityKey",
+            exampleCalcExpression  = "A.Amount * B.Rate AS CalcResult, A.EntityKey",
+            exampleFilterExpression = "A.ScenarioID = 1 AND A.FiscalYear = 2024",
+            runtimeEntryPoint = new
+            {
+                service   = "FMM_CustCalcSvc",
+                method    = "CustomCalculate",
+                functionName = "ExecuteTableCalcs",
+                notes = "Trigger via FinanceRulesArgs.CustomCalculateArgs.FunctionName = 'ExecuteTableCalcs'."
+            }
+        };
+    }
+
     private IReadOnlyList<string> FindLikelyCodeFiles(WorkspaceBindingRecord binding)
     {
         var searchQuery = string.Join(

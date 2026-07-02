@@ -5144,6 +5144,66 @@
                                 <dimName></dimName>
                                 <memberFilter></memberFilter>
                             </parameter>
+                            <parameter name="DL_FMM_Table_JoinType" description="Join type for Table calc (INNER / LEFT / FULL OUTER)" userPrompt="" parameterType="DelimitedList" sortOrder="116">
+                                <defaultValue>1</defaultValue>
+                                <resultFormatStringType>Default</resultFormatStringType>
+                                <resultCustomFormatString></resultCustomFormatString>
+                                <parameterCommandType>Unknown</parameterCommandType>
+                                <sqlQuery></sqlQuery>
+                                <dbLocation>Application</dbLocation>
+                                <externalDBConnName></externalDBConnName>
+                                <methodType>Unknown</methodType>
+                                <methodQuery></methodQuery>
+                                <resultsTableName></resultsTableName>
+                                <displayMember></displayMember>
+                                <valueMember></valueMember>
+                                <displayItems>INNER JOIN|LEFT JOIN|FULL OUTER JOIN</displayItems>
+                                <valueItems>1|2|3</valueItems>
+                                <cubeName></cubeName>
+                                <dimType></dimType>
+                                <dimName></dimName>
+                                <memberFilter></memberFilter>
+                            </parameter>
+                            <parameter name="IV_FMM_DestTable_Name" description="Destination custom table name for Table calc" userPrompt="" parameterType="InputValue" sortOrder="117">
+                                <defaultValue></defaultValue>
+                                <resultFormatStringType>Default</resultFormatStringType>
+                                <resultCustomFormatString></resultCustomFormatString>
+                                <parameterCommandType>Unknown</parameterCommandType>
+                                <sqlQuery></sqlQuery>
+                                <dbLocation>Application</dbLocation>
+                                <externalDBConnName></externalDBConnName>
+                                <methodType>Unknown</methodType>
+                                <methodQuery></methodQuery>
+                                <resultsTableName></resultsTableName>
+                                <displayMember></displayMember>
+                                <valueMember></valueMember>
+                                <displayItems></displayItems>
+                                <valueItems></valueItems>
+                                <cubeName></cubeName>
+                                <dimType></dimType>
+                                <dimName></dimName>
+                                <memberFilter></memberFilter>
+                            </parameter>
+                            <parameter name="IV_FMM_DestTable_CalcMode" description="Calc mode for Table calc destination (e.g. Replace, Append)" userPrompt="" parameterType="InputValue" sortOrder="118">
+                                <defaultValue>Replace</defaultValue>
+                                <resultFormatStringType>Default</resultFormatStringType>
+                                <resultCustomFormatString></resultCustomFormatString>
+                                <parameterCommandType>Unknown</parameterCommandType>
+                                <sqlQuery></sqlQuery>
+                                <dbLocation>Application</dbLocation>
+                                <externalDBConnName></externalDBConnName>
+                                <methodType>Unknown</methodType>
+                                <methodQuery></methodQuery>
+                                <resultsTableName></resultsTableName>
+                                <displayMember></displayMember>
+                                <valueMember></valueMember>
+                                <displayItems></displayItems>
+                                <valueItems></valueItems>
+                                <cubeName></cubeName>
+                                <dimType></dimType>
+                                <dimName></dimName>
+                                <memberFilter></memberFilter>
+                            </parameter>
                             <parameter name="BL_FMM_ModelGrpConfigID" description="" userPrompt="" parameterType="BoundList" sortOrder="120">
                                 <defaultValue></defaultValue>
                                 <resultFormatStringType>Default</resultFormatStringType>
@@ -11748,6 +11808,46 @@
                                 </componentDefinition>
                                 <adapterMembers />
                             </component>
+                            <component name="cbx_FMM_Table_JoinType" description="" xfText="Join Type" toolTip="Select the SQL join type for Table B and beyond" componentType="ComboBox" templateParameterValues="" brText1="" brText2="" boundParameterName="DL_FMM_Table_JoinType" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="NoTask" selectionChangedUIActionType="NoAction" selectionChangedNavigationType="NoAction">
+                                <displayFormat>|!LV_Std_cbx_Grid_Format!|, Width = 150</displayFormat>
+                                <componentDefinition>
+                                    <XFComboBoxDefinition />
+                                </componentDefinition>
+                                <adapterMembers />
+                            </component>
+                            <component name="txt_FMM_Dest_TableName" description="" xfText="Dest Table Name" toolTip="Name of the destination custom table to write results into" componentType="TextBox" templateParameterValues="" brText1="" brText2="" boundParameterName="IV_FMM_DestTable_Name" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="NoTask" selectionChangedUIActionType="NoAction" selectionChangedNavigationType="NoAction">
+                                <displayFormat>|!LV_Std_txt_Grid_Format!|, Width = 200</displayFormat>
+                                <componentDefinition>
+                                    <XFTextBoxDefinition>
+                                        <AllowRichText>false</AllowRichText>
+                                        <EnableSpellCheck>false</EnableSpellCheck>
+                                        <Multiline>false</Multiline>
+                                    </XFTextBoxDefinition>
+                                </componentDefinition>
+                                <adapterMembers />
+                            </component>
+                            <component name="txt_FMM_Dest_CalcMode" description="" xfText="Calc Mode" toolTip="Calc mode for the destination table (Replace or Append)" componentType="TextBox" templateParameterValues="" brText1="" brText2="" boundParameterName="IV_FMM_DestTable_CalcMode" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="NoTask" selectionChangedUIActionType="NoAction" selectionChangedNavigationType="NoAction">
+                                <displayFormat>|!LV_Std_txt_Grid_Format!|, Width = 120</displayFormat>
+                                <componentDefinition>
+                                    <XFTextBoxDefinition>
+                                        <AllowRichText>false</AllowRichText>
+                                        <EnableSpellCheck>false</EnableSpellCheck>
+                                        <Multiline>false</Multiline>
+                                    </XFTextBoxDefinition>
+                                </componentDefinition>
+                                <adapterMembers />
+                            </component>
+                            <component name="txt_FMM_TableCalc_SQL_Preview" description="" xfText="Generated SQL" toolTip="Read-only view of the SQL generated by the Table calc runtime" componentType="TextBox" templateParameterValues="" brText1="" brText2="" boundParameterName="" applyParamValueToCurrentDbrd="false" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="NoTask" selectionChangedUIActionType="NoAction" selectionChangedNavigationType="NoAction">
+                                <displayFormat>|!LV_Std_txt_Grid_Format!|, Width = 400</displayFormat>
+                                <componentDefinition>
+                                    <XFTextBoxDefinition>
+                                        <AllowRichText>false</AllowRichText>
+                                        <EnableSpellCheck>false</EnableSpellCheck>
+                                        <Multiline>true</Multiline>
+                                    </XFTextBoxDefinition>
+                                </componentDefinition>
+                                <adapterMembers />
+                            </component>
                             <component name="txt_FMM_Src_Time" description="" xfText="Time" toolTip="" componentType="TextBox" templateParameterValues="" brText1="" brText2="" boundParameterName="IV_FMM_SrcCellConfig_Time" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="NoTask" selectionChangedUIActionType="NoAction" selectionChangedNavigationType="NoAction">
                                 <displayFormat>|!LV_Std_txt_Grid_Format!|, Width = 120</displayFormat>
                                 <componentDefinition>
@@ -15474,6 +15574,7 @@
                                             <componentMember name="txt_FMM_Src_SrcItem" left="" top="" width="" height="" dockPosition="Left" />
                                             <componentMember name="txt_FMM_Src_TableCalcExpr" left="" top="" width="" height="" dockPosition="Left" />
                                             <componentMember name="txt_FMM_Src_JoinExpr" left="" top="" width="" height="" dockPosition="Left" />
+                                            <componentMember name="cbx_FMM_Table_JoinType" left="" top="" width="" height="" dockPosition="Left" />
                                             <componentMember name="txt_FMM_Src_FilterExpr" left="" top="" width="" height="" dockPosition="Left" />
                                             <componentMember name="txt_FMM_Src_MapType" left="" top="" width="" height="" dockPosition="Left" />
                                             <componentMember name="txt_FMM_Src_MapSource" left="" top="" width="" height="" dockPosition="Left" />
@@ -15497,6 +15598,9 @@
                                         </DashboardDefinition>
                                         <componentMembers>
                                             <componentMember name="lbl_FMM_CalcConfigDest_Table" left="" top="" width="" height="" dockPosition="Left" />
+                                            <componentMember name="txt_FMM_Dest_TableName" left="" top="" width="" height="" dockPosition="Left" />
+                                            <componentMember name="txt_FMM_Dest_CalcMode" left="" top="" width="" height="" dockPosition="Left" />
+                                            <componentMember name="txt_FMM_TableCalc_SQL_Preview" left="" top="" width="" height="" dockPosition="Left" />
                                             <componentMember name="Embedded FMM_DestCellConfig_Table_R2" left="" top="" width="" height="" dockPosition="Left" />
                                         </componentMembers>
                                     </dashboard>
