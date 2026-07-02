@@ -275,9 +275,10 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
         {
             var componentCollection = api.GetDynamicComponentsForDynamicDashboard(si, workspace, dynamicDashboardEx, String.Empty, null, TriStateBool.TrueValue, WsDynamicItemStateType.EntireObject);
 		//	BRApi.ErrorLog.LogMessage(si,$"JF Dyn DB here {dynamicDashboardEx.DynamicDashboard.Name}");
-            // add header items
-            var dt = DDM_Support.get_HeaderItems(si, customSubstVarsAlreadyResolved,1);
-            var tempColl = addHeaderItems(ref dt, si, workspace, api, dynamicDashboardEx, maintUnit);
+            // add header items — fetch filter and button rows separately, then combine
+            var filterDt = DDM_Support.get_HeaderItems(si, customSubstVarsAlreadyResolved, (int)DDM_ConfigHelpers.HdrType.Filter);
+            var buttonDt = DDM_Support.get_HeaderItems(si, customSubstVarsAlreadyResolved, (int)DDM_ConfigHelpers.HdrType.Button);
+            var tempColl = addHeaderItems(filterDt, buttonDt, si, workspace, api, dynamicDashboardEx, maintUnit);
 // BRApi.ErrorLog.LogMessage(si, $"Stored Component Rows: {dt.Rows.Count}");
             foreach (var item in tempColl.Components)
 			{
@@ -347,39 +348,68 @@ return componentCollection;
             return name ?? string.Empty;
         }
         
-        private static WsDynamicComponentCollection addHeaderItems(ref DataTable headerItems, SessionInfo si, DashboardWorkspace ws, IWsasDynamicDashboardsApiV800 api, WsDynamicDashboardEx dynamicDashboardEx, DashboardMaintUnit maintUnit)
+        // Orchestrates filter and button header items into a single component collection.
+        private static WsDynamicComponentCollection addHeaderItems(
+            DataTable filterItems, DataTable buttonItems,
+            SessionInfo si, DashboardWorkspace ws, IWsasDynamicDashboardsApiV800 api,
+            WsDynamicDashboardEx dynamicDashboardEx, DashboardMaintUnit maintUnit)
         {
-
             var wsDynCompMembers = new List<WsDynamicDbrdCompMemberEx>();
-            var storedComponent = new DashboardDbrdCompMemberEx();
-            var nameSuffix = string.Empty;
+            wsDynCompMembers.AddRange(addFilterItems(filterItems, si, ws, api, dynamicDashboardEx, maintUnit));
+            wsDynCompMembers.AddRange(addButtonItems(buttonItems, si, ws, api, dynamicDashboardEx, maintUnit));
+            return new WsDynamicComponentCollection(dynamicDashboardEx, wsDynCompMembers);
+        }
 
-            var templateSubstVars = new Dictionary<string, string>();
-
-            int iteration = 1;
+        // Builds dynamic components for each Filter-type header row.
+        // Handles Btn / Cbx / Txt sub-components, line separators between rows,
+        // and appends a text-entry refresh button when any row contains a TextBox.
+        //
+        // Expected DDM_DynDBHdrConfig columns for Filter rows (HdrType = 1):
+        //   Fltr_DimType        int   → DDM_ConfigHelpers.HdrDimType enum (Entity=0, Time=1, Scenario=2, ...)
+        //   Fltr_DimName        nvarchar  dimension name used for member-select dialog
+        //   Fltr_Default        nvarchar  default selected member
+        //   Fltr_MFB            nvarchar  member filter base expression
+        //   Fltr_Btn            bit   show the member-select button (1=yes)
+        //   Fltr_BtnLbl         nvarchar  label text for the button
+        //   Fltr_BtnToolTip     nvarchar  tooltip for the button
+        //   Fltr_Cbx            bit   show the combo-box (1=yes)
+        //   Fltr_CbxLbl         nvarchar  label text for the combo-box
+        //   Fltr_CbxToolTip     nvarchar  tooltip for the combo-box
+        //   Fltr_Txt            bit   show the text-box (1=yes)
+        //   Fltr_TxtLbl         nvarchar  label text for the text-box
+        //   Fltr_TxtToolTip     nvarchar  tooltip for the text-box
+        //   Fltr_BtnCbxBoundParam nvarchar  ML parameter name bound to Btn/Cbx (empty → use Txt param)
+        //   Fltr_TxtBoundParam  nvarchar  IV parameter name bound to Txt
+        private static List<WsDynamicDbrdCompMemberEx> addFilterItems(
+            DataTable filterItems, SessionInfo si, DashboardWorkspace ws,
+            IWsasDynamicDashboardsApiV800 api, WsDynamicDashboardEx dynamicDashboardEx,
+            DashboardMaintUnit maintUnit)
+        {
+            var wsDynCompMembers = new List<WsDynamicDbrdCompMemberEx>();
+            var tempCompMember = new WsDynamicDbrdCompMember();
             bool containsTxtBox = false;
-            int rowCount = headerItems.Rows.Count;
+            int iteration = 1;
+            int rowCount = filterItems.Rows.Count;
 
-            foreach (DataRow row in headerItems.Rows)
+            foreach (DataRow row in filterItems.Rows)
             {
-				var dimTypeKeyValue = Convert.ToInt32(row["Fltr_DimType"]);
-				var dimType = Enum.GetName(typeof(DDM_ConfigHelpers.HdrDimType), dimTypeKeyValue);
+                var dimTypeKeyValue = Convert.ToInt32(row["Fltr_DimType"]);
+                var dimType = Enum.GetName(typeof(DDM_ConfigHelpers.HdrDimType), dimTypeKeyValue);
+
                 var stored_param = new DashboardParamDisplayInfo();
                 var new_param = new WsDynamicParameter();
                 if (row["Fltr_BtnCbxBoundParam"].ToString() != string.Empty)
                 {
-                	stored_param = BRApi.Dashboards.Parameters.GetParameterDisplayInfo(si, false, null, ws.WorkspaceID, $"{ws.NamespacePrefix}.ML_DDM_App_MbrList{dimType}");
+                    stored_param = BRApi.Dashboards.Parameters.GetParameterDisplayInfo(si, false, null, ws.WorkspaceID, $"{ws.NamespacePrefix}.ML_DDM_App_MbrList{dimType}");
                     new_param = new WsDynamicParameter(true, stored_param.Parameter, stored_param.Parameter.UniqueID, stored_param.Parameter.Name, ws.Name);
                     new_param.Parameter = new DashboardParameter();
                     new_param.Parameter.UniqueID = Guid.NewGuid();
-                    //new_param.Parameter.Name = row["Fltr_BtnCbx_BoundParam"].ToString();
                     new_param.Parameter.Name = $"{stored_param.Parameter.Name}";
                     new_param.Parameter.ParameterType = DashboardParamType.MemberList;
                     new_param.Parameter.DimTypeName = dimType;
                     new_param.Parameter.CubeName = "Army";
                     new_param.Parameter.MemberFilter = row["Fltr_MFB"].ToString();
                     new_param.Parameter.DimName = row["Fltr_DimName"].ToString();
-                    //tempComp.DynamicComponent.Component.BoundParameterName = new_param.Parameter.Name;
                 }
                 else
                 {
@@ -387,305 +417,257 @@ return componentCollection;
                     new_param.Parameter = new DashboardParameter();
                     new_param.Parameter.Name = row["Fltr_TxtBoundParam"].ToString();
                     new_param.Parameter.ParameterType = DashboardParamType.InputValue;
-                    //tempComp.DynamicComponent.Component.BoundParameterName = new_param.Parameter.Name;
                 }
-				BRApi.ErrorLog.LogMessage(si,$"Hit Hdr items :{headerItems.Rows.Count}");
-				templateSubstVars.Clear();
-                var tempCompMember = new WsDynamicDbrdCompMember();
-                var compDefinition = new XElement("XFCompDefinition");
-				var tempComp = new WsDynamicComponentEx();
 
-                var baseSearch = string.Empty;
+                BRApi.ErrorLog.LogMessage(si, $"Hit Hdr filter items :{filterItems.Rows.Count}");
 
-                var optTypeValue = Convert.ToInt32(row["HdrType"]);
-				//BRApi.ErrorLog.LogMessage(si,$"Hit: {optType}");
-				var optType = Enum.GetName(typeof(DDM_ConfigHelpers.HdrType), optTypeValue);
+                var templateSubstVars = new Dictionary<string, string>();
 
-                var storedCompName_servertaskbtn = "btn_DDM_App_Complete_WF";
-
-
-                // based on item type, switch to define the header item
-                switch (optType)
+                foreach (string colSuffix in dashboardTypeResolver.Keys)
                 {
-                    case "Filter":
-                        baseSearch += "Fltr";
-						BRApi.ErrorLog.LogMessage(si,$"Hit {baseSearch}");
+                    BRApi.ErrorLog.LogMessage(si, $"Hit 2 {colSuffix}");
 
-                        foreach (string colSuffix in dashboardTypeResolver.Keys)
-                        {
-						BRApi.ErrorLog.LogMessage(si,$"Hit 2 {colSuffix}.tostring()");
-							
-							string colName = baseSearch + "_" + colSuffix;
-								bool isEnabled = false;
-								
-								// Check if column exists and is not null
-								if (headerItems.Columns.Contains(colName) && row[colName] != DBNull.Value)
-								{
-								    isEnabled = Convert.ToBoolean(row[colName]);
-								}
-								
-								if (isEnabled)
-								{
-								   
-								
-							
-                           // if ((bool)row[baseSearch + "_" + colSuffix])
-                            {
-														BRApi.ErrorLog.LogMessage(si,"Hit 3");
+                    string colName = "Fltr_" + colSuffix;
+                    bool isEnabled = false;
 
-								if (!templateSubstVars.ContainsKey(template_MbrList_cbxbtn_BoundParam))
-                                {
-                                    templateSubstVars.Add(template_MbrList_cbxbtn_BoundParam, stored_param.Parameter.Name);
-                                }
-                                if (!templateSubstVars.ContainsKey(template_MbrList_Default))
-                                {
-                                    templateSubstVars.Add(template_MbrList_Default, row[baseSearch + "_Default"].ToString());
-                                }
-                                if (!templateSubstVars.ContainsKey(template_MbrList_Cube))
-                                {
-                                    templateSubstVars.Add(template_MbrList_Cube, "Army");
-                                }
-                                if (!templateSubstVars.ContainsKey(template_MbrList_Dim))
-                                {
-                                    templateSubstVars.Add(template_MbrList_Dim, row[baseSearch + "_DimName"].ToString());
-                                }
-                                if (!templateSubstVars.ContainsKey(template_MbrList_Filter))
-                                {
-                                    templateSubstVars.Add(template_MbrList_Filter, row[baseSearch + "_MFB"].ToString());
-                                }
-								 BRApi.ErrorLog.LogMessage(si,$"Hit 3.5 JM{colSuffix}");
-								var storedCompName = string.Empty;
-								if (colSuffix.ToLower() == "btn")
-								{
-									storedCompName = $"{colSuffix.ToLower()}_DDM_App_MbrList{dimType}";
-								}
-								else
-								{
-									storedCompName = $"{colSuffix.ToLower()}_DDM_App_MbrList";
-								}
-								storedComponent = api.GetStoredComponentForDynamicDashboard(si, ws, dynamicDashboardEx.DynamicDashboard, storedCompName);
-   
-								tempComp = api.GetDynamicComponentForDynamicDashboard(si, ws, dynamicDashboardEx, storedComponent.Component, string.Empty, null, TriStateBool.TrueValue, WsDynamicItemStateType.EntireObject);
-                                //tempComp.DynamicComponent.Component.BoundParameterName = new_param.Parameter.Name;
-								//BRApi.ErrorLog.LogMessage(si,$"Hit 3.6 JM {storedComponent.Component.Name}");
-								tempComp.DynamicComponent.Component.ApplyParamValueToCurrentDbrd = true;
-								//BRApi.ErrorLog.LogMessage(si,"Hit 3.7 JM");
-                                //								tempComp.DisplayFormat = "|!LV_Std_btn_Format!|";
+                    if (filterItems.Columns.Contains(colName) && row[colName] != DBNull.Value)
+                    {
+                        isEnabled = Convert.ToBoolean(row[colName]);
+                    }
 
-                                tempComp.DynamicComponent.Component.DashboardComponentType = dashboardTypeResolver[colSuffix];
-								//BRApi.ErrorLog.LogMessage(si,"Hit 3.8 JM");
-                                tempComp.DynamicComponent.Component.Text = row[baseSearch + "_" + colSuffix + "Lbl"].ToString();
-                                tempComp.DynamicComponent.Component.ToolTip = row[baseSearch + "_" + colSuffix + "ToolTip"].ToString();
-                                tempComp.DynamicComponent.Component.Name = storedComponent.Component.Name;
-//BRApi.ErrorLog.LogMessage(si,"Hit 2");
-                                if (colSuffix == "Btn")
-                                {
-                                    if (!String.IsNullOrEmpty(tempComp.DynamicComponent.Component.XmlData))
-                                    {
-                                        compDefinition = XElement.Parse(tempComp.DynamicComponent.Component.XmlData);
-                                    }
-                                    else
-                                    {
-                                        compDefinition = buildButtonXML(optType);
-                                    }
+                    if (!isEnabled) continue;
 
-                                    tempComp.DynamicComponent.Component.SelectionChangedUIActionType = XFSelectionChangedUIActionType.Refresh;
-                                    tempComp.DynamicComponent.Component.DashboardsToRedraw = "DDM Dynamic App Dashboard"; //TODO: Update to use row btn dashboard refresh if necessary
+                    BRApi.ErrorLog.LogMessage(si, "Hit 3");
 
-                                    compDefinition.SetAttributeValue("ButtonType", "SelectMemberDialog"); // TODO: Check if DashboardComponentType.MemberSelectDialog is the same thing as this. Would likely still need to update through XML though for underlying
+                    var compDefinition = new XElement("XFCompDefinition");
 
-                                    if (compDefinition.Element("SelectMemberInfo") == null)
-                                    {
-                                        compDefinition.Add(new XElement("SelectMemberInfo"));
-                                    }
-                                    compDefinition.Element("SelectMemberInfo").SetElementValue("DimTypeName", dimType);
-                                    compDefinition.Element("SelectMemberInfo").SetElementValue("DimName", row[baseSearch + "_DimName"].ToString());
-                                    compDefinition.Element("SelectMemberInfo").SetElementValue("CubeName", "Army");
-                                    compDefinition.Element("SelectMemberInfo").SetElementValue("MemberFilter", row[baseSearch + "_MFB"].ToString());
-                                    compDefinition.SetElementValue("ImageFileSourceType", "DashboardFile");
-                                    compDefinition.SetElementValue("ImageUrlOrFullFileName", "Std_DB_Search.png"); // TODO: Add a col for allowing image input
-                                }
-//BRApi.ErrorLog.LogMessage(si,"Hit 3");
-                                if (compDefinition != null)
-                                {
-                                    tempComp.DynamicComponent.Component.XmlData = compDefinition.ToString();
-                                }
+                    if (!templateSubstVars.ContainsKey(template_MbrList_cbxbtn_BoundParam))
+                        templateSubstVars.Add(template_MbrList_cbxbtn_BoundParam, stored_param.Parameter.Name);
+                    if (!templateSubstVars.ContainsKey(template_MbrList_Default))
+                        templateSubstVars.Add(template_MbrList_Default, row["Fltr_Default"].ToString());
+                    if (!templateSubstVars.ContainsKey(template_MbrList_Cube))
+                        templateSubstVars.Add(template_MbrList_Cube, "Army");
+                    if (!templateSubstVars.ContainsKey(template_MbrList_Dim))
+                        templateSubstVars.Add(template_MbrList_Dim, row["Fltr_DimName"].ToString());
+                    if (!templateSubstVars.ContainsKey(template_MbrList_Filter))
+                        templateSubstVars.Add(template_MbrList_Filter, row["Fltr_MFB"].ToString());
 
-                                nameSuffix = "Dyn_1";
+                    BRApi.ErrorLog.LogMessage(si, $"Hit 3.5 JM{colSuffix}");
 
-                                if (!templateSubstVars.ContainsKey(template_MbrList_cbxbtn_BoundParam))
-                                {
-BRApi.ErrorLog.LogMessage(si,"Hit 3");
-                                    templateSubstVars.Add(template_MbrList_cbxbtn_BoundParam, stored_param.Parameter.Name);
-                                }
-                                else
-                                {
-                                    templateSubstVars[template_MbrList_cbxbtn_BoundParam] = stored_param.Parameter.Name;
-                                }
-BRApi.ErrorLog.LogMessage(si,"Hit 3.5");
-                                WsDynamicComponentEx filterCompEx = api.GetDynamicComponentForDynamicDashboard(si, ws,dynamicDashboardEx, tempComp.DynamicComponent.Component, dimType, templateSubstVars, TriStateBool.TrueValue, WsDynamicItemStateType.EntireObject);
-                             
-								BRApi.ErrorLog.LogMessage(si,$"Hit 3.6 {filterCompEx.DynamicComponent.Component.Name.ToString()}");
-								wsDynCompMembers.Add(new WsDynamicDbrdCompMemberEx(tempCompMember, filterCompEx));
- BRApi.ErrorLog.LogMessage(si,"Hit 3.7");
-                                 //add a secondary button component to handle text entry
-                                if (colSuffix == "Txt")
-                                {
-									//BRApi.ErrorLog.LogMessage(si,"Hit 3.6");
-                                    containsTxtBox = true;
-                                }
-								
-                            }
-							
-                        }}
+                    string storedCompName = colSuffix.ToLower() == "btn"
+                        ? $"{colSuffix.ToLower()}_DDM_App_MbrList{dimType}"
+                        : $"{colSuffix.ToLower()}_DDM_App_MbrList";
 
-BRApi.ErrorLog.LogMessage(si,"Hit 4");
-                        break;
-                    case "Button":
-                        baseSearch += "Btn";
-                        storedComponent = api.GetStoredComponentForDynamicDashboard(si, ws, dynamicDashboardEx.DynamicDashboard, "btn_DDM_Generic");
-                        tempComp = api.GetDynamicComponentForDynamicDashboard(si, ws, dynamicDashboardEx, storedComponent.Component, string.Empty, null, TriStateBool.TrueValue, WsDynamicItemStateType.EntireObject);
+                    var storedComponent = api.GetStoredComponentForDynamicDashboard(si, ws, dynamicDashboardEx.DynamicDashboard, storedCompName);
+                    var tempComp = api.GetDynamicComponentForDynamicDashboard(si, ws, dynamicDashboardEx, storedComponent.Component, string.Empty, null, TriStateBool.TrueValue, WsDynamicItemStateType.EntireObject);
 
-                        tempComp.DynamicComponent.Component.DashboardComponentType = DashboardComponentType.Button;
+                    tempComp.DynamicComponent.Component.ApplyParamValueToCurrentDbrd = true;
+                    tempComp.DynamicComponent.Component.DashboardComponentType = dashboardTypeResolver[colSuffix];
+                    tempComp.DynamicComponent.Component.Text = row["Fltr_" + colSuffix + "Lbl"].ToString();
+                    tempComp.DynamicComponent.Component.ToolTip = row["Fltr_" + colSuffix + "ToolTip"].ToString();
+                    tempComp.DynamicComponent.Component.Name = storedComponent.Component.Name;
 
-                        if (!String.IsNullOrEmpty(tempComp.DynamicComponent.Component.XmlData))
-                        {
+                    if (colSuffix == "Btn")
+                    {
+                        if (!string.IsNullOrEmpty(tempComp.DynamicComponent.Component.XmlData))
                             compDefinition = XElement.Parse(tempComp.DynamicComponent.Component.XmlData);
-                        }
                         else
-                        {
-                            compDefinition = buildButtonXML(optType);
-                        }
+                            compDefinition = buildButtonXML("Filter");
 
-                        // --- Label / ToolTip / Image (schema: Btn_Lbl, Btn_ToolTip, Btn_ImageURL) ---
-                        tempComp.DynamicComponent.Component.Text = GetStr(row, "Btn_Lbl");
-                        tempComp.DynamicComponent.Component.ToolTip = GetStr(row, "Btn_ToolTip");
+                        tempComp.DynamicComponent.Component.SelectionChangedUIActionType = XFSelectionChangedUIActionType.Refresh;
+                        tempComp.DynamicComponent.Component.DashboardsToRedraw = "DDM Dynamic App Dashboard"; // TODO: Update to use row btn dashboard refresh if necessary
+
+                        compDefinition.SetAttributeValue("ButtonType", "SelectMemberDialog"); // TODO: Check if DashboardComponentType.MemberSelectDialog is the same thing
+                        if (compDefinition.Element("SelectMemberInfo") == null)
+                            compDefinition.Add(new XElement("SelectMemberInfo"));
+                        compDefinition.Element("SelectMemberInfo").SetElementValue("DimTypeName", dimType);
+                        compDefinition.Element("SelectMemberInfo").SetElementValue("DimName", row["Fltr_DimName"].ToString());
+                        compDefinition.Element("SelectMemberInfo").SetElementValue("CubeName", "Army");
+                        compDefinition.Element("SelectMemberInfo").SetElementValue("MemberFilter", row["Fltr_MFB"].ToString());
                         compDefinition.SetElementValue("ImageFileSourceType", "DashboardFile");
-                        compDefinition.SetElementValue("ImageUrlOrFullFileName", GetStr(row, "Btn_ImageURL"));
+                        compDefinition.SetElementValue("ImageUrlOrFullFileName", "Std_DB_Search.png"); // TODO: Add a col for allowing image input
 
-                        // --- Server task (schema: Btn_ActionServerTask int -> enum name, Btn_ActionServerTaskArgs) ---
-                        string btnServerTaskName = GetEnumName(row, "Btn_ActionServerTask", typeof(DDM_ConfigHelpers.HdrBtn_ActionServerTaskType));
-                        tempComp.DynamicComponent.Component.SelectionChangedTaskType =
-                            (!string.IsNullOrEmpty(btnServerTaskName) && serverTaskTypeResolver.ContainsKey(btnServerTaskName))
-                                ? serverTaskTypeResolver[btnServerTaskName]
-                                : XFSelectionChangedTaskType.ExecuteDashboardExtenderBRConsServer;
-                        tempComp.DynamicComponent.Component.SelectionChangedTaskArgs = GetStr(row, "Btn_ActionServerTaskArgs");
+                        tempComp.DynamicComponent.Component.XmlData = compDefinition.ToString();
+                    }
 
-                        // --- Save action (schema: Btn_ActionSave int -> XFSelectionChangedSaveDataType, Btn_ActionSaveArgs) ---
-                        if (row.Table.Columns.Contains("Btn_ActionSave") && row["Btn_ActionSave"] != DBNull.Value)
-                        {
-                            tempComp.DynamicComponent.Component.SelectionChangedSaveType =
-                                (XFSelectionChangedSaveType)Convert.ToInt32(row["Btn_ActionSave"]);
-                            tempComp.DynamicComponent.Component.SelectionChangedSaveArgs = GetStr(row, "Btn_ActionSaveArgs");
-                        }
+                    if (!templateSubstVars.ContainsKey(template_MbrList_cbxbtn_BoundParam))
+                    {
+                        BRApi.ErrorLog.LogMessage(si, "Hit 3");
+                        templateSubstVars.Add(template_MbrList_cbxbtn_BoundParam, stored_param.Parameter.Name);
+                    }
+                    else
+                    {
+                        templateSubstVars[template_MbrList_cbxbtn_BoundParam] = stored_param.Parameter.Name;
+                    }
 
-                        // --- POV action (schema: Btn_ActionPOV int -> XFSelectionChangedPovActionType, Btn_ActionPOVArgs) ---
-                        if (row.Table.Columns.Contains("Btn_ActionPOV") && row["Btn_ActionPOV"] != DBNull.Value)
-                        {
-                            tempComp.DynamicComponent.Component.SelectionChangedPovActionType =
-                                (XFSelectionChangedPovActionType)Convert.ToInt32(row["Btn_ActionPOV"]);
-                            tempComp.DynamicComponent.Component.SelectionChangedPovArgs = GetStr(row, "Btn_ActionPOVArgs");
-                        }
+                    BRApi.ErrorLog.LogMessage(si, "Hit 3.5");
+                    WsDynamicComponentEx filterCompEx = api.GetDynamicComponentForDynamicDashboard(si, ws, dynamicDashboardEx, tempComp.DynamicComponent.Component, dimType, templateSubstVars, TriStateBool.TrueValue, WsDynamicItemStateType.EntireObject);
 
-                        // --- Navigation action (schema: Btn_ActionNav int -> XFSelectionChangedNavigationType, Btn_ActionNavArgs) ---
-                        if (row.Table.Columns.Contains("Btn_ActionNav") && row["Btn_ActionNav"] != DBNull.Value)
-                        {
-                            tempComp.DynamicComponent.Component.SelectionChangedNavigationType =
-                                (XFSelectionChangedNavigationType)Convert.ToInt32(row["Btn_ActionNav"]);
-                            tempComp.DynamicComponent.Component.SelectionChangedNavigationArgs = GetStr(row, "Btn_ActionNavArgs");
-                        }
+                    BRApi.ErrorLog.LogMessage(si, $"Hit 3.6 {filterCompEx.DynamicComponent.Component.Name}");
+                    wsDynCompMembers.Add(new WsDynamicDbrdCompMemberEx(tempCompMember, filterCompEx));
+                    BRApi.ErrorLog.LogMessage(si, "Hit 3.7");
 
-                        // --- Apply-parameter action (schema: Btn_ActionBoundParam / Value / Apply) ---
-                        if (!string.IsNullOrEmpty(GetStr(row, "Btn_ActionBoundParam")))
-                        {
-                            tempComp.DynamicComponent.Component.BoundParameterName = GetStr(row, "Btn_ActionBoundParam");
-                            tempComp.DynamicComponent.Component.ParamValueForButtonClick = GetStr(row, "Btn_ActionParamValue");
-                            if (row.Table.Columns.Contains("Btn_ActionParamApply") && !string.IsNullOrEmpty(GetStr(row, "Btn_ActionParamApply")))
-                            {
-                                tempComp.DynamicComponent.Component.ApplyParamValueToCurrentDbrd =
-                                    GetStr(row, "Btn_ActionParamApply").XFEqualsIgnoreCase("True");
-                            }
-                        }
-
-                        // --- UI-changed action (schema: Btn_ActionUIChanged int -> XFSelectionChangedUIActionType,
-                        //     Btn_ActionUIChangedDBRedraw, plus dialog open + param maps) ---
-                        if (row.Table.Columns.Contains("Btn_ActionUIChanged") && row["Btn_ActionUIChanged"] != DBNull.Value)
-                        {
-                            tempComp.DynamicComponent.Component.SelectionChangedUIActionType =
-                                (XFSelectionChangedUIActionType)Convert.ToInt32(row["Btn_ActionUIChanged"]);
-                        }
-                        else
-                        {
-                            // Fall back to legacy Btn_Type behavior (int -> enum name; Complete_WF opens a dialog)
-                            string btnTypeName = GetEnumName(row, "Btn_Type", typeof(DDM_ConfigHelpers.HdrBtnType));
-                            tempComp.DynamicComponent.Component.SelectionChangedUIActionType =
-                                (btnTypeName == "Complete_WF")
-                                    ? XFSelectionChangedUIActionType.OpenDialogApplyChangesAndRefresh
-                                    : XFSelectionChangedUIActionType.Refresh;
-                        }
-
-                        tempComp.DynamicComponent.Component.DashboardsToRedraw = GetStr(row, "Btn_ActionUIChangedDBRedraw");
-                        tempComp.DynamicComponent.Component.DashboardsToShow = GetStr(row, "Btn_ActionUIChangedDBShow");
-                        tempComp.DynamicComponent.Component.DashboardsToHide = GetStr(row, "Btn_ActionUIChangedDBHide");
-                        tempComp.DynamicComponent.Component.DashboardForDialog = GetStr(row, "Btn_ActionUIDialogOpen");
-                        tempComp.DynamicComponent.Component.DlgInitialParameterValues = GetStr(row, "Btn_ActionUIDialogInitParams");
-                        tempComp.DynamicComponent.Component.DlgInputParameterMap = GetStr(row, "Btn_ActionUIDialogInputParamMap");
-                        tempComp.DynamicComponent.Component.DlgOutputParameterMap = GetStr(row, "Btn_ActionUIDialogOutputParamMap");
-
-                        if (compDefinition != null)
-                        {
-                            tempComp.DynamicComponent.Component.XmlData = compDefinition.ToString();
-                        }
-
-                        WsDynamicComponentEx buttonCompEx = api.GetDynamicComponentForDynamicDashboard(si, ws, dynamicDashboardEx, tempComp.DynamicComponent.Component, nameSuffix, templateSubstVars, TriStateBool.TrueValue, WsDynamicItemStateType.EntireObject);
-                        wsDynCompMembers.Add(new WsDynamicDbrdCompMemberEx(tempCompMember, buttonCompEx));
-
-BRApi.ErrorLog.LogMessage(si,"Hit 5");
-                        break;
-                    default:
-                        continue;
-                        break;
-
+                    if (colSuffix == "Txt")
+                        containsTxtBox = true;
                 }
 
+                BRApi.ErrorLog.LogMessage(si, "Hit 4");
 
-
-                // if there are items after this item and the current item is not a button, add a line
+                // Add a visual line separator between filter rows (not after the last one)
                 // line component is really just an image component that shows a line /shrug
-                // TODO: Figure out how to skip the line if it's a btn comp
-                if (iteration < rowCount && optType != "Button")
+                if (iteration < rowCount)
                 {
-                    // add line image component
-                    string storedImageCompName = "img_Line";
-
-                    DashboardComponent tempLine = EngineDashboardComponents.GetComponent(api.DbConnAppOrFW, ws.UniqueID, maintUnit.UniqueID, storedImageCompName, false, true);
+                    DashboardComponent tempLine = EngineDashboardComponents.GetComponent(api.DbConnAppOrFW, ws.UniqueID, maintUnit.UniqueID, "img_Line", false, true);
                     WsDynamicComponentEx tempLineCompEx = api.GetDynamicComponentForDynamicDashboard(si, ws, dynamicDashboardEx, tempLine, "line", null, TriStateBool.TrueValue, WsDynamicItemStateType.EntireObject);
-
-                    WsDynamicDbrdCompMemberEx tempLineDynCompMemberEx = new WsDynamicDbrdCompMemberEx(tempCompMember, tempLineCompEx);
-                    wsDynCompMembers.Add(tempLineDynCompMemberEx);
-
+                    wsDynCompMembers.Add(new WsDynamicDbrdCompMemberEx(tempCompMember, tempLineCompEx));
                 }
-
 
                 iteration++;
-
             }
 
-
-            // if any items contained a text box add a refresh button on the end
+            // If any filter row contained a text box, append a text-entry refresh button
             if (containsTxtBox)
             {
-                string storedCompName_textEntered = "btn_DDM_EnterText";
-                WsDynamicDbrdCompMember tempCompMember = new WsDynamicDbrdCompMember(); // can adjust dashboard info here
-
-                DashboardComponent txtEntryComp = EngineDashboardComponents.GetComponent(api.DbConnAppOrFW, ws.UniqueID, maintUnit.UniqueID, storedCompName_textEntered, false, true);
-
+                var txtCompMember = new WsDynamicDbrdCompMember();
+                DashboardComponent txtEntryComp = EngineDashboardComponents.GetComponent(api.DbConnAppOrFW, ws.UniqueID, maintUnit.UniqueID, "btn_DDM_EnterText", false, true);
                 WsDynamicComponentEx txtEntryCompEx = api.GetDynamicComponentForDynamicDashboard(si, ws, dynamicDashboardEx, txtEntryComp, "TextEntry", null, TriStateBool.TrueValue, WsDynamicItemStateType.EntireObject);
-                wsDynCompMembers.Add(new WsDynamicDbrdCompMemberEx(tempCompMember, txtEntryCompEx));
+                wsDynCompMembers.Add(new WsDynamicDbrdCompMemberEx(txtCompMember, txtEntryCompEx));
             }
 
+            return wsDynCompMembers;
+        }
 
-            return new WsDynamicComponentCollection(dynamicDashboardEx, wsDynCompMembers);
+        // Builds dynamic components for each Button-type header row.
+        //
+        // Expected DDM_DynDBHdrConfig columns for Button rows (HdrType = 2):
+        //   Btn_Lbl                    nvarchar  button label text
+        //   Btn_ToolTip                nvarchar  tooltip text
+        //   Btn_ImageURL               nvarchar  dashboard-file image name (e.g. "Std_DB_Save.png")
+        //   Btn_ActionServerTask       int       → DDM_ConfigHelpers.HdrBtn_ActionServerTaskType enum
+        //   Btn_ActionServerTaskArgs   nvarchar  BR name / sequence name / calc args
+        //   Btn_ActionSave             int       → XFSelectionChangedSaveType enum (nullable)
+        //   Btn_ActionSaveArgs         nvarchar  save action arguments (nullable)
+        //   Btn_ActionPOV              int       → XFSelectionChangedPovActionType enum (nullable)
+        //   Btn_ActionPOVArgs          nvarchar  POV action arguments (nullable)
+        //   Btn_ActionNav              int       → XFSelectionChangedNavigationType enum (nullable)
+        //   Btn_ActionNavArgs          nvarchar  navigation arguments, e.g. URL or page name (nullable)
+        //   Btn_ActionBoundParam       nvarchar  parameter name to set on click (nullable)
+        //   Btn_ActionParamValue       nvarchar  value to assign to the bound parameter (nullable)
+        //   Btn_ActionParamApply       nvarchar  "True"/"False" — apply param to current dashboard (nullable)
+        //   Btn_ActionUIChanged        int       → XFSelectionChangedUIActionType enum (nullable, overrides Btn_Type)
+        //   Btn_ActionUIChangedDBRedraw nvarchar dashboards to redraw (nullable)
+        //   Btn_ActionUIChangedDBShow  nvarchar  dashboards to show (nullable)
+        //   Btn_ActionUIChangedDBHide  nvarchar  dashboards to hide (nullable)
+        //   Btn_ActionUIDialogOpen     nvarchar  dashboard to open as a dialog (nullable)
+        //   Btn_ActionUIDialogInitParams nvarchar initial parameter values for the dialog (nullable)
+        //   Btn_ActionUIDialogInputParamMap  nvarchar  input param map for dialog (nullable)
+        //   Btn_ActionUIDialogOutputParamMap nvarchar output param map for dialog (nullable)
+        //   Btn_Type                   int       legacy → DDM_ConfigHelpers.HdrBtnType enum (used when Btn_ActionUIChanged is null)
+        private static List<WsDynamicDbrdCompMemberEx> addButtonItems(
+            DataTable buttonItems, SessionInfo si, DashboardWorkspace ws,
+            IWsasDynamicDashboardsApiV800 api, WsDynamicDashboardEx dynamicDashboardEx,
+            DashboardMaintUnit maintUnit)
+        {
+            var wsDynCompMembers = new List<WsDynamicDbrdCompMemberEx>();
+            var tempCompMember = new WsDynamicDbrdCompMember();
+
+            foreach (DataRow row in buttonItems.Rows)
+            {
+                var templateSubstVars = new Dictionary<string, string>();
+                var storedComponent = api.GetStoredComponentForDynamicDashboard(si, ws, dynamicDashboardEx.DynamicDashboard, "btn_DDM_Generic");
+                var tempComp = api.GetDynamicComponentForDynamicDashboard(si, ws, dynamicDashboardEx, storedComponent.Component, string.Empty, null, TriStateBool.TrueValue, WsDynamicItemStateType.EntireObject);
+
+                tempComp.DynamicComponent.Component.DashboardComponentType = DashboardComponentType.Button;
+
+                XElement compDefinition;
+                if (!string.IsNullOrEmpty(tempComp.DynamicComponent.Component.XmlData))
+                    compDefinition = XElement.Parse(tempComp.DynamicComponent.Component.XmlData);
+                else
+                    compDefinition = buildButtonXML("Button");
+
+                // --- Label / ToolTip / Image ---
+                tempComp.DynamicComponent.Component.Text = GetStr(row, "Btn_Lbl");
+                tempComp.DynamicComponent.Component.ToolTip = GetStr(row, "Btn_ToolTip");
+                compDefinition.SetElementValue("ImageFileSourceType", "DashboardFile");
+                compDefinition.SetElementValue("ImageUrlOrFullFileName", GetStr(row, "Btn_ImageURL"));
+
+                // --- Server task ---
+                string btnServerTaskName = GetEnumName(row, "Btn_ActionServerTask", typeof(DDM_ConfigHelpers.HdrBtn_ActionServerTaskType));
+                tempComp.DynamicComponent.Component.SelectionChangedTaskType =
+                    (!string.IsNullOrEmpty(btnServerTaskName) && serverTaskTypeResolver.ContainsKey(btnServerTaskName))
+                        ? serverTaskTypeResolver[btnServerTaskName]
+                        : XFSelectionChangedTaskType.ExecuteDashboardExtenderBRConsServer;
+                tempComp.DynamicComponent.Component.SelectionChangedTaskArgs = GetStr(row, "Btn_ActionServerTaskArgs");
+
+                // --- Save action ---
+                if (row.Table.Columns.Contains("Btn_ActionSave") && row["Btn_ActionSave"] != DBNull.Value)
+                {
+                    tempComp.DynamicComponent.Component.SelectionChangedSaveType =
+                        (XFSelectionChangedSaveType)Convert.ToInt32(row["Btn_ActionSave"]);
+                    tempComp.DynamicComponent.Component.SelectionChangedSaveArgs = GetStr(row, "Btn_ActionSaveArgs");
+                }
+
+                // --- POV action ---
+                if (row.Table.Columns.Contains("Btn_ActionPOV") && row["Btn_ActionPOV"] != DBNull.Value)
+                {
+                    tempComp.DynamicComponent.Component.SelectionChangedPovActionType =
+                        (XFSelectionChangedPovActionType)Convert.ToInt32(row["Btn_ActionPOV"]);
+                    tempComp.DynamicComponent.Component.SelectionChangedPovArgs = GetStr(row, "Btn_ActionPOVArgs");
+                }
+
+                // --- Navigation action ---
+                if (row.Table.Columns.Contains("Btn_ActionNav") && row["Btn_ActionNav"] != DBNull.Value)
+                {
+                    tempComp.DynamicComponent.Component.SelectionChangedNavigationType =
+                        (XFSelectionChangedNavigationType)Convert.ToInt32(row["Btn_ActionNav"]);
+                    tempComp.DynamicComponent.Component.SelectionChangedNavigationArgs = GetStr(row, "Btn_ActionNavArgs");
+                }
+
+                // --- Apply-parameter action ---
+                if (!string.IsNullOrEmpty(GetStr(row, "Btn_ActionBoundParam")))
+                {
+                    tempComp.DynamicComponent.Component.BoundParameterName = GetStr(row, "Btn_ActionBoundParam");
+                    tempComp.DynamicComponent.Component.ParamValueForButtonClick = GetStr(row, "Btn_ActionParamValue");
+                    if (row.Table.Columns.Contains("Btn_ActionParamApply") && !string.IsNullOrEmpty(GetStr(row, "Btn_ActionParamApply")))
+                    {
+                        tempComp.DynamicComponent.Component.ApplyParamValueToCurrentDbrd =
+                            GetStr(row, "Btn_ActionParamApply").XFEqualsIgnoreCase("True");
+                    }
+                }
+
+                // --- UI-changed action (Btn_ActionUIChanged overrides legacy Btn_Type) ---
+                if (row.Table.Columns.Contains("Btn_ActionUIChanged") && row["Btn_ActionUIChanged"] != DBNull.Value)
+                {
+                    tempComp.DynamicComponent.Component.SelectionChangedUIActionType =
+                        (XFSelectionChangedUIActionType)Convert.ToInt32(row["Btn_ActionUIChanged"]);
+                }
+                else
+                {
+                    // Fall back to legacy Btn_Type behavior (int -> enum name; Complete_WF opens a dialog)
+                    string btnTypeName = GetEnumName(row, "Btn_Type", typeof(DDM_ConfigHelpers.HdrBtnType));
+                    tempComp.DynamicComponent.Component.SelectionChangedUIActionType =
+                        (btnTypeName == "Complete_WF")
+                            ? XFSelectionChangedUIActionType.OpenDialogApplyChangesAndRefresh
+                            : XFSelectionChangedUIActionType.Refresh;
+                }
+
+                tempComp.DynamicComponent.Component.DashboardsToRedraw = GetStr(row, "Btn_ActionUIChangedDBRedraw");
+                tempComp.DynamicComponent.Component.DashboardsToShow = GetStr(row, "Btn_ActionUIChangedDBShow");
+                tempComp.DynamicComponent.Component.DashboardsToHide = GetStr(row, "Btn_ActionUIChangedDBHide");
+                tempComp.DynamicComponent.Component.DashboardForDialog = GetStr(row, "Btn_ActionUIDialogOpen");
+                tempComp.DynamicComponent.Component.DlgInitialParameterValues = GetStr(row, "Btn_ActionUIDialogInitParams");
+                tempComp.DynamicComponent.Component.DlgInputParameterMap = GetStr(row, "Btn_ActionUIDialogInputParamMap");
+                tempComp.DynamicComponent.Component.DlgOutputParameterMap = GetStr(row, "Btn_ActionUIDialogOutputParamMap");
+
+                tempComp.DynamicComponent.Component.XmlData = compDefinition.ToString();
+
+                WsDynamicComponentEx buttonCompEx = api.GetDynamicComponentForDynamicDashboard(si, ws, dynamicDashboardEx, tempComp.DynamicComponent.Component, string.Empty, templateSubstVars, TriStateBool.TrueValue, WsDynamicItemStateType.EntireObject);
+                wsDynCompMembers.Add(new WsDynamicDbrdCompMemberEx(tempCompMember, buttonCompEx));
+
+                BRApi.ErrorLog.LogMessage(si, "Hit 5");
+            }
+
+            return wsDynCompMembers;
         }
 
 #endregion
