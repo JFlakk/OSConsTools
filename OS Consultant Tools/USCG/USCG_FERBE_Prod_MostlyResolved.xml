@@ -18436,27 +18436,41 @@ End If
                         contentDbValue = args.NameValuePairs("ContentDB")
                     End If
 
-                    ' 2. Evaluate the Content DB value and return the corresponding Toolbar DB
-                    Select Case contentDbValue
-						Case "04a1_BDF_RP_Dashboard_Content_CreateRP_OS"
-                            Return "03a_BDF_RP_Dashboard_Toolbar_CreateRP_OS"
-							
-                        Case "04b_BDF_RP_Dashboard_Content_EditRP_OS"
-                            Return "03b_BDF_RP_Dashboard_Toolbar_EditRP_OS"
-                        
-                        Case "04c_BDF_RP_Dashboard_Content_AddEditBillets_OS"
-                            Return "03c_BDF_RP_Dashboard_Toolbar_AddEditBillets_OS"
-							
-                        Case "04c_BDF_RP_Dashboard_Content_AddEditBillets_NonEditRP_OS"
-                            Return "03c_BDF_RP_Dashboard_Toolbar_AddEditBillets_NonEditRP_OS"
-							
-                        Case "04b_BDF_RP_Dashboard_Content_NonEditRP_OS"
+                    If contentDbValue.StartsWith("04a", StringComparison.InvariantCultureIgnoreCase) Then
+                        Return "03a_BDF_RP_Dashboard_Toolbar_CreateRP_OS"
+                    End If
+
+                    If contentDbValue.StartsWith("04b", StringComparison.InvariantCultureIgnoreCase) Then
+                        If contentDbValue.IndexOf("NonEditRP", StringComparison.InvariantCultureIgnoreCase) >= 0 Then
                             Return "03b_BDF_RP_Dashboard_Toolbar_NonEditRP_OS"
-							
-                        Case "04b_BDF_RP_Dashboard_Content_EditRP_OS"
-                            Return "03b_BDF_RP_Dashboard_Toolbar_EditRP_OS"
-							
-					End Select
+                        End If
+
+                        Return "03b_BDF_RP_Dashboard_Toolbar_EditRP_OS"
+                    End If
+
+                    If contentDbValue.StartsWith("04c", StringComparison.InvariantCultureIgnoreCase) Then
+                        If contentDbValue.IndexOf("NonEditRP", StringComparison.InvariantCultureIgnoreCase) >= 0 OrElse contentDbValue.IndexOf("NonAddEditBillets", StringComparison.InvariantCultureIgnoreCase) >= 0 Then
+                            Return "03c_BDF_RP_Dashboard_Toolbar_AddEditBillets_NonEditRP_OS"
+                        End If
+
+                        Return "03c_BDF_RP_Dashboard_Toolbar_AddEditBillets_OS"
+                    End If
+
+                    If contentDbValue.StartsWith("04d", StringComparison.InvariantCultureIgnoreCase) Then
+                        If contentDbValue.IndexOf("NonAddEditNonBillets", StringComparison.InvariantCultureIgnoreCase) >= 0 Then
+                            Return "03d_BDF_RP_Dashboard_Toolbar_NonAddEditNonBillets_OS"
+                        End If
+
+                        Return "03d_BDF_RP_Dashboard_Toolbar_AddEditNonBillets_OS"
+                    End If
+
+                    If contentDbValue.StartsWith("04e", StringComparison.InvariantCultureIgnoreCase) Then
+                        Return "03e_BDF_RP_Dashboard_Toolbar_Reporting_OS"
+                    End If
+
+                    If contentDbValue.StartsWith("04f", StringComparison.InvariantCultureIgnoreCase) Then
+                        Return "03f_BDF_RP_Dashboard_Toolbar_ConcReview_OS"
+                    End If
 					
 				End If
 								
