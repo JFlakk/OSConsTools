@@ -13605,8 +13605,11 @@ brapi.ErrorLog.LogMessage(si,$"HIt ROutingVars: {subcontent} - {content}")
 
 					modifiedCustomSubstVars.XFSetValue("prm_BDF_RP_Number_" & RPAppr, RPNumber)
 				Dim RP_Entity = rpUtils.Get_RP_Entity(si, RPNumber)
-				Dim scriptGenerics As String = "E#" & RP_Entity & ":S#" & wfScenario & ":T#" & wfTime & ":V#Annotation:F#" & RPNumber & ":O#Forms:I#None:U1#None:U2#None:U3#None:U4#None:U5#None:U6#None:U7#None:U8#None"
-				Dim cacheKey As String = $"attributeDict_{RPNumber}_{wfScenario}_{wfTime}"
+				Dim lineItemNumber As String = LINumber
+				If String.IsNullOrWhiteSpace(lineItemNumber) Then
+					lineItemNumber = "None"
+				End If
+				Dim scriptGenerics As String = "E#" & RP_Entity & ":S#" & wfScenario & ":T#" & wfTime & ":V#Annotation:F#" & RPNumber & ":O#Forms:I#None:U1#None:U2#None:U3#None:U4#None:U5#None:U6#None:U7#None:U8#" & lineItemNumber
 				Dim parAccount As String
 				If content.XFContainsIgnoreCase("AddEditNonBillets") OrElse subcontent.XFContainsIgnoreCase("AddEditNonBillets") Then
 					parAccount = "A#NonBillet_LineItem_Data.Base"
@@ -13615,10 +13618,11 @@ brapi.ErrorLog.LogMessage(si,$"HIt ROutingVars: {subcontent} - {content}")
 				Else
 					parAccount = $"A#RP_Attributes_{RPAppr}.Base,A#RP_Attributes_Common.Base"
 				End If
+				Dim cacheKey As String = $"attributeDict_{RPNumber}_{wfScenario}_{wfTime}_{lineItemNumber}_{parAccount}"
 
-				Dim attributeDict As Dictionary(Of String, String)
+				Dim attributeDict As Dictionary(Of String, String) = Nothing
 
-				'If globals.GetObject(cacheKey) Is Nothing Then
+				If globals.GetObject(cacheKey) Is Nothing Then
 
 					' Cache miss -- resolve the attributes once
 					globals.SetStringValue("scriptGenerics", scriptGenerics)
@@ -13627,20 +13631,20 @@ brapi.ErrorLog.LogMessage(si,$"HIt ROutingVars: {subcontent} - {content}")
 					Dim Dictionary As New Dictionary(Of String, String)
 					Brapi.Finance.Calculate.ExecuteCustomCalculateBusinessRule(si, "USCG_BudFm_Utilities", "GetRPAttributes", Dictionary, 0)
 
-'					If globals.GetObject("attributeDict") IsNot Nothing Then
-'						attributeDict = CType(globals.GetObject("attributeDict"), Dictionary(Of String, String))
-'						'globals.SetObject(cacheKey, attributeDict)
-'					Else
+					If globals.GetObject("attributeDict") IsNot Nothing Then
+						attributeDict = CType(globals.GetObject("attributeDict"), Dictionary(Of String, String))
+					Else
 						attributeDict = New Dictionary(Of String, String)
-						'globals.SetObject(cacheKey, attributeDict)
-'					End If
+					End If
 
-			'	Else
+					globals.SetObject(cacheKey, attributeDict)
+
+				Else
 
 					' Cache hit -- reuse it, no fetch this time
-					'attributeDict = globals.GetObject(cacheKey, Nothing)
+					attributeDict = CType(globals.GetObject(cacheKey), Dictionary(Of String, String))
 
-				'End If
+				End If
 				If Not(attributeDict Is Nothing) Then 
 					For Each kvp As KeyValuePair(Of String, String) In attributeDict
 
