@@ -8319,12 +8319,33 @@ End If
 #Region "OnReportingBtnClick" 'Performs save check when navigating to reporting. Used in btn_BDF_RP_ShowDB_Reporting_OS.
 				 
 				 If args.FunctionName.XFEqualsIgnoreCase("OnReportingBtnClick") Then
-					 Dim selectionChangedTaskResult As New XFSelectionChangedTaskResult()     
+					 Dim selectionChangedTaskResult As New XFSelectionChangedTaskResult()
+					 Dim content As String = args.NameValuePairs.XFGetValue("Content", String.Empty)
+					 Dim flowNavLink As String = args.NameValuePairs.XFGetValue("RPName", String.Empty)
+					 Dim scenarioNavLink As String = args.NameValuePairs.XFGetValue("WFScenario", String.Empty)
+					 Dim timeNavLink As String = args.NameValuePairs.XFGetValue("WFTime", String.Empty)
+					 Dim wfCube As String = args.NameValuePairs.XFGetValue("WFCube", String.Empty)
+					 Dim liNumber As String = args.NameValuePairs.XFGetValue("LINumber", String.Empty)
+					 Dim readEdit As String = args.NameValuePairs.XFGetValue("readEdit", String.Empty)
+					 Dim RPAppr As String = args.NameValuePairs.XFGetValue("APPN_Content", String.Empty)
 					 'Check if saved and then update session state appropriately
-					If CheckSaveState(si, globals, args) Then
-						'Throw New Exception(mShowMessage)
-					End If
+					 If CheckSaveState(si, globals, args) Then
+						 'Throw New Exception(mShowMessage)
+					 End If
 					 BRApi.State.SetSessionState(si, False, ClientModuletype.Unknown, "", "", "dashState", "dashState", "Reporting", si.XfBytes)
+					 If Not flowNavLink = "None" And Not flowNavLink = "" Then
+						 Try
+							 RPAppr = rpUtils.Get_RP_Appropriation(si, flowNavLink)
+						 Catch ex As Exception
+							 selectionChangedTaskResult.ChangeCustomSubstVarsInDashboard = False
+							 Return selectionChangedTaskResult
+						 End Try
+					 Else
+						 flowNavLink = String.Empty
+					 End If
+					 SetRPContentRoutingVars(si, globals, selectionChangedTaskResult.ModifiedCustomSubstVars, readEdit, content, String.Empty, RPAppr, flowNavLink, liNumber, scenarioNavLink, timeNavLink)
+					 selectionChangedTaskResult.ChangeCustomSubstVarsInDashboard = True
+					 Return selectionChangedTaskResult
 				 End If
 				 
 #End Region
@@ -8332,12 +8353,33 @@ End If
 #Region "OnConcReviewBtnClick" 'Performs save check when navigating to reporting. Used in btn_BDF_RP_ShowDB_ConcReview_OS.
 	
 				 If args.FunctionName.XFEqualsIgnoreCase("OnConcReviewBtnClick") Then
-					 Dim selectionChangedTaskResult As New XFSelectionChangedTaskResult()     
+					 Dim selectionChangedTaskResult As New XFSelectionChangedTaskResult()
+					 Dim content As String = args.NameValuePairs.XFGetValue("Content", String.Empty)
+					 Dim flowNavLink As String = args.NameValuePairs.XFGetValue("RPName", String.Empty)
+					 Dim scenarioNavLink As String = args.NameValuePairs.XFGetValue("WFScenario", String.Empty)
+					 Dim timeNavLink As String = args.NameValuePairs.XFGetValue("WFTime", String.Empty)
+					 Dim wfCube As String = args.NameValuePairs.XFGetValue("WFCube", String.Empty)
+					 Dim liNumber As String = args.NameValuePairs.XFGetValue("LINumber", String.Empty)
+					 Dim readEdit As String = args.NameValuePairs.XFGetValue("readEdit", String.Empty)
+					 Dim RPAppr As String = args.NameValuePairs.XFGetValue("APPN_Content", String.Empty)
 					 'Check if saved and then update session state appropriately
-					If CheckSaveState(si, globals, args) Then
-						'Throw New Exception(mShowMessage)
-					End If
-						BRApi.State.SetSessionState(si, False, ClientModuletype.Unknown, "", "", "dashState", "dashState", "ConcReview", si.XfBytes)
+					 If CheckSaveState(si, globals, args) Then
+						 'Throw New Exception(mShowMessage)
+					 End If
+					 BRApi.State.SetSessionState(si, False, ClientModuletype.Unknown, "", "", "dashState", "dashState", "ConcReview", si.XfBytes)
+					 If Not flowNavLink = "None" And Not flowNavLink = "" Then
+						 Try
+							 RPAppr = rpUtils.Get_RP_Appropriation(si, flowNavLink)
+						 Catch ex As Exception
+							 selectionChangedTaskResult.ChangeCustomSubstVarsInDashboard = False
+							 Return selectionChangedTaskResult
+						 End Try
+					 Else
+						 flowNavLink = String.Empty
+					 End If
+					 SetRPContentRoutingVars(si, globals, selectionChangedTaskResult.ModifiedCustomSubstVars, readEdit, content, String.Empty, RPAppr, flowNavLink, liNumber, scenarioNavLink, timeNavLink)
+					 selectionChangedTaskResult.ChangeCustomSubstVarsInDashboard = True
+					 Return selectionChangedTaskResult
 				 End If
 				 
 #End Region
@@ -25312,8 +25354,8 @@ ORDER BY Flow, Entity
                     </component>
                     <component name="btn_BDF_RP_ShowDB_ConcReview_OS" description="RP Concurrent Review" xfText="Concurrent Review" toolTip="Resource Proposal Review" componentType="Button" boundParameterName="prm_BDF_RP_Content_OS" paramValueForButtonClick="04f_BDF_RP_Dashboard_Content_ConcReview_OS" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="ExecuteDashboardExtenderBusinessRule" selectionChangedUIActionType="Refresh" selectionChangedNavigationType="NoAction">
                         <displayFormat>BackgroundColor = [XFBR(BudFm_ParamHelper, SetActiveButtonColor, CurrDbdName=[04f_BDF_RP_Dashboard_Content_ConcReview_OS], DbdSelected=[|!prm_BDF_RP_Content_OS!|])], Bold = False, BorderThickness = 1, FontSize = 12, Height = 30, HoverColor = #FF16CA94, IsVisible = True, MarginLeft = 8, TextColor = White, Width = 150</displayFormat>
-                        <selectionChangedTaskArgs>{BudFM_SolutionHelper}{OnConcReviewBtnClick}{WFTime=|WFTime|, WFScenario=|WFScenario|, WFCube=|WFCube|, RPName=|!prm_BDF_RP_Number_OS!|, LINumber=|!prm_BDF_RP_BLT_LineItemNumber_OS!|}</selectionChangedTaskArgs>
-                        <dashboardsToRedraw>00_BDF_RP_Dashboard_Frame_OS</dashboardsToRedraw>
+                        <selectionChangedTaskArgs>{BudFM_SolutionHelper}{OnConcReviewBtnClick}{readEdit=ReadOnly, Content=04f_BDF_RP_Dashboard_Content_ConcReview_OS, APPN_Content=OS, WFTime=|WFTime|, WFScenario=|WFScenario|, WFCube=|WFCube|, RPName=|!prm_BDF_RP_Number_OS!|, LINumber=|!prm_BDF_RP_BLT_LineItemNumber_OS!|}</selectionChangedTaskArgs>
+                        <dashboardsToRedraw>00_BDF_RP_Dashboard_Published_OS</dashboardsToRedraw>
                         <componentDefinition>
                             <XFButtonDefinition ButtonType="Standard">
                                 <ImageFileSourceType>Unknown</ImageFileSourceType>
@@ -25635,8 +25677,8 @@ ORDER BY Flow, Entity
                     </component>
                     <component name="btn_BDF_RP_ShowDB_Reporting_OS" description="RP Reporting" xfText="Reporting" toolTip="Reporting" componentType="Button" boundParameterName="prm_BDF_RP_Content_OS" paramValueForButtonClick="04e_BDF_RP_Dashboard_Content_Reporting_OS" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="ExecuteDashboardExtenderBusinessRule" selectionChangedUIActionType="Refresh" selectionChangedNavigationType="NoAction">
                         <displayFormat>BackgroundColor = [XFBR(BudFm_ParamHelper, SetActiveButtonColor, CurrDbdName=[04e_BDF_RP_Dashboard_Content_Reporting_OS], DbdSelected=[|!prm_BDF_RP_Content_OS!|])], HoverColor = #FF16CA94, Bold = False, BorderThickness = 1, FontSize = 12, Height = 30, MarginLeft = 8, TextColor = White, Width = 150</displayFormat>
-                        <selectionChangedTaskArgs>{BudFM_SolutionHelper}{OnReportingBtnClick}{WFTime=|WFTime|, WFScenario=|WFScenario|, WFCube=|WFCube|, RPName=|!prm_BDF_RP_Number_OS!|, LINumber=|!prm_BDF_RP_BLT_LineItemNumber_OS!|}</selectionChangedTaskArgs>
-                        <dashboardsToRedraw>00_BDF_RP_Dashboard_Frame_OS</dashboardsToRedraw>
+                        <selectionChangedTaskArgs>{BudFM_SolutionHelper}{OnReportingBtnClick}{readEdit=ReadOnly, Content=04e_BDF_RP_Dashboard_Content_Reporting_OS, APPN_Content=OS, WFTime=|WFTime|, WFScenario=|WFScenario|, WFCube=|WFCube|, RPName=|!prm_BDF_RP_Number_OS!|, LINumber=|!prm_BDF_RP_BLT_LineItemNumber_OS!|}</selectionChangedTaskArgs>
+                        <dashboardsToRedraw>00_BDF_RP_Dashboard_Published_OS</dashboardsToRedraw>
                         <componentDefinition>
                             <XFButtonDefinition ButtonType="Standard">
                                 <ImageFileSourceType>Unknown</ImageFileSourceType>
@@ -26083,9 +26125,10 @@ ORDER BY Flow, Entity
                         <dashboardsToRedraw>00_BDF_RP_Dashboard_Published_OS</dashboardsToRedraw>
                         <adapterMembers />
                     </component>
-                    <component name="cbx_BDF_RP_GEN_ResourceProposal_OS_ConcReview" description="" xfText="RP" toolTip="Select RP" componentType="ComboBox" boundParameterName="prm_BDF_RP_Number_OS" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="NoTask" selectionChangedUIActionType="Refresh" selectionChangedNavigationType="NoAction">
+                    <component name="cbx_BDF_RP_GEN_ResourceProposal_OS_ConcReview" description="" xfText="RP" toolTip="Select RP" componentType="ComboBox" boundParameterName="prm_BDF_RP_Number_OS" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="ExecuteDashboardExtenderBusinessRule" selectionChangedUIActionType="Refresh" selectionChangedNavigationType="NoAction">
                         <displayFormat>Height = 25, LabelBold = True, LabelPosition = Left, MarginBottom = 10, MarginLeft = 5, MarginTop = 10, Width = 350</displayFormat>
-                        <dashboardsToRedraw>03_BDF_RP_Dashboard_Toolbar_OS, 04_BDF_RP_Dashboard_Content_OS</dashboardsToRedraw>
+                        <selectionChangedTaskArgs>{BudFM_SolutionHelper}{OnCbxBtnClick_GEN}{Content_EditRP_OS=04b2a_BDF_RP_Dashboard_Content_NonEditRP_Page1_OS, WFTime=|WFTime|, WFScenario=|WFScenario|, WFCube=|WFCube|, RPName=|!prm_BDF_RP_Number_OS!|, RPNameCopy=|!prm_BDF_RP_Number_OS_Copy!|, LINumber=|!prm_BDF_RP_BLT_LineItemNumber_OS!|}</selectionChangedTaskArgs>
+                        <dashboardsToRedraw>00_BDF_RP_Dashboard_Published_OS</dashboardsToRedraw>
                         <adapterMembers />
                     </component>
                     <component name="cbx_BDF_RP_GEN_ResourceProposal_OS_Create" description="" xfText="RP" toolTip="Select RP" componentType="ComboBox" boundParameterName="prm_BDF_RP_Number_OS" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="ExecuteDashboardExtenderBusinessRule" selectionChangedUIActionType="Refresh" selectionChangedNavigationType="NoAction">
@@ -26209,13 +26252,15 @@ ORDER BY Flow, Entity
                         <displayFormat>Height = 25, LabelBold = True, LabelPosition = Left, MarginBottom = 10, MarginLeft = 25, MarginTop = 25, VerticalAlignment = Top, Width = 300</displayFormat>
                         <adapterMembers />
                     </component>
-                    <component name="cbx_BDF_RP_Reporting_BLT_LineItemNumber_OS" description="Billet" xfText="Billet" toolTip="Select a Billet" componentType="ComboBox" boundParameterName="prm_BDF_RP_BLT_LineItemNumber_OS" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="NoTask" selectionChangedUIActionType="Refresh" selectionChangedNavigationType="NoAction">
+                    <component name="cbx_BDF_RP_Reporting_BLT_LineItemNumber_OS" description="Billet" xfText="Billet" toolTip="Select a Billet" componentType="ComboBox" boundParameterName="prm_BDF_RP_BLT_LineItemNumber_OS" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="ExecuteDashboardExtenderBusinessRule" selectionChangedUIActionType="Refresh" selectionChangedNavigationType="NoAction">
                         <displayFormat>Height = 25, LabelBold = True, LabelPosition = Left, MarginBottom = 10, MarginLeft = 5, MarginTop = 10, UseTextWrapping = False, Width = 125</displayFormat>
+                        <selectionChangedTaskArgs>{BudFM_SolutionHelper_UX}{BilletBtnChangedSelection}{readEdit=ReadOnly, Content=04e_BDF_RP_Dashboard_Content_Reporting_OS, WFTime=|WFTime|, WFScenario=|WFScenario|, WFCube=|WFCube|, RPName=|!prm_BDF_RP_Number_OS!|, LINumber=|!prm_BDF_RP_BLT_LineItemNumber_OS!|}</selectionChangedTaskArgs>
                         <dashboardsToRedraw>04e1a_BDF_RP_Dashboard_Content_Reporting_RP_OS, 04e1b_BDF_RP_Dashboard_Content_Reporting_CostSum_OS, 04e1b_BDF_RP_Dashboard_Content_Reporting_CostEstSum_OS, 04e1c_BDF_RP_Dashboard_Content_Reporting_CostSumFA_OS, 04e1f_BDF_RP_Dashboard_Content_Reporting_Top_OCFSum_OS, 04e1d_BDF_RP_Dashboard_Content_Reporting_Top_CostDriverSum_OS, 04e1e_BDF_RP_Dashboard_Content_Reporting_Top_LineItemSum_OS, 04e1g_BDF_RP_Dashboard_Content_Reporting_Top_HCSum_OS, 04e1h_BDF_RP_Dashboard_Content_Reporting_Top_HC_GD_OS, 04e1i_BDF_RP_Dashboard_Content_Reporting_Top_HC_ADE_OS, 04e1j_BDF_RP_Dashboard_Content_Reporting_Top_HC_ACO_CWO_OS, 04e1k_BDF_RP_Dashboard_Content_Reporting_Top_HC_ADC_OS, 04e1l_BDF_RP_Dashboard_Content_Reporting_Top_HC_BMP_OS, 04e2a_BDF_RP_Dashboard_Content_Reporting_Bottom_Billet_Summary_OS, 04e3a_BDF_RP_Dashboard_Content_Reporting_Bottom_CostEst_Summary_OS, 04e3b_BDF_RP_Dashboard_Content_Reporting_Bottom_CostEst_Details_OS</dashboardsToRedraw>
                         <adapterMembers />
                     </component>
-                    <component name="cbx_BDF_RP_Reporting_ResourceProposal_OS" description="" xfText="RP" toolTip="Select RP" componentType="ComboBox" boundParameterName="prm_BDF_RP_Number_OS" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="NoTask" selectionChangedUIActionType="Refresh" selectionChangedNavigationType="NoAction">
+                    <component name="cbx_BDF_RP_Reporting_ResourceProposal_OS" description="" xfText="RP" toolTip="Select RP" componentType="ComboBox" boundParameterName="prm_BDF_RP_Number_OS" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="ExecuteDashboardExtenderBusinessRule" selectionChangedUIActionType="Refresh" selectionChangedNavigationType="NoAction">
                         <displayFormat>Height = 25, LabelBold = True, LabelPosition = Left, MarginBottom = 10, MarginLeft = 5, MarginTop = 10, Width = 350</displayFormat>
+                        <selectionChangedTaskArgs>{BudFM_SolutionHelper}{OnCbxBtnClick_GEN}{Content_EditRP_OS=04b2a_BDF_RP_Dashboard_Content_NonEditRP_Page1_OS, WFTime=|WFTime|, WFScenario=|WFScenario|, WFCube=|WFCube|, RPName=|!prm_BDF_RP_Number_OS!|, RPNameCopy=|!prm_BDF_RP_Number_OS_Copy!|, LINumber=|!prm_BDF_RP_BLT_LineItemNumber_OS!|}</selectionChangedTaskArgs>
                         <dashboardsToRedraw>04e1a_BDF_RP_Dashboard_Content_Reporting_RP_OS, 04e1b_BDF_RP_Dashboard_Content_Reporting_CostSum_OS, 04e1b_BDF_RP_Dashboard_Content_Reporting_CostEstSum_OS, 04e1c_BDF_RP_Dashboard_Content_Reporting_CostSumFA_OS, 04e1f_BDF_RP_Dashboard_Content_Reporting_Top_OCFSum_OS, 04e1d_BDF_RP_Dashboard_Content_Reporting_Top_CostDriverSum_OS, 04e1e_BDF_RP_Dashboard_Content_Reporting_Top_LineItemSum_OS, 04e1g_BDF_RP_Dashboard_Content_Reporting_Top_HCSum_OS, 04e1h_BDF_RP_Dashboard_Content_Reporting_Top_HC_GD_OS, 04e1i_BDF_RP_Dashboard_Content_Reporting_Top_HC_ADE_OS, 04e1j_BDF_RP_Dashboard_Content_Reporting_Top_HC_ACO_CWO_OS, 04e1k_BDF_RP_Dashboard_Content_Reporting_Top_HC_ADC_OS, 04e1l_BDF_RP_Dashboard_Content_Reporting_Top_HC_BMP_OS, 04e2a_BDF_RP_Dashboard_Content_Reporting_Bottom_Billet_Summary_OS, 04e3a_BDF_RP_Dashboard_Content_Reporting_Bottom_CostEst_Summary_OS, 04e3b_BDF_RP_Dashboard_Content_Reporting_Bottom_CostEst_Details_OS</dashboardsToRedraw>
                         <adapterMembers />
                     </component>
@@ -36569,6 +36614,7 @@ ORDER BY Flow, Entity
                                 <componentMembers>
                                     <componentMember name="Embedded BDF_RP_Content_Reporting_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="spp_BDF_RP_Content_Reporting_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                    <componentMember name="spp_BDF_RP_Number_OS" left="" top="" width="" height="" dockPosition="Left" />
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04e1_BDF_RP_Dashboard_Content_Reporting_Tabs_OS" description="" pageCaption="" layoutType="Tabs" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -37271,6 +37317,7 @@ ORDER BY Flow, Entity
                                 <componentMembers>
                                     <componentMember name="cv_BDF_RP_ConcReview_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="Embedded 04f2_BDF_RP_Dashboard_Content_ConcReview_ComResStaf_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                    <componentMember name="spp_BDF_RP_Number_OS" left="" top="" width="" height="" dockPosition="Left" />
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04f1_BDF_RP_Dashboard_Content_ConcReview_ComResDetail_OS" description="" pageCaption="" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
