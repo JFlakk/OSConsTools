@@ -3,6 +3,8 @@
 This repository now includes a workspace-level C# project at `OSConsTools.csproj`.
 It compiles all C# files under `OS Consultant Tools/**/Assemblies/**/*.cs` and resolves OneStream references from `lib/OneStream`.
 
+The repo also includes a .NET MCP server at `tools/OSConsTools.McpServer/` that scans the same `lib/OneStream` folder for API metadata.
+
 ## Add OneStream DLLs
 
 Copy these DLLs into `lib/OneStream`:
@@ -30,3 +32,9 @@ dotnet build OSConsTools.csproj
 ```
 
 This checks that all OneStream namespaces are resolved correctly.
+
+To build the MCP server instead, run:
+
+```bash
+dotnet build tools/OSConsTools.McpServer/OSConsTools.McpServer.csproj
+```

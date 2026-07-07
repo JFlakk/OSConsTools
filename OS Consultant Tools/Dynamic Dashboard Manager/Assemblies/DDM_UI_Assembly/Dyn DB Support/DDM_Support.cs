@@ -26,7 +26,17 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
     {
         //Params
         public const string Param_CubeName = "IV_DDM_App_CubeName";
-        public const string Param_DashboardMenu = "BL_DDM_App_Menu";
+        public const string Param_DashboardMenu = "BL_DDM_AppMenu";
+
+        private const string DefaultLayoutDashboardName = "DDM_App_Content_DB";
+        private const string DefaultCubeViewName = "Default";
+
+        public class DDM_PaneBinding
+        {
+            public DDM_ConfigHelpers.DBPaneContents ContentType { get; set; } = DDM_ConfigHelpers.DBPaneContents.Dashboard;
+            public string DashboardName { get; set; } = DefaultLayoutDashboardName;
+            public string CubeViewName { get; set; } = DefaultCubeViewName;
+        }
 		
 
 
@@ -192,6 +202,85 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
 
         }
 
+        public static DataRow get_ConfigMenuRow(SessionInfo si, Dictionary<string, string> customSubstVars)
+        {
+            var menuOptionID = get_SelectedMenu(si, customSubstVars);
+            var configMenuDt = get_ConfigMenu(si, menuOptionID);
+            if (configMenuDt != null && configMenuDt.Rows.Count > 0)
+            {
+                return configMenuDt.Rows[0];
+            }
+            return null;
+        }
+
+        public static string get_LayoutDashboardName(DataRow configMenuRow)
+        {
+            if (configMenuRow == null)
+            {
+                return DefaultLayoutDashboardName;
+            }
+
+            int layoutType = GBL_UI_Assembly.GBL_Helpers.GetIntColumn(configMenuRow, "LayoutType", (int)DDM_ConfigHelpers.LayoutType.None);
+            return (DDM_ConfigHelpers.LayoutType)layoutType switch
+            {
+                DDM_ConfigHelpers.LayoutType.Dashboard or
+                DDM_ConfigHelpers.LayoutType.Dashboard_CustomDB    => GBL_UI_Assembly.GBL_Helpers.GetStringColumn(configMenuRow, "DB_Name", DefaultLayoutDashboardName),
+                DDM_ConfigHelpers.LayoutType.CubeView              => "DDM_App_Content_CV",
+                DDM_ConfigHelpers.LayoutType.Dashboard_TopBottom   => "DDM_App_Content_TB_DB",
+                DDM_ConfigHelpers.LayoutType.Dashboard_LeftRight   => "DDM_App_Content_LR_DB",
+                DDM_ConfigHelpers.LayoutType.Dashboard_2Top1Bottom => "DDM_App_Content_2T1B_DB",
+                DDM_ConfigHelpers.LayoutType.Dashboard_1Top2Bottom => "DDM_App_Content_1T2B_DB",
+                DDM_ConfigHelpers.LayoutType.Dashboard_2Left1Right => "DDM_App_Content_2L1R_DB",
+                DDM_ConfigHelpers.LayoutType.Dashboard_1Left2Right => "DDM_App_Content_1L2R_DB",
+                DDM_ConfigHelpers.LayoutType.Dashboard_2x2        => "DDM_App_Content_2x2_DB",
+                _                                                  => DefaultLayoutDashboardName
+            };
+        }
+
+        public static DDM_PaneBinding get_PaneBinding(SessionInfo si, DataRow configMenuRow, string dynamicDashboardName)
+        {
+            var paneBinding = new DDM_PaneBinding();
+            if (configMenuRow == null)
+            {
+                return paneBinding;
+            }
+
+			BRApi.ErrorLog.LogMessage(si,$"Hit5");
+            int layoutType = GBL_UI_Assembly.GBL_Helpers.GetIntColumn(configMenuRow, "LayoutType", (int)DDM_ConfigHelpers.LayoutType.None);
+			BRApi.ErrorLog.LogMessage(si,$"Hit6");
+            var paneName = dynamicDashboardName;
+BRApi.ErrorLog.LogMessage(si,$"Hit7");
+            if (dynamicDashboardName.XFEqualsIgnoreCase("DDM_App_Content_DB"))
+            {
+                paneBinding.DashboardName = get_LayoutDashboardName(configMenuRow);
+                if (layoutType == (int)DDM_ConfigHelpers.LayoutType.CubeView)
+                {
+                    paneBinding.ContentType = DDM_ConfigHelpers.DBPaneContents.CubeView;
+                    paneBinding.CubeViewName = GBL_UI_Assembly.GBL_Helpers.GetStringColumn(configMenuRow, "CV_Name", DefaultCubeViewName);
+                }
+                else
+                {
+                    paneBinding.ContentType = DDM_ConfigHelpers.DBPaneContents.Dashboard;
+                    paneBinding.DashboardName = get_LayoutDashboardName(configMenuRow);
+                }
+                return paneBinding;
+            }
+
+            var contentType = resolve_PaneContentType(configMenuRow, paneName);
+            paneBinding.ContentType = contentType;
+
+            if (contentType == DDM_ConfigHelpers.DBPaneContents.CubeView)
+            {
+                paneBinding.CubeViewName = resolve_PaneName(configMenuRow, paneName, true);
+            }
+            else
+            {
+                paneBinding.DashboardName = resolve_PaneName(configMenuRow, paneName, false);
+            }
+
+            return paneBinding;
+        }
+
         public static int get_SelectedMenu(SessionInfo si, Dictionary<string, string> customSubstVars)
         {
             var menuOption = -1;
@@ -205,6 +294,128 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
             }
 
             return menuOption;
+        }
+
+        private static string get_PaneName(string dynamicDashboardName)
+        {
+            const string prefix = "DDM_App_Content_";
+            const string suffix = "DB";
+
+			if (!string.IsNullOrEmpty(dynamicDashboardName)
+			    && dynamicDashboardName.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)
+			    && dynamicDashboardName.EndsWith(suffix, StringComparison.OrdinalIgnoreCase)
+			    && !dynamicDashboardName.Equals(prefix + suffix, StringComparison.OrdinalIgnoreCase)) // Ensures it's not just Prefix + Suffix
+			{
+			    return dynamicDashboardName.Substring(prefix.Length, dynamicDashboardName.Length - prefix.Length - suffix.Length);
+			}
+			else if (dynamicDashboardName.Equals(prefix + suffix, StringComparison.OrdinalIgnoreCase))
+			{}
+
+            return string.Empty;
+        }
+
+        private static DDM_ConfigHelpers.DBPaneContents resolve_PaneContentType(DataRow row, string paneName)
+        {
+            var typeColumnCandidates = new List<string>();
+
+            switch (paneName.ToUpperInvariant())
+            {
+                case "T":
+                    typeColumnCandidates.AddRange(new[] { "T_ContentType", "L_ContentType" });
+                    break;
+                case "B":
+                    typeColumnCandidates.AddRange(new[] { "B_ContentType", "R_ContentType", "Right_Option_Type" });
+                    break;
+                case "L":
+                    typeColumnCandidates.Add("L_ContentType");
+                    break;
+                case "R":
+                    typeColumnCandidates.AddRange(new[] { "R_ContentType", "Right_Option_Type" });
+                    break;
+                case "TL":
+                    typeColumnCandidates.AddRange(new[] { "TL_ContentType", "L_ContentType" });
+                    break;
+                case "TR":
+                    typeColumnCandidates.AddRange(new[] { "TR_ContentType", "R_ContentType", "Right_Option_Type" });
+                    break;
+                case "BL":
+                    typeColumnCandidates.AddRange(new[] { "BL_ContentType", "L_ContentType" });
+                    break;
+                case "BR":
+                    typeColumnCandidates.AddRange(new[] { "BR_ContentType", "R_ContentType", "Right_Option_Type" });
+                    break;
+                default:
+                    typeColumnCandidates.Add("LayoutType");
+                    break;
+            }
+
+            foreach (var columnName in typeColumnCandidates)
+            {
+                int parsedType;
+                if (GBL_UI_Assembly.GBL_Helpers.TryGetIntColumn(row, columnName, out parsedType))
+                {
+                    if (parsedType == (int)DDM_ConfigHelpers.DBPaneContents.CubeView
+                        || parsedType == (int)DDM_ConfigHelpers.LayoutType.CubeView)
+                    {
+                        return DDM_ConfigHelpers.DBPaneContents.CubeView;
+                    }
+                    if (parsedType == (int)DDM_ConfigHelpers.DBPaneContents.Dashboard
+                        || parsedType == (int)DDM_ConfigHelpers.LayoutType.Dashboard
+                        || parsedType == (int)DDM_ConfigHelpers.LayoutType.Dashboard_CustomDB)
+                    {
+                        return DDM_ConfigHelpers.DBPaneContents.Dashboard;
+                    }
+                }
+            }
+
+            return DDM_ConfigHelpers.DBPaneContents.Dashboard;
+        }
+
+        private static string resolve_PaneName(DataRow row, string paneName, bool isCubeView)
+        {
+            var candidateColumns = new List<string>();
+
+            switch (paneName.ToUpperInvariant())
+            {
+                case "T":
+                    candidateColumns.AddRange(isCubeView
+                        ? new[] { "T_Name", "CV_Name_Left", "CV_Name" }
+                        : new[] { "T_Name", "DB_Name_Left", "DB_Name" });
+                    break;
+                case "B":
+                    candidateColumns.AddRange(isCubeView
+                        ? new[] { "B_Name", "CV_Name_Right", "CV_Name" }
+                        : new[] { "B_Name", "DB_Name_Right", "DB_Name" });
+                    break;
+                case "L":
+                case "TL":
+                case "BL":
+                    candidateColumns.AddRange(isCubeView
+                        ? new[] { $"{paneName}_Name", "CV_Name_Left", "CV_Name" }
+                        : new[] { $"{paneName}_Name", "DB_Name_Left", "DB_Name" });
+                    break;
+                case "R":
+                case "TR":
+                case "BR":
+                    candidateColumns.AddRange(isCubeView
+                        ? new[] { $"{paneName}_Name", "CV_Name_Right", "CV_Name" }
+                        : new[] { $"{paneName}_Name", "DB_Name_Right", "DB_Name" });
+                    break;
+                default:
+                    candidateColumns.Add(isCubeView ? "CV_Name" : "DB_Name");
+                    break;
+            }
+
+            foreach (var columnName in candidateColumns)
+            {
+                var columnValue = GBL_UI_Assembly.GBL_Helpers.GetStringColumn(row, columnName, string.Empty);
+                if (!string.IsNullOrEmpty(columnValue))
+                {
+                    return columnValue;
+                }
+            }
+
+            return isCubeView ? DefaultCubeViewName : DefaultLayoutDashboardName;
         }
 
         public static DataTable get_HeaderItems(SessionInfo si, Dictionary<string, string> customSubstVarsAlreadyResolved, int option_Type)

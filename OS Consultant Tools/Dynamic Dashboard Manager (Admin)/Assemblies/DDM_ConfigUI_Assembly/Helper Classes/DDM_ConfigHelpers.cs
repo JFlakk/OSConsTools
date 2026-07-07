@@ -24,6 +24,8 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
 		#region "Config Setup"
 		public class LayoutConfig 
 		{
+			public string Config_DashboardName { get; init; }
+			
 		    public string DashboardName { get; init; }
 		
 		    public Dictionary<int, Dictionary<string, string>> ParameterMappings { get; init; }
@@ -35,7 +37,8 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
 		    {
 		        [LayoutType.Dashboard] = new LayoutConfig 
 		        {
-		            DashboardName = "DDM_LayoutConfig_DB",
+		            Config_DashboardName = "DDM_LayoutConfig_DB",
+					DashboardName = "DDM_App_Content_DB",
 		            ParameterMappings = new() 
 		            { 
 		                { 0, new Dictionary<string, string> { { "IV_DDM_MenuLayout_SortOrder", "SortOrder" } } },
