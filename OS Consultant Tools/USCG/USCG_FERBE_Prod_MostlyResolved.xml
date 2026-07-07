@@ -24622,7 +24622,7 @@ ORDER BY Flow, Entity
                     </component>
                     <component name="btn_BDF_RP_EditMode_Billets" description="Edit Mode" xfText="Edit Mode" toolTip="Edit Resource Proposal" componentType="Button" boundParameterName="" paramValueForButtonClick="" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="ExecuteDashboardExtenderBusinessRule" selectionChangedUIActionType="Refresh" selectionChangedNavigationType="NoAction">
                         <displayFormat>|!DashboardButtonStandardFormatting!|, Height = 65, IsVisible = XFBR(BudFm_ParamHelper, GetModeforEdit, RPName=|!prm_BDF_RP_Number_OS!|, WFScenario=|WFScenario|, WFTime=|WFTime|)</displayFormat>
-						<selectionChangedTaskArgs>{BudFM_SolutionHelper_UX}{BilletSelectionChanged}{readEdit=Edit, Content=04c_BDF_RP_Dashboard_Content_AddEditBillets_OS, WFTime=|WFTime|, WFScenario=|WFScenario|, WFCube=|WFCube|, RPName=|!prm_BDF_RP_Number_OS!|, LINumber=|!prm_BDF_RP_BLT_LineItemNumber_OS!|}</selectionChangedTaskArgs>
+                        <selectionChangedTaskArgs>{BudFM_SolutionHelper_UX}{BilletSelectionChanged}{readEdit=Edit, Content=04c_BDF_RP_Dashboard_Content_AddEditBillets_OS, WFTime=|WFTime|, WFScenario=|WFScenario|, WFCube=|WFCube|, RPName=|!prm_BDF_RP_Number_OS!|, LINumber=|!prm_BDF_RP_BLT_LineItemNumber_OS!|}</selectionChangedTaskArgs>
                         <dashboardsToRedraw>00_BDF_RP_Dashboard_Published_OS</dashboardsToRedraw>
                         <componentDefinition>
                             <XFButtonDefinition ButtonType="Standard">
@@ -24651,7 +24651,7 @@ ORDER BY Flow, Entity
                     </component>
                     <component name="btn_BDF_RP_EditMode_RPpage1" description="Edit Mode" xfText="Edit Mode" toolTip="Edit Resource Proposal" componentType="Button" boundParameterName="prm_BDF_RP_Content_EditRP_OS" paramValueForButtonClick="04b2a_BDF_RP_Dashboard_Content_EditRP_Page1_OS" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="ExecuteDashboardExtenderBusinessRule" selectionChangedUIActionType="Refresh" selectionChangedNavigationType="NoAction">
                         <displayFormat>|!DashboardButtonStandardFormatting!|, Height = 65, IsVisible = XFBR(BudFm_ParamHelper, GetModeforEdit, RPName=|!prm_BDF_RP_Number_OS!|, WFScenario=|WFScenario|, WFTime=|WFTime|)</displayFormat>
-						<selectionChangedTaskArgs>{BudFM_SolutionHelper_UX}{EditRPSelectionChanged}{readEdit=Edit, Content=04b_BDF_RP_Dashboard_Content_EditRP_OS, subcontent=04b2a_BDF_RP_Dashboard_Content_EditRP_Page1_OS, WFTime=|WFTime|, WFScenario=|WFScenario|, WFCube=|WFCube|, RPName=|!prm_BDF_RP_Number_OS!|}</selectionChangedTaskArgs>
+                        <selectionChangedTaskArgs>{BudFM_SolutionHelper_UX}{EditRPSelectionChanged}{readEdit=Edit, Content=04b_BDF_RP_Dashboard_Content_EditRP_OS, subcontent=04b2a_BDF_RP_Dashboard_Content_EditRP_Page1_OS, WFTime=|WFTime|, WFScenario=|WFScenario|, WFCube=|WFCube|, RPName=|!prm_BDF_RP_Number_OS!|}</selectionChangedTaskArgs>
                         <dashboardsToRedraw>00_BDF_RP_Dashboard_Published_OS</dashboardsToRedraw>
                         <componentDefinition>
                             <XFButtonDefinition ButtonType="Standard">
@@ -24995,7 +24995,7 @@ ORDER BY Flow, Entity
                     </component>
                     <component name="btn_BDF_RP_Revert_Billets" description="Revert Data" xfText="Revert Data &amp; Exit Edit Mode" toolTip="Revert Data &amp; Exit Edit Mode" componentType="Button" boundParameterName="prm_BDF_RP_Content_OS" paramValueForButtonClick="04c_BDF_RP_Dashboard_Content_AddEditBillets_NonEditRP_OS" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="ExecuteDashboardExtenderBusinessRule" selectionChangedUIActionType="Refresh" selectionChangedNavigationType="NoAction">
                         <displayFormat>|!DashboardButtonStandardFormatting!|, Height = 65</displayFormat>
-						<selectionChangedTaskArgs>{BudFM_SolutionHelper_UX}{BilletSelectionChanged}{readEdit=ReadOnly, Content=04c_BDF_RP_Dashboard_Content_AddEditBillets_NonEditRP_OS, WFTime=|WFTime|, WFScenario=|WFScenario|, WFCube=|WFCube|, RPName=|!prm_BDF_RP_Number_OS!|, LINumber=|!prm_BDF_RP_BLT_LineItemNumber_OS!|}</selectionChangedTaskArgs>
+                        <selectionChangedTaskArgs>{BudFM_SolutionHelper_UX}{BilletSelectionChanged}{readEdit=ReadOnly, Content=04c_BDF_RP_Dashboard_Content_AddEditBillets_NonEditRP_OS, WFTime=|WFTime|, WFScenario=|WFScenario|, WFCube=|WFCube|, RPName=|!prm_BDF_RP_Number_OS!|, LINumber=|!prm_BDF_RP_BLT_LineItemNumber_OS!|}</selectionChangedTaskArgs>
                         <dashboardsToRedraw>00_BDF_RP_Dashboard_Published_OS</dashboardsToRedraw>
                         <componentDefinition>
                             <XFButtonDefinition ButtonType="Standard">
@@ -25317,7 +25317,7 @@ ORDER BY Flow, Entity
                     </component>
                     <component name="btn_BDF_RP_ShowDB_AddEditBillets_OS" description="Add or Edit RP Billet(s) " xfText="Billets" toolTip="Edit Resource Proposal" componentType="Button" boundParameterName="prm_BDF_RP_Content_OS" paramValueForButtonClick="04c_BDF_RP_Dashboard_Content_AddEditBillets_NonEditRP_OS" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="ExecuteDashboardExtenderBusinessRule" selectionChangedUIActionType="Refresh" selectionChangedNavigationType="NoAction">
                         <displayFormat>BackgroundColor = [XFBR(BudFm_ParamHelper, SetActiveButtonColor, CurrDbdName=[04c_BDF_RP_Dashboard_Content_AddEditBillets_NonEditRP_OS], DbdSelected=[|!prm_BDF_RP_Content_OS!|])], HoverColor = #FF16CA94, Bold = False, BorderThickness = 1, FontSize = 12, Height = 30, MarginLeft = 8, TextColor = White, Width = 150</displayFormat>
-						<selectionChangedTaskArgs>{BudFM_SolutionHelper_UX}{HeaderSelectionChanged}{readEdit=ReadOnly,WFTime=|WFTime|, WFScenario=|WFScenario|, WFCube=|WFCube|, RPName=|!prm_BDF_RP_Number_OS!|, LINumber=|!prm_BDF_RP_BLT_LineItemNumber_OS!|,Content=|!prm_BDF_RP_Content_OS!|}</selectionChangedTaskArgs>
+                        <selectionChangedTaskArgs>{BudFM_SolutionHelper_UX}{HeaderSelectionChanged}{readEdit=ReadOnly,WFTime=|WFTime|, WFScenario=|WFScenario|, WFCube=|WFCube|, RPName=|!prm_BDF_RP_Number_OS!|, LINumber=|!prm_BDF_RP_BLT_LineItemNumber_OS!|,Content=|!prm_BDF_RP_Content_OS!|}</selectionChangedTaskArgs>
                         <dashboardsToRedraw>00_BDF_RP_Dashboard_Published_OS</dashboardsToRedraw>
                         <dashboardsToShow> </dashboardsToShow>
                         <componentDefinition>
@@ -25346,7 +25346,7 @@ ORDER BY Flow, Entity
                     </component>
                     <component name="btn_BDF_RP_ShowDB_AddEditNonBillets_OS" description="Add or Edit Cost Estimate type cost items" xfText="Cost Estimates" toolTip="Add or Edit Cost Estimate type items" componentType="Button" boundParameterName="prm_BDF_RP_Content_OS" paramValueForButtonClick="04d_BDF_RP_Dashboard_Content_NonAddEditNonBillets_OS" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="ExecuteDashboardExtenderBusinessRule" selectionChangedUIActionType="Refresh" selectionChangedNavigationType="NoAction">
                         <displayFormat>BackgroundColor = [XFBR(BudFm_ParamHelper, SetActiveButtonColor, CurrDbdName=[04d_BDF_RP_Dashboard_Content_NonAddEditNonBillets_OS], DbdSelected=[|!prm_BDF_RP_Content_OS!|])], HoverColor = #FF16CA94, Bold = False, BorderThickness = 1, FontSize = 12, Height = 30, MarginLeft = 8, TextColor = White, Width = 150</displayFormat>
-						<selectionChangedTaskArgs>{BudFM_SolutionHelper_UX}{HeaderSelectionChanged}{readEdit=ReadOnly,WFTime=|WFTime|, WFScenario=|WFScenario|, WFCube=|WFCube|, RPName=|!prm_BDF_RP_Number_OS!|, LINumber=|!prm_BDF_RP_BLT_LineItemNumber_OS!|,Content=|!prm_BDF_RP_Content_OS!|}</selectionChangedTaskArgs>
+                        <selectionChangedTaskArgs>{BudFM_SolutionHelper_UX}{HeaderSelectionChanged}{readEdit=ReadOnly,WFTime=|WFTime|, WFScenario=|WFScenario|, WFCube=|WFCube|, RPName=|!prm_BDF_RP_Number_OS!|, LINumber=|!prm_BDF_RP_BLT_LineItemNumber_OS!|,Content=|!prm_BDF_RP_Content_OS!|}</selectionChangedTaskArgs>
                         <dashboardsToRedraw>00_BDF_RP_Dashboard_Published_OS</dashboardsToRedraw>
                         <componentDefinition>
                             <XFButtonDefinition ButtonType="Standard">
@@ -25450,7 +25450,7 @@ ORDER BY Flow, Entity
                     </component>
                     <component name="btn_BDF_RP_ShowDB_CreateRP_OS" description="Create a new RP" xfText="Create RP" toolTip="Create Resource Proposal" componentType="Button" boundParameterName="prm_BDF_RP_Content_OS" paramValueForButtonClick="04a1_BDF_RP_Dashboard_Content_CreateRP_OS" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="ExecuteDashboardExtenderBusinessRule" selectionChangedUIActionType="Refresh" selectionChangedNavigationType="NoAction">
                         <displayFormat>BackgroundColor = [XFBR(BudFm_ParamHelper, SetActiveButtonColor, CurrDbdName=[04a1_BDF_RP_Dashboard_Content_CreateRP_OS], DbdSelected=[|!prm_BDF_RP_Content_OS!|])], HoverColor = #FF16CA94, Bold = False, BorderThickness = 1, FontSize = 12, Height = 30, MarginLeft = 8, TextColor = White, Width = 150</displayFormat>
-						<selectionChangedTaskArgs>{BudFM_SolutionHelper_UX}{HeaderSelectionChanged}{readEdit=ReadOnly,WFTime=|WFTime|, WFScenario=|WFScenario|, WFCube=|WFCube|,Content=|!prm_BDF_RP_Content_OS!|,APPN_Content=OS}</selectionChangedTaskArgs>
+                        <selectionChangedTaskArgs>{BudFM_SolutionHelper_UX}{HeaderSelectionChanged}{readEdit=ReadOnly,WFTime=|WFTime|, WFScenario=|WFScenario|, WFCube=|WFCube|,Content=|!prm_BDF_RP_Content_OS!|,APPN_Content=OS}</selectionChangedTaskArgs>
                         <dashboardsToRedraw>00_BDF_RP_Dashboard_Published_OS</dashboardsToRedraw>
                         <componentDefinition>
                             <XFButtonDefinition ButtonType="Standard">
@@ -25494,7 +25494,7 @@ ORDER BY Flow, Entity
                     </component>
                     <component name="btn_BDF_RP_ShowDB_EditRP_Changes_Comments_OS" description="" xfText="Change/Comment" toolTip="Change or Comment" componentType="Button" boundParameterName="" paramValueForButtonClick="" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="ExecuteDashboardExtenderBusinessRule" selectionChangedUIActionType="Refresh" selectionChangedNavigationType="NoAction">
                         <displayFormat>BackgroundColor = [XFBR(BudFm_ParamHelper, SetActiveButtonColorRow2, CurrDbdName=[04b2d_BDF_RP_Dashboard_Content_EditRP_CCLog_OS], DbdSelected=[|!prm_BDF_RP_Content_EditRP_OS!|])], Bold = False, BorderThickness = 1, FontSize = 12, Height = 30, HoverColor = #FF16CA94, MarginLeft = 8, TextColor = White, Width = 150</displayFormat>
-						<selectionChangedTaskArgs>{BudFM_SolutionHelper_UX}{EditRPSelectionChanged}{readEdit=Edit, Content=04b_BDF_RP_Dashboard_Content_EditRP_OS, subcontent=04b2d_BDF_RP_Dashboard_Content_EditRP_CCLog_OS, WFTime=|WFTime|, WFScenario=|WFScenario|, WFCube=|WFCube|, RPName=|!prm_BDF_RP_Number_OS!|}</selectionChangedTaskArgs>
+                        <selectionChangedTaskArgs>{BudFM_SolutionHelper_UX}{EditRPSelectionChanged}{readEdit=Edit, Content=04b_BDF_RP_Dashboard_Content_EditRP_OS, subcontent=04b2d_BDF_RP_Dashboard_Content_EditRP_CCLog_OS, WFTime=|WFTime|, WFScenario=|WFScenario|, WFCube=|WFCube|, RPName=|!prm_BDF_RP_Number_OS!|}</selectionChangedTaskArgs>
                         <dashboardsToRedraw>04_BDF_RP_Dashboard_Content_OS</dashboardsToRedraw>
                         <dashboardsToShow>04b2d_BDF_RP_Dashboard_Content_EditRP_CCLog_OS</dashboardsToShow>
                         <componentDefinition>
@@ -25536,7 +25536,7 @@ ORDER BY Flow, Entity
                     </component>
                     <component name="btn_BDF_RP_ShowDB_EditRP_MassBillet_OS" description="Delete Multiple Billets" xfText="Mass Billet Deletions" toolTip="Mass Billet Deletions" componentType="Button" boundParameterName="" paramValueForButtonClick="" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="ExecuteDashboardExtenderBusinessRule" selectionChangedUIActionType="Refresh" selectionChangedNavigationType="NoAction">
                         <displayFormat>BackgroundColor = [XFBR(BudFm_ParamHelper, SetActiveButtonColorRow2, CurrDbdName=[04c1c1_BDF_RP_Dashboard_Content_AddEditBillets_MassDelete_OS], DbdSelected=[|!prm_BDF_RP_Content_EditRP_OS!|])], Bold = False, BorderThickness = 1, FontSize = 12, Height = 30, HoverColor = #FF16CA94, IsVisible = [XFBR(BudFm_ParamHelper,ShowHideMassBilletDeleteButton)], MarginLeft = 8, TextColor = White, Width = 150</displayFormat>
-						<selectionChangedTaskArgs>{BudFM_SolutionHelper_UX}{EditRPSelectionChanged}{readEdit=Edit, Content=04b_BDF_RP_Dashboard_Content_EditRP_OS, subcontent=04c1c1_BDF_RP_Dashboard_Content_AddEditBillets_MassDelete_OS, WFTime=|WFTime|, WFScenario=|WFScenario|, WFCube=|WFCube|, RPName=|!prm_BDF_RP_Number_OS!|}</selectionChangedTaskArgs>
+                        <selectionChangedTaskArgs>{BudFM_SolutionHelper_UX}{EditRPSelectionChanged}{readEdit=Edit, Content=04b_BDF_RP_Dashboard_Content_EditRP_OS, subcontent=04c1c1_BDF_RP_Dashboard_Content_AddEditBillets_MassDelete_OS, WFTime=|WFTime|, WFScenario=|WFScenario|, WFCube=|WFCube|, RPName=|!prm_BDF_RP_Number_OS!|}</selectionChangedTaskArgs>
                         <dashboardsToRedraw>04_BDF_RP_Dashboard_Content_OS</dashboardsToRedraw>
                         <dashboardsToShow>04c1c1_BDF_RP_Dashboard_Content_AddEditBillets_MassDelete_OS</dashboardsToShow>
                         <componentDefinition>
@@ -25552,7 +25552,7 @@ ORDER BY Flow, Entity
                     </component>
                     <component name="btn_BDF_RP_ShowDB_EditRP_OS" description="Add or Edit General RP details" xfText="Edit RP" toolTip="Edit Resource Proposal" componentType="Button" boundParameterName="prm_BDF_RP_Content_OS" paramValueForButtonClick="04b_BDF_RP_Dashboard_Content_NonEditRP_OS" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="ExecuteDashboardExtenderBRStageServer" selectionChangedUIActionType="Refresh" selectionChangedNavigationType="NoAction">
                         <displayFormat>BackgroundColor = [XFBR(BudFm_ParamHelper, SetActiveButtonColor, CurrDbdName=[04b_BDF_RP_Dashboard_Content_NonEditRP_OS], DbdSelected=[|!prm_BDF_RP_Content_OS!|])], HoverColor = #FF16CA94, Bold = False, BorderThickness = 1, FontSize = 12, Height = 30, MarginLeft = 8, TextColor = White, Width = 150</displayFormat>
-						<selectionChangedTaskArgs>{BudFM_SolutionHelper_UX}{HeaderSelectionChanged}{readEdit=ReadOnly,WFTime=|WFTime|, WFScenario=|WFScenario|, WFCube=|WFCube|, RPName=|!prm_BDF_RP_Number_OS!|,Content=|!prm_BDF_RP_Content_OS!|,APPN_Content=OS}</selectionChangedTaskArgs>
+                        <selectionChangedTaskArgs>{BudFM_SolutionHelper_UX}{HeaderSelectionChanged}{readEdit=ReadOnly,WFTime=|WFTime|, WFScenario=|WFScenario|, WFCube=|WFCube|, RPName=|!prm_BDF_RP_Number_OS!|,Content=|!prm_BDF_RP_Content_OS!|,APPN_Content=OS}</selectionChangedTaskArgs>
                         <dashboardsToRedraw>00_BDF_RP_Dashboard_Published_OS</dashboardsToRedraw>
                         <componentDefinition>
                             <XFButtonDefinition ButtonType="Standard">
@@ -25580,7 +25580,7 @@ ORDER BY Flow, Entity
                     </component>
                     <component name="btn_BDF_RP_ShowDB_EditRP_Page1_OS" description="Add or Edit General RP details" xfText="RP Page 1" toolTip="Resource Proposal Page 1" componentType="Button" boundParameterName="prm_BDF_RP_Content_EditRP_OS" paramValueForButtonClick="04b2a_BDF_RP_Dashboard_Content_EditRP_Page1_OS" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="ExecuteDashboardExtenderBusinessRule" selectionChangedUIActionType="Refresh" selectionChangedNavigationType="NoAction">
                         <displayFormat>BackgroundColor = [XFBR(BudFm_ParamHelper, SetActiveButtonColorRow2, CurrDbdName=[04b2a_BDF_RP_Dashboard_Content_EditRP_Page1_OS], DbdSelected=[|!prm_BDF_RP_Content_EditRP_OS!|])], Bold = False, BorderThickness = 1, FontSize = 12, Height = 30, HoverColor = #FF16CA94, MarginLeft = 8, TextColor = White, Width = 150</displayFormat>
-						<selectionChangedTaskArgs>{BudFM_SolutionHelper_UX}{EditRPSelectionChanged}{readEdit=ReadOnly, Content=04b_BDF_RP_Dashboard_Content_NonEditRP_OS, subcontent=04b2a_BDF_RP_Dashboard_Content_NonEditRP_Page1_OS, WFTime=|WFTime|, WFScenario=|WFScenario|, WFCube=|WFCube|, RPName=|!prm_BDF_RP_Number_OS!|}</selectionChangedTaskArgs>
+                        <selectionChangedTaskArgs>{BudFM_SolutionHelper_UX}{EditRPSelectionChanged}{readEdit=ReadOnly, Content=04b_BDF_RP_Dashboard_Content_NonEditRP_OS, subcontent=04b2a_BDF_RP_Dashboard_Content_NonEditRP_Page1_OS, WFTime=|WFTime|, WFScenario=|WFScenario|, WFCube=|WFCube|, RPName=|!prm_BDF_RP_Number_OS!|}</selectionChangedTaskArgs>
                         <dashboardsToRedraw>04_BDF_RP_Dashboard_Content_OS</dashboardsToRedraw>
                         <componentDefinition>
                             <XFButtonDefinition ButtonType="Standard">
@@ -25608,7 +25608,7 @@ ORDER BY Flow, Entity
                     </component>
                     <component name="btn_BDF_RP_ShowDB_EditRP_Page2_OS" description="Add or Edit General RP details" xfText="RP Page 2" toolTip="Resource Proposal Page 2" componentType="Button" boundParameterName="prm_BDF_RP_Content_EditRP_OS" paramValueForButtonClick="04b2b_BDF_RP_Dashboard_Content_NonEditRP_Page2_OS" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="ExecuteDashboardExtenderBusinessRule" selectionChangedUIActionType="Refresh" selectionChangedNavigationType="NoAction">
                         <displayFormat>BackgroundColor = [XFBR(BudFm_ParamHelper, SetActiveButtonColorRow2, CurrDbdName=[04b2b_BDF_RP_Dashboard_Content_NonEditRP_Page2_OS], DbdSelected=[|!prm_BDF_RP_Content_EditRP_OS!|])], Bold = False, BorderThickness = 1, FontSize = 12, Height = 30, HoverColor = #FF16CA94, MarginLeft = 8, TextColor = White, Width = 150</displayFormat>
-						<selectionChangedTaskArgs>{BudFM_SolutionHelper_UX}{EditRPSelectionChanged}{readEdit=ReadOnly, Content=04b_BDF_RP_Dashboard_Content_NonEditRP_OS, subcontent=04b2b_BDF_RP_Dashboard_Content_NonEditRP_Page2_OS, WFTime=|WFTime|, WFScenario=|WFScenario|, WFCube=|WFCube|, RPName=|!prm_BDF_RP_Number_OS!|}</selectionChangedTaskArgs>
+                        <selectionChangedTaskArgs>{BudFM_SolutionHelper_UX}{EditRPSelectionChanged}{readEdit=ReadOnly, Content=04b_BDF_RP_Dashboard_Content_NonEditRP_OS, subcontent=|!prm_BDF_RP_Content_EditRP_OS!|, WFTime=|WFTime|, WFScenario=|WFScenario|, WFCube=|WFCube|, RPName=|!prm_BDF_RP_Number_OS!|}</selectionChangedTaskArgs>
                         <dashboardsToRedraw>04_BDF_RP_Dashboard_Content_OS</dashboardsToRedraw>
                         <componentDefinition>
                             <XFButtonDefinition ButtonType="Standard">
@@ -25636,7 +25636,7 @@ ORDER BY Flow, Entity
                     </component>
                     <component name="btn_BDF_RP_ShowDB_EditRP_Page3_OS" description="Add or Edit General RP details" xfText="RP Page 3" toolTip="Resource Proposal Page 3" componentType="Button" boundParameterName="" paramValueForButtonClick="" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="ExecuteDashboardExtenderBusinessRule" selectionChangedUIActionType="Refresh" selectionChangedNavigationType="NoAction">
                         <displayFormat>BackgroundColor = [XFBR(BudFm_ParamHelper, SetActiveButtonColorRow2, CurrDbdName=[04b2c_BDF_RP_Dashboard_Content_NonEditRP_Page3_OS], DbdSelected=[|!prm_BDF_RP_Content_EditRP_OS!|])], Bold = False, BorderThickness = 1, FontSize = 12, Height = 30, HoverColor = #FF16CA94, MarginLeft = 8, TextColor = White, Width = 150</displayFormat>
-						<selectionChangedTaskArgs>{BudFM_SolutionHelper_UX}{EditRPSelectionChanged}{readEdit=ReadOnly, Content=04b_BDF_RP_Dashboard_Content_NonEditRP_OS, subcontent=04b2c_BDF_RP_Dashboard_Content_NonEditRP_Page3_OS, WFTime=|WFTime|, WFScenario=|WFScenario|, WFCube=|WFCube|, RPName=|!prm_BDF_RP_Number_OS!|}</selectionChangedTaskArgs>
+                        <selectionChangedTaskArgs>{BudFM_SolutionHelper_UX}{EditRPSelectionChanged}{readEdit=ReadOnly, Content=04b_BDF_RP_Dashboard_Content_NonEditRP_OS, subcontent=04b2c_BDF_RP_Dashboard_Content_NonEditRP_Page3_OS, WFTime=|WFTime|, WFScenario=|WFScenario|, WFCube=|WFCube|, RPName=|!prm_BDF_RP_Number_OS!|}</selectionChangedTaskArgs>
                         <dashboardsToRedraw>04_BDF_RP_Dashboard_Content_OS</dashboardsToRedraw>
                         <dashboardsToShow>04b2c_BDF_RP_Dashboard_Content_NonEditRP_Page3_OS</dashboardsToShow>
                         <componentDefinition>
@@ -25986,7 +25986,7 @@ ORDER BY Flow, Entity
                     </component>
                     <component name="cbx_BDF_RP_BLT_LineItemNumber_OS" description="Billet" xfText="Billet" toolTip="Select a Billet" componentType="ComboBox" boundParameterName="prm_BDF_RP_BLT_LineItemNumber_OS" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="ExecuteDashboardExtenderBusinessRule" selectionChangedUIActionType="Refresh" selectionChangedNavigationType="NoAction">
                         <displayFormat>Height = 25, LabelBold = True, LabelPosition = Left, MarginBottom = 10, MarginLeft = 5, MarginTop = 10, UseTextWrapping = False, Width = 125</displayFormat>
-						<selectionChangedTaskArgs>{BudFM_SolutionHelper_UX}{BilletSelectionChanged}{readEdit=ReadOnly, Content=04c_BDF_RP_Dashboard_Content_AddEditBillets_NonEditRP_OS, WFTime=|WFTime|, WFScenario=|WFScenario|, WFCube=|WFCube|, RPName=|!prm_BDF_RP_Number_OS!|, LINumber=|!prm_BDF_RP_BLT_LineItemNumber_OS!|}</selectionChangedTaskArgs>
+                        <selectionChangedTaskArgs>{BudFM_SolutionHelper_UX}{BilletSelectionChanged}{readEdit=ReadOnly, Content=04c_BDF_RP_Dashboard_Content_AddEditBillets_NonEditRP_OS, WFTime=|WFTime|, WFScenario=|WFScenario|, WFCube=|WFCube|, RPName=|!prm_BDF_RP_Number_OS!|, LINumber=|!prm_BDF_RP_BLT_LineItemNumber_OS!|}</selectionChangedTaskArgs>
                         <dashboardsToRedraw>00_BDF_RP_Dashboard_Published_OS</dashboardsToRedraw>
                         <adapterMembers />
                     </component>
@@ -26141,25 +26141,25 @@ ORDER BY Flow, Entity
                     </component>
                     <component name="cbx_BDF_RP_GEN_ResourceProposal_OS" description="" xfText="RP" toolTip="Select RP" componentType="ComboBox" boundParameterName="prm_BDF_RP_Number_OS" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="ExecuteDashboardExtenderBusinessRule" selectionChangedUIActionType="Refresh" selectionChangedNavigationType="NoAction">
                         <displayFormat>Height = 25, LabelBold = True, LabelPosition = Left, MarginBottom = 10, MarginLeft = 5, MarginTop = 10, Width = 350</displayFormat>
-						<selectionChangedTaskArgs>{BudFM_SolutionHelper_UX}{HeaderSelectionChanged}{readEdit=ReadOnly, Content=|!prm_BDF_RP_Content_OS!|, APPN_Content=OS, WFTime=|WFTime|, WFScenario=|WFScenario|, WFCube=|WFCube|, RPName=|!prm_BDF_RP_Number_OS!|, LINumber=|!prm_BDF_RP_BLT_LineItemNumber_OS!|}</selectionChangedTaskArgs>
+                        <selectionChangedTaskArgs>{BudFM_SolutionHelper_UX}{HeaderSelectionChanged}{readEdit=ReadOnly, Content=|!prm_BDF_RP_Content_OS!|, APPN_Content=OS, WFTime=|WFTime|, WFScenario=|WFScenario|, WFCube=|WFCube|, RPName=|!prm_BDF_RP_Number_OS!|}</selectionChangedTaskArgs>
                         <dashboardsToRedraw>00_BDF_RP_Dashboard_Published_OS</dashboardsToRedraw>
                         <adapterMembers />
                     </component>
                     <component name="cbx_BDF_RP_GEN_ResourceProposal_OS_ConcReview" description="" xfText="RP" toolTip="Select RP" componentType="ComboBox" boundParameterName="prm_BDF_RP_Number_OS" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="ExecuteDashboardExtenderBusinessRule" selectionChangedUIActionType="Refresh" selectionChangedNavigationType="NoAction">
                         <displayFormat>Height = 25, LabelBold = True, LabelPosition = Left, MarginBottom = 10, MarginLeft = 5, MarginTop = 10, Width = 350</displayFormat>
-						<selectionChangedTaskArgs>{BudFM_SolutionHelper_UX}{HeaderSelectionChanged}{readEdit=ReadOnly, Content=|!prm_BDF_RP_Content_OS!|, APPN_Content=OS, WFTime=|WFTime|, WFScenario=|WFScenario|, WFCube=|WFCube|, RPName=|!prm_BDF_RP_Number_OS!|, LINumber=|!prm_BDF_RP_BLT_LineItemNumber_OS!|}</selectionChangedTaskArgs>
+                        <selectionChangedTaskArgs>{BudFM_SolutionHelper_UX}{HeaderSelectionChanged}{readEdit=ReadOnly, Content=|!prm_BDF_RP_Content_OS!|, APPN_Content=OS, WFTime=|WFTime|, WFScenario=|WFScenario|, WFCube=|WFCube|, RPName=|!prm_BDF_RP_Number_OS!|, LINumber=|!prm_BDF_RP_BLT_LineItemNumber_OS!|}</selectionChangedTaskArgs>
                         <dashboardsToRedraw>00_BDF_RP_Dashboard_Published_OS</dashboardsToRedraw>
                         <adapterMembers />
                     </component>
                     <component name="cbx_BDF_RP_GEN_ResourceProposal_OS_Create" description="" xfText="RP" toolTip="Select RP" componentType="ComboBox" boundParameterName="prm_BDF_RP_Number_OS" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="ExecuteDashboardExtenderBusinessRule" selectionChangedUIActionType="Refresh" selectionChangedNavigationType="NoAction">
                         <displayFormat>Height = 25, LabelBold = True, LabelPosition = Left, MarginBottom = 10, MarginLeft = 5, MarginTop = 10, Width = 350</displayFormat>
-						<selectionChangedTaskArgs>{BudFM_SolutionHelper_UX}{SetContentSelectionChanged}{Content=04a2_BDF_RP_Dashboard_Content_CreateRP_OS}</selectionChangedTaskArgs>
+                        <selectionChangedTaskArgs>{BudFM_SolutionHelper_UX}{SetContentSelectionChanged}{Content=04a2_BDF_RP_Dashboard_Content_CreateRP_OS}</selectionChangedTaskArgs>
                         <dashboardsToRedraw>03_BDF_RP_Dashboard_Toolbar_OS, 04_BDF_RP_Dashboard_Content_OS</dashboardsToRedraw>
                         <adapterMembers />
                     </component>
                     <component name="cbx_BDF_RP_GEN_ResourceProposal_OS_CreateWV" description="" xfText="RP" toolTip="Select RP" componentType="ComboBox" boundParameterName="prm_BDF_RP_Number_OS" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="ExecuteDashboardExtenderBusinessRule" selectionChangedUIActionType="Refresh" selectionChangedNavigationType="NoAction">
                         <displayFormat>Height = 25, LabelBold = True, LabelPosition = Left, MarginBottom = 10, MarginLeft = 5, MarginTop = 10, Width = 350</displayFormat>
-						<selectionChangedTaskArgs>{BudFM_SolutionHelper_UX}{SetContentSelectionChanged}{Content=04a4_BDF_RP_Dashboard_Content_CreateRP_OS}</selectionChangedTaskArgs>
+                        <selectionChangedTaskArgs>{BudFM_SolutionHelper_UX}{SetContentSelectionChanged}{Content=04a4_BDF_RP_Dashboard_Content_CreateRP_OS}</selectionChangedTaskArgs>
                         <dashboardsToRedraw>03_BDF_RP_Dashboard_Toolbar_OS, 04_BDF_RP_Dashboard_Content_OS</dashboardsToRedraw>
                         <adapterMembers />
                     </component>
@@ -26274,13 +26274,13 @@ ORDER BY Flow, Entity
                     </component>
                     <component name="cbx_BDF_RP_Reporting_BLT_LineItemNumber_OS" description="Billet" xfText="Billet" toolTip="Select a Billet" componentType="ComboBox" boundParameterName="prm_BDF_RP_BLT_LineItemNumber_OS" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="ExecuteDashboardExtenderBusinessRule" selectionChangedUIActionType="Refresh" selectionChangedNavigationType="NoAction">
                         <displayFormat>Height = 25, LabelBold = True, LabelPosition = Left, MarginBottom = 10, MarginLeft = 5, MarginTop = 10, UseTextWrapping = False, Width = 125</displayFormat>
-						<selectionChangedTaskArgs>{BudFM_SolutionHelper_UX}{BilletSelectionChanged}{readEdit=ReadOnly, Content=04e_BDF_RP_Dashboard_Content_Reporting_OS, WFTime=|WFTime|, WFScenario=|WFScenario|, WFCube=|WFCube|, RPName=|!prm_BDF_RP_Number_OS!|, LINumber=|!prm_BDF_RP_BLT_LineItemNumber_OS!|}</selectionChangedTaskArgs>
+                        <selectionChangedTaskArgs>{BudFM_SolutionHelper_UX}{BilletSelectionChanged}{readEdit=ReadOnly, Content=04e_BDF_RP_Dashboard_Content_Reporting_OS, WFTime=|WFTime|, WFScenario=|WFScenario|, WFCube=|WFCube|, RPName=|!prm_BDF_RP_Number_OS!|, LINumber=|!prm_BDF_RP_BLT_LineItemNumber_OS!|}</selectionChangedTaskArgs>
                         <dashboardsToRedraw>04e1a_BDF_RP_Dashboard_Content_Reporting_RP_OS, 04e1b_BDF_RP_Dashboard_Content_Reporting_CostSum_OS, 04e1b_BDF_RP_Dashboard_Content_Reporting_CostEstSum_OS, 04e1c_BDF_RP_Dashboard_Content_Reporting_CostSumFA_OS, 04e1f_BDF_RP_Dashboard_Content_Reporting_Top_OCFSum_OS, 04e1d_BDF_RP_Dashboard_Content_Reporting_Top_CostDriverSum_OS, 04e1e_BDF_RP_Dashboard_Content_Reporting_Top_LineItemSum_OS, 04e1g_BDF_RP_Dashboard_Content_Reporting_Top_HCSum_OS, 04e1h_BDF_RP_Dashboard_Content_Reporting_Top_HC_GD_OS, 04e1i_BDF_RP_Dashboard_Content_Reporting_Top_HC_ADE_OS, 04e1j_BDF_RP_Dashboard_Content_Reporting_Top_HC_ACO_CWO_OS, 04e1k_BDF_RP_Dashboard_Content_Reporting_Top_HC_ADC_OS, 04e1l_BDF_RP_Dashboard_Content_Reporting_Top_HC_BMP_OS, 04e2a_BDF_RP_Dashboard_Content_Reporting_Bottom_Billet_Summary_OS, 04e3a_BDF_RP_Dashboard_Content_Reporting_Bottom_CostEst_Summary_OS, 04e3b_BDF_RP_Dashboard_Content_Reporting_Bottom_CostEst_Details_OS</dashboardsToRedraw>
                         <adapterMembers />
                     </component>
                     <component name="cbx_BDF_RP_Reporting_ResourceProposal_OS" description="" xfText="RP" toolTip="Select RP" componentType="ComboBox" boundParameterName="prm_BDF_RP_Number_OS" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="ExecuteDashboardExtenderBusinessRule" selectionChangedUIActionType="Refresh" selectionChangedNavigationType="NoAction">
                         <displayFormat>Height = 25, LabelBold = True, LabelPosition = Left, MarginBottom = 10, MarginLeft = 5, MarginTop = 10, Width = 350</displayFormat>
-						<selectionChangedTaskArgs>{BudFM_SolutionHelper_UX}{HeaderSelectionChanged}{readEdit=ReadOnly, Content=04e_BDF_RP_Dashboard_Content_Reporting_OS, APPN_Content=OS, WFTime=|WFTime|, WFScenario=|WFScenario|, WFCube=|WFCube|, RPName=|!prm_BDF_RP_Number_OS!|, LINumber=|!prm_BDF_RP_BLT_LineItemNumber_OS!|}</selectionChangedTaskArgs>
+                        <selectionChangedTaskArgs>{BudFM_SolutionHelper_UX}{HeaderSelectionChanged}{readEdit=ReadOnly, Content=04e_BDF_RP_Dashboard_Content_Reporting_OS, APPN_Content=OS, WFTime=|WFTime|, WFScenario=|WFScenario|, WFCube=|WFCube|, RPName=|!prm_BDF_RP_Number_OS!|, LINumber=|!prm_BDF_RP_BLT_LineItemNumber_OS!|}</selectionChangedTaskArgs>
                         <dashboardsToRedraw>04e1a_BDF_RP_Dashboard_Content_Reporting_RP_OS, 04e1b_BDF_RP_Dashboard_Content_Reporting_CostSum_OS, 04e1b_BDF_RP_Dashboard_Content_Reporting_CostEstSum_OS, 04e1c_BDF_RP_Dashboard_Content_Reporting_CostSumFA_OS, 04e1f_BDF_RP_Dashboard_Content_Reporting_Top_OCFSum_OS, 04e1d_BDF_RP_Dashboard_Content_Reporting_Top_CostDriverSum_OS, 04e1e_BDF_RP_Dashboard_Content_Reporting_Top_LineItemSum_OS, 04e1g_BDF_RP_Dashboard_Content_Reporting_Top_HCSum_OS, 04e1h_BDF_RP_Dashboard_Content_Reporting_Top_HC_GD_OS, 04e1i_BDF_RP_Dashboard_Content_Reporting_Top_HC_ADE_OS, 04e1j_BDF_RP_Dashboard_Content_Reporting_Top_HC_ACO_CWO_OS, 04e1k_BDF_RP_Dashboard_Content_Reporting_Top_HC_ADC_OS, 04e1l_BDF_RP_Dashboard_Content_Reporting_Top_HC_BMP_OS, 04e2a_BDF_RP_Dashboard_Content_Reporting_Bottom_Billet_Summary_OS, 04e3a_BDF_RP_Dashboard_Content_Reporting_Bottom_CostEst_Summary_OS, 04e3b_BDF_RP_Dashboard_Content_Reporting_Bottom_CostEst_Details_OS</dashboardsToRedraw>
                         <adapterMembers />
                     </component>
@@ -31898,12 +31898,6 @@ ORDER BY Flow, Entity
                                     <componentMember name="Embedded 04b2b3_BDF_RP_Dashboard_Content_NonEditRP_Page2_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="Embedded 04b2b4_BDF_RP_Dashboard_Content_NonEditRP_Page2_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="Embedded 04b2b6_BDF_RP_Dashboard_Content_NonEditRP_Page2_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_EditRP_CCReq_FYRelatedRp1_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_EditRP_CCReq_FYRelatedRp2_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_EditRP_CCReq_FYRelatedRp3_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_EditRP_CCReq_OlderRelatedRp1_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_EditRP_CCReq_OlderRelatedRp2_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_EditRP_CCReq_OlderRelatedRp3_OS" left="" top="" width="" height="" dockPosition="Left" />
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04b2b1_BDF_RP_Dashboard_Content_EditRP_Page2_OS" description="" pageCaption="" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -37860,7 +37854,7 @@ ORDER BY Flow, Entity
                                     <componentMember name="spp_BDF_Content_Help_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="spp_BDF_RP_Content_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="emb_Dyn_00_BDF_RP_Dashboard_Frame_Content_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_Number_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                    <componentMember name="spp_BDF_RP_Content_Frame_OS" left="" top="" width="" height="" dockPosition="Left" />
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="00_BDF_RP_Dashboard_Published_OS_Copy" description="" pageCaption="" layoutType="Uniform" isInitiallyVisible="true" loadDashboardTaskType="ExecuteDashboardExtenderBROnce">
