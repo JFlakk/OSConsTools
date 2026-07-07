@@ -13571,6 +13571,36 @@ Namespace OneStream.BusinessRule.DashboardExtender.BudFm_SolutionHelper_UX
 							Return selectionChangedTaskResult
 							
 						Else If args.FunctionName.XFEqualsIgnoreCase("CostEstSelectionChanged") Then
+							Dim content As String = args.NameValuePairs.XFGetValue("Content",String.Empty)
+							Dim flowNavLink As String = args.NameValuePairs.XFGetValue("RPName",String.Empty)
+							Dim scenarioNavLink As String = args.NameValuePairs.XFGetValue("WFScenario",String.Empty)
+							Dim timeNavLink As String = args.NameValuePairs.XFGetValue("WFTime",String.Empty)
+							Dim wfCube As String = args.NameValuePairs.XFGetValue("WFCube",String.Empty)
+							Dim Subcontent As String = args.NameValuePairs.XFGetValue("subcontent",String.Empty)
+							Dim readEdit As String = args.NameValuePairs.XFGetValue("readEdit",String.Empty)
+
+							'set the text value on the user's session info with the chosen RP so it can be read upon loading the workflow dashboard
+							brapi.State.SetSessionState(si, False, ClientModuletype.Unknown, "", "", "", "", flowNavLink, si.XfBytes)
+
+							Dim selectionChangedTaskResult As New XFSelectionChangedTaskResult()
+
+							If Not flowNavLink = "None" And Not flowNavLink = "" Then
+
+								Dim RPAppr As String
+
+								Try
+									RPAppr = rpUtils.Get_RP_Appropriation(si, flowNavLink)
+								Catch ex As Exception
+									selectionChangedTaskResult.ChangeCustomSubstVarsInDashboard = False
+									Return selectionChangedTaskResult
+								End Try
+
+								SetRPContentRoutingVars(si,globals,selectionChangedTaskResult.ModifiedCustomSubstVars, readEdit, content, subcontent, RPAppr, flowNavLink,String.Empty,scenarioNavLink,timeNavLink)
+								selectionChangedTaskResult.ChangeCustomSubstVarsInDashboard = True
+
+							End If
+
+							Return selectionChangedTaskResult
 							
 						End If
 
@@ -13813,6 +13843,7 @@ Namespace OneStream.BusinessRule.DashboardStringFunction.BudFm_ParamHelper
 			Try
 				
 #Region "GetActiveOrReserveList"
+brAPI.ErrorLog.LogMessage(SI,$"hIT {ARgs.FunctionName}")
 
 				'XFBR(BudFm_ParamHelper, GetActiveOrReserveList, billet_Type=|!prm_BDF_RP_BLT_Billet_Type!|)
 				If args.FunctionName.XFEqualsIgnoreCase("GetActiveOrReserveList") Then
@@ -17004,10 +17035,11 @@ End If
 
 				'XFBR(BudFm_ParamHelper, GetUD6MemberDescription, MemberName=|!prm_BDF_RP_ConcReview_UD8_OS!|)
 				If args.FunctionName.XFEqualsIgnoreCase("GetUD6MemberDescription") Then
-					Dim memberName As String = args.NameValuePairs("MemberName")
+					Dim memberName As String = args.NameValuePairs.XFGetValue("MemberName","NA")
+					
 					Dim description As String = String.Empty
 					
-					If memberName.Length = 0
+					If memberName.Length = 0 or memberName.XFContainsIgnoreCase("|!")
 						description = ""
 					Else 
 						description = BRApi.Finance.Members.GetMember(si, dimtypeid.UD6, memberName).Description
@@ -18456,13 +18488,17 @@ End If
                         Return "03c_BDF_RP_Dashboard_Toolbar_AddEditBillets_OS"
                     End If
 
-                    If contentDbValue.StartsWith("04d", StringComparison.InvariantCultureIgnoreCase) Then
-                        If contentDbValue.IndexOf("NonAddEditNonBillets", StringComparison.InvariantCultureIgnoreCase) >= 0 Then
-                            Return "03d_BDF_RP_Dashboard_Toolbar_NonAddEditNonBillets_OS"
-                        End If
+					If Not String.IsNullOrEmpty(contentDbValue) _
+					   AndAlso contentDbValue.StartsWith("04d", StringComparison.InvariantCultureIgnoreCase) Then
+					   
+					    If contentDbValue.IndexOf("NonAddEditNonBillets", StringComparison.InvariantCultureIgnoreCase) >= 0 Then
+					        Return "03d_BDF_RP_Dashboard_Toolbar_NonAddEditNonBillets_OS"
 
-                        Return "03d_BDF_RP_Dashboard_Toolbar_AddEditNonBillets_OS"
-                    End If
+					    ElseIf contentDbValue.IndexOf("AddEditNonBillets", StringComparison.InvariantCultureIgnoreCase) >= 0 Then
+					        Return "03d_BDF_RP_Dashboard_Toolbar_AddEditNonBillets_OS"
+
+					    End If
+					End If
 
                     If contentDbValue.StartsWith("04e", StringComparison.InvariantCultureIgnoreCase) Then
                         Return "03e_BDF_RP_Dashboard_Toolbar_Reporting_OS"
@@ -24281,8 +24317,8 @@ ORDER BY Flow, Entity
                         </componentDefinition>
                         <adapterMembers />
                     </component>
-                    <component name="btn_BDF_RP_CreateNewBillet_OS" description="" xfText="Create New Billet" toolTip="New Billet" componentType="Button" boundParameterName="prm_BDF_RP_Content_AddEditBillets_NonEditRP_OS " paramValueForButtonClick="04c1a_BDF_RP_Dashboard_Content_AddEditBillets_NonEditRP_OS" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="ExecuteDashboardExtenderBusinessRule" selectionChangedUIActionType="Refresh" selectionChangedNavigationType="NoAction">
-                        <displayFormat>BackgroundColor = [XFBR(BudFm_ParamHelper, SetActiveButtonColorBillet, CurrDbdName=[04c1a_BDF_RP_Dashboard_Content_AddEditBillets_NonEditRP_OS], DbdSelected=[|!prm_BDF_RP_Content_AddEditBillets_NonEditRP_OS !|])], HoverColor = #FF16CA94, Bold = False, BorderThickness = 1, FontSize = 12, Height = 30, MarginLeft = 8, TextColor = White, Width = 150</displayFormat>
+					<component name="btn_BDF_RP_CreateNewBillet_OS" description="" xfText="Create New Billet" toolTip="New Billet" componentType="Button" boundParameterName="prm_BDF_RP_Content_AddEditBillets_NonEditRP_OS" paramValueForButtonClick="04c1a_BDF_RP_Dashboard_Content_AddEditBillets_NonEditRP_OS" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="ExecuteDashboardExtenderBusinessRule" selectionChangedUIActionType="Refresh" selectionChangedNavigationType="NoAction">
+						<displayFormat>BackgroundColor = [XFBR(BudFm_ParamHelper, SetActiveButtonColorBillet, CurrDbdName=[04c1a_BDF_RP_Dashboard_Content_AddEditBillets_NonEditRP_OS], DbdSelected=[|!prm_BDF_RP_Content_AddEditBillets_NonEditRP_OS!|])], HoverColor = #FF16CA94, Bold = False, BorderThickness = 1, FontSize = 12, Height = 30, MarginLeft = 8, TextColor = White, Width = 150</displayFormat>
                         <selectionChangedTaskArgs>{BudFM_SolutionHelper}{SetDynamicParameters}{Button=btn_BDF_RP_CreateNewBillet_OS}</selectionChangedTaskArgs>
                         <dashboardsToRedraw>04_BDF_RP_Dashboard_Content_OS</dashboardsToRedraw>
                         <componentDefinition>
@@ -24635,9 +24671,10 @@ ORDER BY Flow, Entity
                         </componentDefinition>
                         <adapterMembers />
                     </component>
-                    <component name="btn_BDF_RP_EditMode_CostEst" description="Edit Mode" xfText="Edit Mode" toolTip="Edit Resource Proposal" componentType="Button" boundParameterName="prm_BDF_RP_Content_Frame_OS" paramValueForButtonClick="00_BDF_RP_Dashboard_Frame_EditMode_OS" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="ExecuteDashboardExtenderBusinessRule" selectionChangedUIActionType="Refresh" selectionChangedNavigationType="NoAction">
+                    <component name="btn_BDF_RP_EditMode_CostEst" description="Edit Mode" xfText="Edit Mode" toolTip="Edit Resource Proposal" componentType="Button" boundParameterName="prm_BDF_RP_Content_OS" paramValueForButtonClick="04d_BDF_RP_Dashboard_Content_AddEditNonBillets_OS" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="ExecuteDashboardExtenderBusinessRule" selectionChangedUIActionType="Refresh" selectionChangedNavigationType="NoAction">
                         <displayFormat>|!DashboardButtonStandardFormatting!|, Height = 65, IsVisible = XFBR(BudFm_ParamHelper, GetModeforEdit, RPName=|!prm_BDF_RP_Number_OS!|, WFScenario=|WFScenario|, WFTime=|WFTime|)</displayFormat>
-                        <selectionChangedTaskArgs>{BudFM_SolutionHelper}{OnCbxRP_NonBillet_Selected}{ Content_EditRP_OS = |!prm_BDF_RP_Content_EditRP_OS!|, Content_OS = [04d_BDF_RP_Dashboard_Content_AddEditNonBillets_OS], RPNameCopy=|!prm_BDF_RP_Number_OS_Copy!|, NBLTCopy = |!prm_BDF_RP_NBLT_LineItemNumber_OS_Copy!| , NBLT = |!prm_BDF_RP_NBLT_LineItemNumber_OS!|, OC =|!prm_BDF_RP_NBLT_ObjectClass_OS!|, D1 = [|!prm_BDF_RP_NBLT_Description_Tier2_OS!|], D2 = [|!prm_BDF_RP_NBLT_Description_Tier2_Input_OS!|] , Billets=|!prm_BDF_RP_BLT_NumberOfBillets_OS!|, AutoAdd=|!prm_BDF_RP_BLT_AutoAddGenDetail_OS!|, IncreDecre=|!prm_BDF_RP_BLT_IncreaseDecrease_OS!|, Reprogramming=|!prm_BDF_RP_BLT_PartOfReprogramming_OS!|, PersonnelQuarters=|!prm_BDF_RP_BLT_NumberOfPersonnelQtrs_OS!|, O&amp;MQuarters=|!prm_BDF_RP_NBLT_NumberOfOSQtrs_OS!|, LeadOffice1=|!prm_BDF_RP_LeadOffice1_OS!|, LeadOffice2=|!prm_BDF_RP_LeadOffice2_OS!|, LeadOffice3=|!prm_BDF_RP_LeadOffice3_OS!|, LeadOfficePOC1=[|!prm_BDF_RP_LeadOfficePOC1_OS!|], LeadOfficePOC2=[|!prm_BDF_RP_LeadOfficePOC2_OS!|], LeadOfficePOC3=[|!prm_BDF_RP_LeadOfficePOC3_OS!|], LeadOfficePhone1=[|!prm_BDF_RP_LeadOfficePhone1_OS!|], LeadOfficePhone2=[|!prm_BDF_RP_LeadOfficePhone2_OS!|], LeadOfficePhone3=[|!prm_BDF_RP_LeadOfficePhone3_OS!|], InitialEstimate=[|!prm_BDF_RP_BLT_IE_K_OS!|], InitialEstimateMil=[|!prm_BDF_RP_BLT_IE_MIL_OS!|], InitialEstimateCiv=[|!prm_BDF_RP_BLT_IE_CIV_OS!|], BaseFunding=[|!prm_BDF_RP_BLT_IE_Base_Funding_OS!|], BaseFundingMil=[|!prm_BDF_RP_BLT_CBF_MIL_OS!|], BaseFundingCiv=[|!prm_BDF_RP_BLT_CBF_CIV_OS!|], BaseFundingComments=[|!prm_BDF_RP_IE_Base_Funding_Comments_OS!|], FYRelatedRP1=|!prm_BDF_RP_FYRelatedRp1_OS!|, FYRelatedRP2=|!prm_BDF_RP_FYRelatedRp2_OS!|, FYRelatedRP3=|!prm_BDF_RP_FYRelatedRp3_OS!|, OlderRelatedRP1=|!prm_BDF_RP_OlderRelatedRp1_OS!|, OlderRelatedRP2=|!prm_BDF_RP_OlderRelatedRp2_OS!|, OlderRelatedRP3=|!prm_BDF_RP_OlderRelatedRp3_OS!|, ExecSummary=[|!prm_BDF_RP_ExecSummary_OS!|], Problem=[|!prm_BDF_RP_Page3_Problem_OS!|], FundingImpact=[|!prm_BDF_RP_Page3_FundingImpact_OS!|], DenialImpact=[|!prm_BDF_RP_Page3_DenialImpact_OS!|], AffectOthers=[|!prm_BDF_RP_Page3_AffectOthers_OS!|], ROI=[|!prm_BDF_RP_Page3_ROI_OS!|], Alignment=[|!prm_BDF_RP_Page3_Alignment_OS!|], PositionNumber=|!prm_BDF_RP_BLT_PositionNumber_OS!|, PositionTitle=|!prm_BDF_RP_BLT_PositionTitle_OS!|, LineItemComment=[|!prm_BDF_RP_BLT_Comment_OS!|], BilletType=|!prm_BDF_RP_BLT_BilletType_OS!|, GradeType=|!prm_BDF_RP_BLT_GradeType_OS!|, GradeRank=|!prm_BDF_RP_BLT_GradeRank_OS!|, ADReserve=|!prm_BDF_RP_BLT_ADReserve_OS!|, ReserveType=|!prm_BDF_RP_BLT_ReserveType_OS!|, SpeCodeOccuSeries=|!prm_BDF_RP_BLT_SpcCodeOccSeries_OS!|, BilletATU=|!prm_BDF_RP_BLT_ATU_OS!|, OPFAC=|!prm_BDF_RP_BLT_OPFACS_OS!|, BilletUII=|!prm_BDF_RP_BLT_UII_OS!|, ConusOConus=|!prm_BDF_RP_BLT_ConusOConus_OS!|, DetachedDuty=|!prm_BDF_RP_BLT_DetachedDuty_OS!|, DetachedDutyLocation=|!prm_BDF_RP_BLT_DutyLocation_OS!|, ICASSCosts=|!prm_BDF_RP_BLT_ICASSType_OS!|, PPEType=|!prm_BDF_RP_BLT_PPEType_OS!|, PPEPPA=|!prm_BDF_RP_BLT_PPE_PPA_OS!|, PPEATU=|!prm_BDF_RP_BLT_PPE_ATU_OS!|, ElectronicFlightBag=|!prm_BDF_RP_BLT_ElectronicFlightBag_OS!|, AcquisitionProject=|!prm_BDF_RP_BLT_Acq_Project_OS!|, TermBillet=|!prm_BDF_RP_BLT_TermBillet_OS!|, BackgroundInvestigationType=|!prm_BDF_RP_BLT_BIType_OS!|, ComputerType=|!prm_BDF_RP_BLT_Computer_Type_OS!|, BuildOutChoice=|!prm_BDF_RP_BLT_Build_Out_OS!|, LeaseChoice=|!prm_BDF_RP_BLT_Lease_OS!|, LeasePPA=|!prm_BDF_RP_BLT_Lease_PPA_OS!|, LeaseATU=|!prm_BDF_RP_BLT_Lease_ATU_OS!|, FurnitureReqd=|!prm_BDF_RP_BLT_Furniture_OS!|, UtilitiesReqd=|!prm_BDF_RP_BLT_Utilities_OS!|, UtilitiesPPA=|!prm_BDF_RP_BLT_UTL_PPA_OS!|, UtilitiesATU=|!prm_BDF_RP_BLT_UTL_ATU_OS!|, RequestedItemTier1=|!prm_BDF_RP_NBLT_RequestedItem_Tier1_OS!|, DescriptionTier2=[|!prm_BDF_RP_NBLT_Description_Tier2_OS!|], POC=[|!prm_BDF_RP_NBLT_POC_OS!|], DollarKValue=[|!prm_BDF_RP_NBLT_DollarKValue_OS!|], RNR=|!prm_BDF_RP_NBLT_RecurringNonRecurring_OS!|, ATU=|!prm_BDF_RP_NBLT_ATU_OS!|, PPA=|!prm_BDF_RP_NBLT_PPA_OS!|, UII=|!prm_BDF_RP_NBLT_UII_OS!|, WFTime=|WFTime|, WFScenario=|WFScenario|, WFCube=|WFCube|, RPName=|!prm_BDF_RP_Number_OS!|, LINumber = |!prm_BDF_RP_BLT_LineItemNumber_OS!|}</selectionChangedTaskArgs>
+                        <selectionChangedTaskArgs>{BudFM_SolutionHelper_UX}{CostEstSelectionChanged}{readEdit=Edit, Content=|!prm_BDF_RP_Content_OS!|, WFTime=|WFTime|, WFScenario=|WFScenario|, WFCube=|WFCube|, RPName=|!prm_BDF_RP_Number_OS!|, LINumber=[|!prm_BDF_RP_NBLT_LineItemNumber_OS!|]}</selectionChangedTaskArgs>
+                        <dashboardsToRedraw>00_BDF_RP_Dashboard_Published_OS</dashboardsToRedraw>
                         <componentDefinition>
                             <XFButtonDefinition ButtonType="Standard">
                                 <ImageFileSourceType>DashboardFile</ImageFileSourceType>
@@ -25012,8 +25049,6 @@ ORDER BY Flow, Entity
                         <displayFormat>|!DashboardButtonStandardFormatting!|, Height = 65</displayFormat>
                         <selectionChangedTaskArgs>{BudFM_SolutionHelper_UX}{HeaderSelectionChanged}{readEdit=ReadOnly, Content=04d_BDF_RP_Dashboard_Content_NonAddEditNonBillets_OS, APPN_Content=OS, WFTime=|WFTime|, WFScenario=|WFScenario|, WFCube=|WFCube|, RPName=|!prm_BDF_RP_Number_OS!|, LINumber=|!prm_BDF_RP_NBLT_LineItemNumber_OS!|}</selectionChangedTaskArgs>
                         <dashboardsToRedraw>04_BDF_RP_Dashboard_Content_OS, 00_BDF_RP_Dashboard_Frame_Content_OS</dashboardsToRedraw>
-                        <dashboardsToShow>03d_BDF_RP_Dashboard_Toolbar_AddEditNonBillets_OS,04d_BDF_RP_Dashboard_Content_NonAddEditNonBillets_OS</dashboardsToShow>
-                        <dashboardsToHide>03d_BDF_RP_Dashboard_Toolbar_NonAddEditNonBillets_OS, 03a_BDF_RP_Dashboard_Toolbar_CreateRP_OS, 03b_BDF_RP_Dashboard_Toolbar_NonEditRP_OS, 03b_BDF_RP_Dashboard_Toolbar_EditRP_OS, 03c_BDF_RP_Dashboard_Toolbar_AddEditBillets_NonEditRP_OS, 03c_BDF_RP_Dashboard_Toolbar_AddEditBillets_OS, 03e_BDF_RP_Dashboard_Toolbar_Reporting_OS, 03f_BDF_RP_Dashboard_Toolbar_ConcReview_OS</dashboardsToHide>
                         <componentDefinition>
                             <XFButtonDefinition ButtonType="Standard">
                                 <ImageFileSourceType>DashboardFile</ImageFileSourceType>
@@ -30269,9 +30304,6 @@ ORDER BY Flow, Entity
                     <component name="spp_BDF_RP_Content_Reporting_OS" description="" xfText="" toolTip="" componentType="SuppliedParameter" boundParameterName="prm_BDF_RP_Content_Reporting_OS" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="NoTask" selectionChangedUIActionType="NoAction" selectionChangedNavigationType="NoAction">
                         <adapterMembers />
                     </component>
-                    <component name="spp_BDF_RP_Content_Reporting_RP_OS" description="" xfText="" toolTip="" componentType="SuppliedParameter" boundParameterName="prm_BDF_RP_Number_OS" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="NoTask" selectionChangedUIActionType="NoAction" selectionChangedNavigationType="NoAction">
-                        <adapterMembers />
-                    </component>
                     <component name="spp_BDF_RP_Description_ChangeLog_OS" description="" xfText="" toolTip="" componentType="SuppliedParameter" boundParameterName="prm_BDF_RP_Description_ChangeLog_OS" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="NoTask" selectionChangedUIActionType="NoAction" selectionChangedNavigationType="NoAction">
                         <adapterMembers />
                     </component>
@@ -30279,9 +30311,6 @@ ORDER BY Flow, Entity
                         <adapterMembers />
                     </component>
                     <component name="spp_BDF_RP_EditRP_CCReq_Base_CIV_OS" description="" xfText="" toolTip="" componentType="SuppliedParameter" boundParameterName="prm_BDF_RP_BLT_CBF_MIL_OS" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="NoTask" selectionChangedUIActionType="NoAction" selectionChangedNavigationType="NoAction">
-                        <adapterMembers />
-                    </component>
-                    <component name="spp_BDF_RP_EditRP_CCReq_Base_Comments_OS" description="" xfText="" toolTip="" componentType="SuppliedParameter" boundParameterName="prm_BDF_RP_IE_Base_Funding_Comments_OS" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="NoTask" selectionChangedUIActionType="NoAction" selectionChangedNavigationType="NoAction">
                         <adapterMembers />
                     </component>
                     <component name="spp_BDF_RP_EditRP_CCReq_Base_Funding_OS" description="" xfText="" toolTip="" componentType="SuppliedParameter" boundParameterName="prm_BDF_RP_BLT_IE_Base_Funding_OS" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="NoTask" selectionChangedUIActionType="NoAction" selectionChangedNavigationType="NoAction">
@@ -30443,6 +30472,9 @@ ORDER BY Flow, Entity
                     <component name="spp_BDF_RP_Repeater" description="" xfText="" toolTip="" componentType="SuppliedParameter" boundParameterName="prm_BDF_RP_Content_AddEditBillets_NonEditRP_OS" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="NoTask" selectionChangedUIActionType="NoAction" selectionChangedNavigationType="NoAction">
                         <adapterMembers />
                     </component>
+					<component name="spp_BDF_RP_Mass_BLT_ShowButton" description="" xfText="" toolTip="" componentType="SuppliedParameter" boundParameterName="prm_BDF_RP_Mass_BLT_ShowButton" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="NoTask" selectionChangedUIActionType="NoAction" selectionChangedNavigationType="NoAction">
+						<adapterMembers />
+					</component>
                     <component name="spp_RPSearchQuery_OS" description="" xfText="" toolTip="" componentType="SuppliedParameter" boundParameterName="prm_BDF_RP_SearchQuery_OS" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="NoTask" selectionChangedUIActionType="NoAction" selectionChangedNavigationType="NoAction">
                         <adapterMembers />
                     </component>
@@ -31033,7 +31065,6 @@ ORDER BY Flow, Entity
                                     <componentMember name="btn_BDF_RP_ShowDB_Reporting_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="btn_BDF_RP_ShowDB_ConcReview_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="btn_BDF_RP_Help_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_BLT_LineItemNumber_OS" left="" top="" width="" height="" dockPosition="Left" />
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="03_BDF_RP_Dashboard_NonEdit_Toolbar_OS" description="" pageCaption="" layoutType="HorizontalStackPanel" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -31046,12 +31077,7 @@ ORDER BY Flow, Entity
                                     </GridLayoutDefinition>
                                 </DashboardDefinition>
                                 <componentMembers>
-                                    <componentMember name="Embedded 03a_BDF_RP_Dashboard_Toolbar_CreateRP_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="Embedded 03b_BDF_RP_Dashboard_Toolbar_EditRP_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="Embedded 03c_BDF_RP_Dashboard_Toolbar_AddEditBillets_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="Embedded 03d_BDF_RP_Dashboard_Toolbar_NonAddEditNonBillets_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="Embedded 03e_BDF_RP_Dashboard_Toolbar_Reporting_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="Embedded 03f_BDF_RP_Dashboard_Toolbar_ConcReview_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                    <componentMember name="emb_Dyn_03_BDF_RP_Dashboard_Toolbar_OS" left="" top="" width="" height="" dockPosition="Left" />
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="03_BDF_RP_Dashboard_Toolbar_OS" description="|!prm_BDF_RP_Content_OS!|" pageCaption="|!prm_BDF_RP_Content_OS!|" layoutType="HorizontalStackPanel" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -31066,7 +31092,6 @@ ORDER BY Flow, Entity
                                 <componentMembers>
                                     <componentMember name="emb_Dyn_03_BDF_RP_Dashboard_Toolbar_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="spp_BDF_RP_Content_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_Number_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="spp_RPSearchQuery_OS" left="" top="" width="" height="" dockPosition="Left" />
                                 </componentMembers>
                             </dashboard>
@@ -31150,6 +31175,8 @@ ORDER BY Flow, Entity
                                     <componentMember name="lbl_BDF_RP_ModeValue_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="lbl_BDF_RP_LastEditedTime_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="lbl_BDF_RP_LastEditedTimeValue_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_BLT_LineItemNumber_OS"/>
+                                <componentMember name="spp_BDF_RP_Number_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="03c_BDF_RP_Dashboard_Toolbar_AddEditBillets_OS" description="" pageCaption="" layoutType="HorizontalStackPanel" isInitiallyVisible="false" loadDashboardTaskType="NoTask">
@@ -31172,7 +31199,7 @@ ORDER BY Flow, Entity
                                     <componentMember name="lbl_BDF_RP_LastEditedTimeValue_OS" left="" top="" width="" height="" dockPosition="Left" />
                                 </componentMembers>
                             </dashboard>
-                            <dashboard name="03d_BDF_RP_Dashboard_Toolbar_AddEditNonBillets_OS" description="" pageCaption="" layoutType="HorizontalStackPanel" isInitiallyVisible="false" loadDashboardTaskType="NoTask">
+                            <dashboard name="03d_BDF_RP_Dashboard_Toolbar_AddEditNonBillets_OS" description="" pageCaption="" layoutType="HorizontalStackPanel" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
                                 <displayFormat>BackgroundColor = XFLightBlue</displayFormat>
                                 <DashboardDefinition>
                                     <ShowTitle>true</ShowTitle>
@@ -31192,9 +31219,11 @@ ORDER BY Flow, Entity
                                     <componentMember name="lbl_BDF_RP_ModeValue_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="lbl_BDF_RP_LastEditedTime_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="lbl_BDF_RP_LastEditedTimeValue_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_NBLT_LineItemNumber_OS"/>
+                                <componentMember name="spp_BDF_RP_Number_OS"/>
                                 </componentMembers>
                             </dashboard>
-                            <dashboard name="03d_BDF_RP_Dashboard_Toolbar_NonAddEditNonBillets_OS" description="" pageCaption="" layoutType="HorizontalStackPanel" isInitiallyVisible="false" loadDashboardTaskType="NoTask">
+                            <dashboard name="03d_BDF_RP_Dashboard_Toolbar_NonAddEditNonBillets_OS" description="" pageCaption="" layoutType="HorizontalStackPanel" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
                                 <displayFormat>BackgroundColor = XFLightBlue</displayFormat>
                                 <DashboardDefinition>
                                     <ShowTitle>true</ShowTitle>
@@ -31454,6 +31483,9 @@ ORDER BY Flow, Entity
                                     </GridLayoutDefinition>
                                 </DashboardDefinition>
                                 <componentMembers>
+									<componentMember name="spp_BDF_RP_Number_OS_Copy" left="" top="" width="" height="" dockPosition="Left" />
+									<componentMember name="spp_BDF_RP_BLT_LineItemNumber_OS_Copy" left="" top="" width="" height="" dockPosition="Left" />
+									<componentMember name="spp_BDF_RP_NBLT_LineItemNumber_OS_Copy" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="Embedded 04c1aa_BDF_RP_Dashboard_Content_Content_AddBIllets_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="Embedded 04Ab_BDF_RP_Dashboard_Content_OS_Dynamic" left="" top="" width="" height="" dockPosition="Left" />
                                 </componentMembers>
@@ -31518,6 +31550,7 @@ ORDER BY Flow, Entity
                                     <componentMember name="btn_BDF_RP_ShowDB_EditRP_Page3_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="btn_BDF_RP_ShowDB_EditRP_MassBillet_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="btn_BDF_RP_ShowDB_EditRP_Changes_Comments_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_Content_EditRP_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04b2_BDF_RP_Dashboard_Content_EditRP_OS" description="" pageCaption="" layoutType="VerticalStackPanel" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -31660,6 +31693,11 @@ ORDER BY Flow, Entity
                                     <componentMember name="cbx_BDF_RP_BLT_NumberOfPersonnelQtrs_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="cbx_BDF_RP_NBLT_NumberOfOSQtrs_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="spp_BDF_RP_BLT_NumberOfBillets_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_EditRP_CCReq_AutoAddGenDetail_OS"/>
+                                <componentMember name="spp_BDF_RP_EditRP_CCReq_IncreaseDecrease_OS"/>
+                                <componentMember name="spp_BDF_RP_EditRP_CCReq_NumberOfOSQtrs_OS"/>
+                                <componentMember name="spp_BDF_RP_EditRP_CCReq_NumberOfPersonnelQtrs_OS"/>
+                                <componentMember name="spp_BDF_RP_EditRP_CCReq_PartOfReprogramming_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04b2a1a1_BDF_RP_Dashboard_Content_NonEditRP_OS" description="" pageCaption="" layoutType="VerticalStackPanel" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -31762,6 +31800,7 @@ ORDER BY Flow, Entity
                                     <componentMember name="Embedded 04b2a1b3_BDF_RP_Dashboard_Content_EditRP_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="spp_BDF_RP_Description_ChangeLog_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="spp_BDF_RP_Reason_ChangeLog_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_Content_Frame_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04b2a1b_BDF_RP_Dashboard_Content_NonEditRP_OS" description="" pageCaption="" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -31786,6 +31825,7 @@ ORDER BY Flow, Entity
                                     <componentMember name="Embedded 04b2a1b3_BDF_RP_Dashboard_Content_EditRP_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="spp_BDF_RP_Reason_ChangeLog_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="spp_BDF_RP_Description_ChangeLog_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_Content_EditRP_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04b2a1b1_BDF_RP_Dashboard_Content_EditRP_OS" description="" pageCaption="" layoutType="VerticalStackPanel" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -31793,6 +31833,7 @@ ORDER BY Flow, Entity
                                 <componentMembers>
                                     <componentMember name="btn_BDF_RP_EditRP_Page1_CCNotReq_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="btn_BDF_RP_EditRP_Page1_CCReq_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_Content_Frame_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04b2a1b1a_BDF_RP_Dashboard_Content_EditRP_OS" description="" pageCaption="Change Description" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -31822,6 +31863,8 @@ ORDER BY Flow, Entity
                                     <componentMember name="spp_BDF_RP_EditRP_CCReq_PartOfReprogramming_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="spp_BDF_RP_EditRP_CCReq_NumberOfPersonnelQtrs_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="spp_BDF_RP_EditRP_CCReq_NumberOfOSQtrs_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_Content_Frame_OS"/>
+                                <componentMember name="spp_BDF_RP_Reason_ChangeLog_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04b2a1b2_BDF_RP_Dashboard_Content_EditRP_OS" description="" pageCaption="" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -31931,6 +31974,9 @@ ORDER BY Flow, Entity
                                     <componentMember name="cbx_BDF_RP_GEN_LeadOffice3_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="txb_BDF_RP_LeadOfficePOC3_BS_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="txb_BDF_RP_LeadOfficePhone3_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_EditRP_CCReq_LeadStaffName1_OS"/>
+                                <componentMember name="spp_BDF_RP_EditRP_CCReq_LeadStaffName2_OS"/>
+                                <componentMember name="spp_BDF_RP_EditRP_CCReq_LeadStaffName3_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04b2b1_BDF_RP_Dashboard_Content_NonEditRP_Page2_OS" description="" pageCaption="" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -32167,6 +32213,9 @@ ORDER BY Flow, Entity
                                     <componentMember name="lbl_BDF_RP_StatusValue_Related2_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="cbx_BDF_RP_FYRelatedRp3_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="lbl_BDF_RP_StatusValue_Related3_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_EditRP_CCReq_FYRelatedRp1_OS"/>
+                                <componentMember name="spp_BDF_RP_EditRP_CCReq_FYRelatedRp2_OS"/>
+                                <componentMember name="spp_BDF_RP_EditRP_CCReq_FYRelatedRp3_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04b2b4a_BDF_RP_Dashboard_Content_NonEditRP_Page2_OS" description="" pageCaption="" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -32229,6 +32278,9 @@ ORDER BY Flow, Entity
                                     <componentMember name="lbl_BDF_RP_StatusValue_OlderRelated2_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="cbx_BDF_RP_OlderRelatedRp3_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="lbl_BDF_RP_StatusValue_OlderRelated3_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_EditRP_CCReq_OlderRelatedRp1_OS"/>
+                                <componentMember name="spp_BDF_RP_EditRP_CCReq_OlderRelatedRp2_OS"/>
+                                <componentMember name="spp_BDF_RP_EditRP_CCReq_OlderRelatedRp3_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04b2b4b_BDF_RP_Dashboard_Content_NonEditRP_Page2_OS" description="" pageCaption="" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -32317,6 +32369,7 @@ ORDER BY Flow, Entity
                                     <componentMember name="Embedded 04b2b6c_BDF_RP_Dashboard_Content_EditRP_Page2_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="spp_BDF_RP_Description_ChangeLog_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="spp_BDF_RP_Reason_ChangeLog_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_Content_Frame_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04b2b6_BDF_RP_Dashboard_Content_NonEditRP_Page2_OS" description="" pageCaption="" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -32347,6 +32400,7 @@ ORDER BY Flow, Entity
                                     <componentMember name="spp_BDF_RP_EditRP_CCReq_OlderRelatedRp2_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="spp_BDF_RP_EditRP_CCReq_OlderRelatedRp1_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="spp_BDF_RP_EditRP_CCReq_OlderRelatedRp3_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_Content_Frame_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04b2b6a_BDF_RP_Dashboard_Content_EditRP_Page2_OS" description="" pageCaption="" layoutType="VerticalStackPanel" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -32361,6 +32415,7 @@ ORDER BY Flow, Entity
                                 <componentMembers>
                                     <componentMember name="btn_BDF_RP_EditRP_Page2_CCNotReq_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="btn_BDF_RP_EditRP_Page2_CCReq_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_Content_Frame_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04b2b6az_BDF_RP_Dashboard_Content_EditRP_Page2_OS" description="" pageCaption="Change Description" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -32407,7 +32462,8 @@ ORDER BY Flow, Entity
                                     <componentMember name="spp_BDF_RP_EditRP_CCReq_Base_Funding_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="spp_BDF_RP_EditRP_CCReq_Base_MIL_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="spp_BDF_RP_EditRP_CCReq_Base_CIV_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_EditRP_CCReq_Base_Comments_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_Content_Frame_OS"/>
+                                <componentMember name="spp_BDF_RP_Reason_ChangeLog_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04b2b6b_BDF_RP_Dashboard_Content_EditRP_Page2_OS" description="" pageCaption="" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -32726,6 +32782,7 @@ ORDER BY Flow, Entity
                                     <componentMember name="Embedded 04b2c1g3_BDF_RP_Dashboard_Content_EditRP_Page3_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="spp_BDF_RP_Description_ChangeLog_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="spp_BDF_RP_Reason_ChangeLog_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_Content_Frame_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04b2c1g_BDF_RP_Dashboard_Content_NonEditRP_Page3_OS" description="" pageCaption="" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -32750,6 +32807,7 @@ ORDER BY Flow, Entity
                                     <componentMember name="Embedded 04b2c1g3_BDF_RP_Dashboard_Content_EditRP_Page3_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="spp_BDF_RP_Description_ChangeLog_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="spp_BDF_RP_Reason_ChangeLog_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_Content_Frame_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04b2c1g1_BDF_RP_Dashboard_Content_EditRP_Page3_OS" description="" pageCaption="" layoutType="VerticalStackPanel" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -32764,6 +32822,7 @@ ORDER BY Flow, Entity
                                 <componentMembers>
                                     <componentMember name="btn_BDF_RP_EditRP_Page3_CCNotReq_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="btn_BDF_RP_EditRP_Page3_CCReq_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_Content_Frame_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04b2c1g1a_BDF_RP_Dashboard_Content_EditRP_Page3_OS" description="" pageCaption="Change Description" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -32793,6 +32852,8 @@ ORDER BY Flow, Entity
                                     <componentMember name="spp_BDF_RP_Page3_ROI_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="spp_BDF_RP_Page3_FundingImpact_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="spp_BDF_RP_Page3_DenialImpact_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_Content_Frame_OS"/>
+                                <componentMember name="spp_BDF_RP_Reason_ChangeLog_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04b2c1g2_BDF_RP_Dashboard_Content_EditRP_Page3_OS" description="" pageCaption="" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -32852,7 +32913,6 @@ ORDER BY Flow, Entity
                                 </DashboardDefinition>
                                 <componentMembers>
                                     <componentMember name="Embedded 04c1a_BDF_RP_Dashboard_Content_AddEditBillets_NonEditRP_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_BLT_LineItemNumber_OS" left="" top="" width="" height="" dockPosition="Left" />
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04c_BDF_RP_Dashboard_Content_AddEditBillets_OS" description="" pageCaption="" layoutType="Uniform" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -32907,6 +32967,8 @@ ORDER BY Flow, Entity
                                     </GridLayoutDefinition>
                                 </DashboardDefinition>
                                 <componentMembers>
+									<componentMember name="spp_BDF_RP_Number_OS_Copy" left="" top="" width="" height="" dockPosition="Left" />
+									<componentMember name="spp_BDF_RP_BLT_LineItemNumber_OS_Copy" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="Embedded 04c1a_BDF_RP_Dashboard_Content_AddEditBillets_OS" left="" top="" width="" height="" dockPosition="Left" />
                                 </componentMembers>
                             </dashboard>
@@ -33130,6 +33192,7 @@ ORDER BY Flow, Entity
                                 </DashboardDefinition>
                                 <componentMembers>
                                     <componentMember name="cbx_BDF_RP_BLT_BilletType_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_BLT_BilletType_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04c1a1b1b_BDF_RP_Dashboard_Content_AddEditBillets_GradeType_NonEditRP_OS" description="" pageCaption="" layoutType="Uniform" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -33156,6 +33219,7 @@ ORDER BY Flow, Entity
                                 </DashboardDefinition>
                                 <componentMembers>
                                     <componentMember name="cbx_BDF_RP_BLT_GradeType_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_BLT_GradeType_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04c1a1b1c_BDF_RP_Dashboard_Content_AddEditBillets_GradeRank_NonEditRP_OS" description="" pageCaption="" layoutType="Uniform" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -33182,6 +33246,7 @@ ORDER BY Flow, Entity
                                 </DashboardDefinition>
                                 <componentMembers>
                                     <componentMember name="cbx_BDF_RP_BLT_GradeRank_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_BLT_GradeRank_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04c1a1b1d_BDF_RP_Dashboard_Content_AddEditBillets_ADReserve_NonEditRP_OS" description="" pageCaption="" layoutType="Uniform" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -33208,6 +33273,7 @@ ORDER BY Flow, Entity
                                 </DashboardDefinition>
                                 <componentMembers>
                                     <componentMember name="cbx_BDF_RP_BLT_AD_Reserve_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_BLT_ADReserve_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04c1a1b1e_BDF_RP_Dashboard_Content_AddEditBillets_ReserveType_NonEditRP_OS" description="" pageCaption="" layoutType="Uniform" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -33234,6 +33300,7 @@ ORDER BY Flow, Entity
                                 </DashboardDefinition>
                                 <componentMembers>
                                     <componentMember name="cbx_BDF_RP_BLT_ReserveType_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_BLT_ReserveType_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04c1a1b1f_BDF_RP_Dashboard_Content_AddEditBillets_SpecCode_NonEditRP_OS" description="" pageCaption="" layoutType="Uniform" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -33260,6 +33327,7 @@ ORDER BY Flow, Entity
                                 </DashboardDefinition>
                                 <componentMembers>
                                     <componentMember name="cbx_BDF_RP_BLT_SpecialityCode_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_BLT_SpcCodeOccSeries_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04c1a1b2_BDF_RP_Dashboard_Content_AddEditBillets_NonEditRP_OS" description="" pageCaption="" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -33372,6 +33440,7 @@ ORDER BY Flow, Entity
                                 </DashboardDefinition>
                                 <componentMembers>
                                     <componentMember name="cbx_BDF_RP_BLT_ATU_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_BLT_ATU_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04c1a1b2b_BDF_RP_Dashboard_Content_AddEditBillets_OPFAC_NonEditRP_OS" description="" pageCaption="" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -33422,6 +33491,7 @@ ORDER BY Flow, Entity
                                 </DashboardDefinition>
                                 <componentMembers>
                                     <componentMember name="cbx_BDF_RP_BLT_OPFAC_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_BLT_OPFACS_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04c1a1b2c_BDF_RP_Dashboard_Content_AddEditBillets_UII_NonEditRP_OS" description="" pageCaption="" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -33472,6 +33542,7 @@ ORDER BY Flow, Entity
                                 </DashboardDefinition>
                                 <componentMembers>
                                     <componentMember name="cbx_BDF_RP_BLT_UII_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_BLT_UII_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04c1a1b2d_BDF_RP_Dashboard_Content_AddEditBillets_CONUS_NonEditRP_OS" description="" pageCaption="" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -33522,6 +33593,7 @@ ORDER BY Flow, Entity
                                 </DashboardDefinition>
                                 <componentMembers>
                                     <componentMember name="cbx_BDF_RP_BLT_CONUSOCONUS_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_BLT_ConusOConus_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04c1a1b2e_BDF_RP_Dashboard_Content_AddEditBillets_DetDuty_NonEditRP_OS" description="" pageCaption="" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -33572,6 +33644,7 @@ ORDER BY Flow, Entity
                                 </DashboardDefinition>
                                 <componentMembers>
                                     <componentMember name="cbx_BDF_RP_BLT_DetachedDuty_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_BLT_DetachedDuty_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04c1a1b2f_BDF_RP_Dashboard_Content_AddEditBillets_DetDutyLoc_NonEditRP_OS" description="" pageCaption="" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -33672,6 +33745,7 @@ ORDER BY Flow, Entity
                                 </DashboardDefinition>
                                 <componentMembers>
                                     <componentMember name="cbx_BDF_RP_BLT_ICASSCosts_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_BLT_ICASSType_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04c1a1b3_BDF_RP_Dashboard_Content_AddEditBillets_NonEditRP_OS" description="" pageCaption="" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -33780,6 +33854,7 @@ ORDER BY Flow, Entity
                                 </DashboardDefinition>
                                 <componentMembers>
                                     <componentMember name="cbx_BDF_RP_BLT_PPEType_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_BLT_PPEType_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04c1a1b3a1_BDF_RP_Dashboard_Content_AddEditBillets_PPEType_NonEditRP_OS" description="" pageCaption="" layoutType="HorizontalStackPanel" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -33856,6 +33931,7 @@ ORDER BY Flow, Entity
                                 </DashboardDefinition>
                                 <componentMembers>
                                     <componentMember name="cbx_BDF_RP_BLT_PPE_PPA_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_BLT_PPE_PPA_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04c1a1b3c_BDF_RP_Dashboard_Content_AddEditBillets_PPE_ATU_NonEditRP_OS" description="" pageCaption="" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -33900,6 +33976,7 @@ ORDER BY Flow, Entity
                                 </DashboardDefinition>
                                 <componentMembers>
                                     <componentMember name="cbx_BDF_RP_BLT_PPE_ATU_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_BLT_PPE_ATU_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04c1a1b3c1_BDF_RP_Dashboard_Content_AddEditBillets_PPE_ATU_NonEditRP_OS" description="" pageCaption="" layoutType="HorizontalStackPanel" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -33952,6 +34029,7 @@ ORDER BY Flow, Entity
                                 </DashboardDefinition>
                                 <componentMembers>
                                     <componentMember name="cbx_BDF_RP_BLT_ElectronicFlightBag_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_BLT_ElectronicFlightBag_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04c1a1b3e_BDF_RP_Dashboard_Content_AddEditBillets_AcqProject_NonEditRP_OS" description="" pageCaption="" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -34002,6 +34080,7 @@ ORDER BY Flow, Entity
                                 </DashboardDefinition>
                                 <componentMembers>
                                     <componentMember name="cbx_BDF_RP_BLT_AcquistionProject_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_BLT_Acq_Project_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04c1a1b3f_BDF_RP_Dashboard_Content_AddEditBillets_TermBillet_NonEditRP_OS" description="" pageCaption="" layoutType="Uniform" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -34028,6 +34107,7 @@ ORDER BY Flow, Entity
                                 </DashboardDefinition>
                                 <componentMembers>
                                     <componentMember name="cbx_BDF_RP_BLT_TermBillet_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_BLT_TermBillet_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04c1a1b3g_BDF_RP_Dashboard_Content_AddEditBillets_BIType_NonEditRP_OS" description="" pageCaption="" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -34078,6 +34158,7 @@ ORDER BY Flow, Entity
                                 </DashboardDefinition>
                                 <componentMembers>
                                     <componentMember name="cbx_BDF_RP_BLT_BackgroundInvType_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_BLT_BIType_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04c1a1b3h_BDF_RP_Dashboard_Content_AddEditBillets_Computer_Type_NonEditRP_OS" description="" pageCaption="" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -34128,6 +34209,7 @@ ORDER BY Flow, Entity
                                 </DashboardDefinition>
                                 <componentMembers>
                                     <componentMember name="cbx_BDF_RP_BLT_ComputerType_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_BLT_Computer_Type_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04c1a1b4_BDF_RP_Dashboard_Content_AddEditBillets_NonEditRP_OS" description="" pageCaption="" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -34242,6 +34324,7 @@ ORDER BY Flow, Entity
                                 </DashboardDefinition>
                                 <componentMembers>
                                     <componentMember name="cbx_BDF_RP_BLT_BuildOut_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_BLT_Build_Out_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04c1a1b4b_BDF_RP_Dashboard_Content_AddEditBillets_Lease_NonEditRP_OS" description="" pageCaption="" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -34292,6 +34375,7 @@ ORDER BY Flow, Entity
                                 </DashboardDefinition>
                                 <componentMembers>
                                     <componentMember name="cbx_BDF_RP_BLT_Lease_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_BLT_Lease_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04c1a1b4c_BDF_RP_Dashboard_Content_AddEditBillets_Lease_PPA_NonEditRP_OS" description="" pageCaption="" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -34342,6 +34426,7 @@ ORDER BY Flow, Entity
                                 </DashboardDefinition>
                                 <componentMembers>
                                     <componentMember name="cbx_BDF_RP_BLT_Lease_PPA_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_BLT_Lease_PPA_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04c1a1b4d_BDF_RP_Dashboard_Content_AddEditBillets_Lease_ATU_NonEditRP_OS" description="" pageCaption="" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -34386,6 +34471,7 @@ ORDER BY Flow, Entity
                                 </DashboardDefinition>
                                 <componentMembers>
                                     <componentMember name="cbx_BDF_RP_BLT_Lease_ATU_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_BLT_Lease_ATU_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04c1a1b4d1_BDF_RP_Dashboard_Content_AddEditBillets_Lease_ATU_NonEditRP_OS" description="" pageCaption="" layoutType="HorizontalStackPanel" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -34462,6 +34548,7 @@ ORDER BY Flow, Entity
                                 </DashboardDefinition>
                                 <componentMembers>
                                     <componentMember name="cbx_BDF_RP_BLT_Furniture_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_BLT_Furniture_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04c1a1b4f_BDF_RP_Dashboard_Content_AddEditBillets_UTL_NonEditRP_OS" description="" pageCaption="" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -34512,6 +34599,7 @@ ORDER BY Flow, Entity
                                 </DashboardDefinition>
                                 <componentMembers>
                                     <componentMember name="cbx_BDF_RP_BLT_Utilities_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_BLT_Utilities_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04c1a1b4g_BDF_RP_Dashboard_Content_AddEditBillets_UTL_PPA_NonEditRP_OS" description="" pageCaption="" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -34562,6 +34650,7 @@ ORDER BY Flow, Entity
                                 </DashboardDefinition>
                                 <componentMembers>
                                     <componentMember name="cbx_BDF_RP_BLT_UTL_PPA_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_BLT_UTL_PPA_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04c1a1b4h_BDF_RP_Dashboard_Content_AddEditBillets_UTL_ATU_NonEditRP_OS" description="" pageCaption="" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -34606,6 +34695,7 @@ ORDER BY Flow, Entity
                                 </DashboardDefinition>
                                 <componentMembers>
                                     <componentMember name="cbx_BDF_RP_BLT_UTL_ATU_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_BLT_UTL_ATU_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04c1a1b4h1_BDF_RP_Dashboard_Content_AddEditBillets_UTL_ATU_NonEditRP_OS" description="" pageCaption="" layoutType="HorizontalStackPanel" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -34660,6 +34750,7 @@ ORDER BY Flow, Entity
                                     <componentMember name="Embedded 04c1a2e_BDF_RP_Dashboard_Content_AddEditBillets_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="spp_BDF_RP_Description_ChangeLog_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="spp_BDF_RP_Reason_ChangeLog_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_Content_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04c1a2_BDF_RP_Dashboard_Content_NonAddEditBillets_OS" description="New  Billet" pageCaption="New  Billet" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -34700,6 +34791,7 @@ ORDER BY Flow, Entity
                                 <componentMembers>
                                     <componentMember name="btn_BDF_RP_EditBLT_CCNotReq_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="btn_BDF_RP_EditBLT_CCReq_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_Content_Frame_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04c1a2az_BDF_RP_Dashboard_Content_AddEditBillets_OS" description="" pageCaption="Change Description" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -34757,6 +34849,8 @@ ORDER BY Flow, Entity
                                     <componentMember name="spp_BDF_RP_BLT_Computer_Type_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="spp_BDF_RP_BLT_Comment_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="spp_BDF_RP_BLT_PPEType_Descr_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_Content_Frame_OS"/>
+                                <componentMember name="spp_BDF_RP_Reason_ChangeLog_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04c1a2b_BDF_RP_Dashboard_Content_AddEditBillets_OS" description="" pageCaption="" layoutType="VerticalStackPanel" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -34981,6 +35075,7 @@ ORDER BY Flow, Entity
                                 </DashboardDefinition>
                                 <componentMembers>
                                     <componentMember name="cbx_BDF_RP_BLT_ResourceProposal_Source_OS" left="" top="" width="" height="" dockPosition="Left" />
+									<componentMember name="spp_BDF_RP_Number_OS" left="" top="" width="" height="" dockPosition="Left" />
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04c1a2bz2_BDF_RP_Dashboard_Content_Row2_OS" description="" pageCaption="" layoutType="Uniform" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -35204,6 +35299,7 @@ ORDER BY Flow, Entity
                                 <displayFormat>BackgroundColor = XFLightBlue</displayFormat>
                                 <componentMembers>
                                     <componentMember name="cbx_BDF_RP_BLT_LineItemNumber_Destination_OS" left="" top="" width="" height="" dockPosition="Left" />
+									<componentMember name="spp_BDF_RP_BLT_Destination_LineItemNumber_OS" left="" top="" width="" height="" dockPosition="Left" />
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04c1a2bz4a_BDF_RP_Dashboard_Content_Row4_OS" description="" pageCaption="" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -35262,6 +35358,8 @@ ORDER BY Flow, Entity
                                     <componentMember name="cbx_BDF_RP_BLT_LineItemNumber_Source_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="cbx_BDF_RP_BLT_LineItemNumber_Destinations_MULTI_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="btn_BDF_RP_SaveCopyBLT_CCReq_Run_OS" left="" top="" width="" height="" dockPosition="Left" />
+									<componentMember name="spp_BDF_RP_BLT_LineItemNumber_OS" left="" top="" width="" height="" dockPosition="Left" />
+									<componentMember name="spp_BDF_RP_BLT_Destination_LineItemNumber_OS" left="" top="" width="" height="" dockPosition="Left" />
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04c1a2bz5_BDF_RP_Dashboard_Content_Row5_OS" description="" pageCaption="" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -35502,6 +35600,7 @@ ORDER BY Flow, Entity
                                     <componentMember name="spp_RPSearchQuery_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="spp_BDF_RP_BLT_LineItemNumber_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="spp_BDF_RP_BLT_Destination_LineItemNumber_OS" left="" top="" width="" height="" dockPosition="Left" />
+									<componentMember name="spp_BDF_RP_Reason_ChangeLog_OS" left="" top="" width="" height="" dockPosition="Left" />
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04c1a2bzz_BDF_RP_Dashboard_Content_CopyBillets_OS" description="" pageCaption="Copy Billet" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -35621,6 +35720,7 @@ ORDER BY Flow, Entity
                                     <componentMember name="spp_RPSearchQuery_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="spp_BDF_RP_Number_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="spp_BDF_RP_BLT_LineItemNumber_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_Reason_ChangeLog_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04c1a2cz2_BDF_RP_Dashboard_Content_DeleteBillet_OS" description="" pageCaption="" layoutType="VerticalStackPanel" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -35719,6 +35819,7 @@ ORDER BY Flow, Entity
                                 <componentMembers>
                                     <componentMember name="btn_BDF_RP_DeleteAllBLT_CCNotReq_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="btn_BDF_RP_DeleteAllBLT_Cancel_OS" left="" top="" width="" height="" dockPosition="Left" />
+									<componentMember name="spp_BDF_RP_Mass_BLT_ShowButton" left="" top="" width="" height="" dockPosition="Left" />
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04c1a2cz3z3_BDF_RP_Dashboard_Content_MassDeleteBillet_OS" description="" pageCaption="" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -35738,6 +35839,7 @@ ORDER BY Flow, Entity
                                 <componentMembers>
                                     <componentMember name="cbx_BDF_RP_Reason_ChangeLog_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="txb_BDF_RP_BLT_Delete_Comment_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_Reason_ChangeLog_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04c1a2cz3z3_BDF_RP_Dashboard_Content_MassDeleteBillet_OS_Blank" description="" pageCaption="" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -35847,6 +35949,7 @@ ORDER BY Flow, Entity
                                     <componentMember name="btn_BDF_RP_ViewAllBillets_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="btn_BDF_RP_LeaseUtility_Report_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="btn_BDF_RP_UpdateAllBillets_OS" left="" top="" width="" height="" dockPosition="Left" />
+									<componentMember name="spp_BDF_RP_Repeater" left="" top="" width="" height="" dockPosition="Left" />
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04c1b_BDF_RP_Dashboard_Content_AddEditBillets_OS" description="" pageCaption="" layoutType="Uniform" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -35874,6 +35977,7 @@ ORDER BY Flow, Entity
                                 <componentMembers>
                                     <componentMember name="btn_BDF_RP_EditBLT_CCNotReq_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="btn_BDF_RP_EditBLT_CCReq_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_Content_Frame_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04c1b1z_BDF_RP_Dashboard_Content_AddEditBillets_OS" description="" pageCaption="Change Description" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -35921,6 +36025,8 @@ ORDER BY Flow, Entity
                                     <componentMember name="spp_BDF_RP_BLT_BIType_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="spp_BDF_RP_BLT_Acq_Project_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="spp_BDF_RP_BLT_Lease_OS" left="" top="" width="" height="" dockPosition="Left" />
+									<componentMember name="spp_BDF_RP_BLT_Lease_PPA_OS" left="" top="" width="" height="" dockPosition="Left" />
+									<componentMember name="spp_BDF_RP_BLT_Lease_ATU_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="spp_BDF_RP_BLT_Furniture_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="spp_BDF_RP_BLT_Utilities_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="spp_BDF_RP_BLT_UTL_PPA_OS" left="" top="" width="" height="" dockPosition="Left" />
@@ -35929,6 +36035,8 @@ ORDER BY Flow, Entity
                                     <componentMember name="spp_BDF_RP_BLT_Comment_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="spp_BDF_RP_BLT_ConusOConus_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="spp_BDF_RP_BLT_PPEType_Descr_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_Content_Frame_OS"/>
+                                <componentMember name="spp_BDF_RP_Reason_ChangeLog_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04c1b2_BDF_RP_Dashboard_Content_AddEditBillets_OS" description="" pageCaption="" layoutType="VerticalStackPanel" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -36091,6 +36199,7 @@ ORDER BY Flow, Entity
                                     <componentMember name="btn_BDF_RP_SaveAllBillets_CCReq_Run_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="spp_RPSearchQuery_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="spp_BDF_RP_EditRP_CCReq_RP_Number_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_Reason_ChangeLog_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04c1d_BDF_RP_Dashboard_Content_AddEditBillets_OS" description="" pageCaption="" layoutType="Uniform" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -36119,7 +36228,7 @@ ORDER BY Flow, Entity
                                     <componentMember name="cv_BDF_RP_Billets_OS" left="" top="" width="" height="" dockPosition="Left" />
                                 </componentMembers>
                             </dashboard>
-                            <dashboard name="04d_BDF_RP_Dashboard_Content_AddEditNonBillets_OS" description="" pageCaption="" layoutType="Tabs" isInitiallyVisible="false" loadDashboardTaskType="NoTask">
+                            <dashboard name="04d_BDF_RP_Dashboard_Content_AddEditNonBillets_OS" description="" pageCaption="" layoutType="Tabs" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
                                 <displayFormat>BackgroundColor = XFLightBlue, InnerBackgroundColor = XFLightBlue</displayFormat>
                                 <DashboardDefinition>
                                     <ShowTitle>true</ShowTitle>
@@ -36283,6 +36392,9 @@ ORDER BY Flow, Entity
                                     <componentMember name="txb_BDF_RP_NBLT_POC_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="txb_BDF_RP_NBLT_DollarKValue_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="cbx_BDF_RP_NBLT_RecurringNonRecurring_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_NBLT_Description_Tier2_OS"/>
+                                <componentMember name="spp_BDF_RP_NBLT_RecurringNonRecurring_OS"/>
+                                <componentMember name="spp_BDF_RP_NBLT_RequestedItem_Tier1_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04d1a1a_BDF_RP_Dashboard_Content_AddEditNonBillets_NonEditRP_OS" description="" pageCaption="" layoutType="HorizontalStackPanel" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -36356,6 +36468,10 @@ ORDER BY Flow, Entity
                                     <componentMember name="cbx_BDF_RP_NBLT_PPA_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="cbx_BDF_RP_NBLT_UII_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="cbx_BDF_RP_NBLT_ObjectClass_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_NBLT_ATU_OS"/>
+                                <componentMember name="spp_BDF_RP_NBLT_ObjectClass_OS"/>
+                                <componentMember name="spp_BDF_RP_NBLT_PPA_OS"/>
+                                <componentMember name="spp_BDF_RP_NBLT_UII_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04d1a3_BDF_RP_Dashboard_Content_AddEditNonBillets_OS" description="" pageCaption="" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -36429,6 +36545,7 @@ ORDER BY Flow, Entity
                                     <componentMember name="Embedded 04d1b5_BDF_RP_Dashboard_Content_AddEditNonBillets_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="spp_BDF_RP_Description_ChangeLog_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="spp_BDF_RP_Reason_ChangeLog_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_Content_Frame_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04d1b_BDF_RP_Dashboard_Content_NonAddEditNonBillets_OS" description="" pageCaption="" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -36454,6 +36571,7 @@ ORDER BY Flow, Entity
                                     <componentMember name="Embedded 04d1b5_BDF_RP_Dashboard_Content_AddEditNonBillets_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="spp_BDF_RP_Description_ChangeLog_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="spp_BDF_RP_Reason_ChangeLog_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_Content_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04d1b1_BDF_RP_Dashboard_Content_AddEditNonBillets_OS" description="" pageCaption="" layoutType="VerticalStackPanel" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -36468,6 +36586,7 @@ ORDER BY Flow, Entity
                                 <componentMembers>
                                     <componentMember name="btn_BDF_RP_EditNBLT_CCNotReq_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="btn_BDF_RP_EditNBLT_CCReq_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_Content_Frame_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04d1b1z_BDF_RP_Dashboard_Content_AddEditNonBillets_OS" description="" pageCaption="Change Description" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -36502,6 +36621,8 @@ ORDER BY Flow, Entity
                                     <componentMember name="spp_BDF_RP_NBLT_PPA_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="spp_BDF_RP_NBLT_UII_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="spp_BDF_RP_NBLT_ObjectClass_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_Content_Frame_OS"/>
+                                <componentMember name="spp_BDF_RP_Reason_ChangeLog_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04d1b2_BDF_RP_Dashboard_Content_AddEditNonBillets_OS" description="" pageCaption="" layoutType="VerticalStackPanel" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -36516,6 +36637,7 @@ ORDER BY Flow, Entity
                                 <componentMembers>
                                     <componentMember name="btn_BDF_RP_Clear_NonBillet_CCNotReq_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="btn_BDF_RP_Clear_NonBillet_CCReq_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_Content_Frame_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04d1b2z_BDF_RP_Dashboard_Content_AddEditNonBillets_OS" description="" pageCaption="Change Description" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -36540,6 +36662,8 @@ ORDER BY Flow, Entity
                                     <componentMember name="spp_RPSearchQuery_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="spp_BDF_RP_Number_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="spp_BDF_RP_NBLT_LineItemNumber_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_Content_Frame_OS"/>
+                                <componentMember name="spp_BDF_RP_Reason_ChangeLog_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04d1b3_BDF_RP_Dashboard_Content_AddEditNonBillets_OS" description="" pageCaption="" layoutType="VerticalStackPanel" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -36554,6 +36678,7 @@ ORDER BY Flow, Entity
                                 <componentMembers>
                                     <componentMember name="btn_BDF_RP_Delete NonBillet_CCNotReq_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="btn_BDF_RP_Delete NonBillet_CCReq_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_Content_Frame_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04d1b3z_BDF_RP_Dashboard_Content_AddEditNonBillets_OS" description="" pageCaption="Change Description" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -36588,6 +36713,8 @@ ORDER BY Flow, Entity
                                     <componentMember name="spp_BDF_RP_NBLT_PPA_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="spp_BDF_RP_NBLT_UII_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="spp_BDF_RP_NBLT_ObjectClass_OS" left="" top="" width="" height="" dockPosition="Left" />
+                                <componentMember name="spp_BDF_RP_Content_Frame_OS"/>
+                                <componentMember name="spp_BDF_RP_Reason_ChangeLog_OS"/>
                                 </componentMembers>
                             </dashboard>
                             <dashboard name="04d1b4_BDF_RP_Dashboard_Content_AddEditNonBillets_OS" description="" pageCaption="" layoutType="VerticalStackPanel" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -37851,129 +37978,9 @@ ORDER BY Flow, Entity
                                     </GridLayoutDefinition>
                                 </DashboardDefinition>
                                 <componentMembers>
-                                    <componentMember name="spp_BDF_Content_Help_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="spp_BDF_RP_Content_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="emb_Dyn_00_BDF_RP_Dashboard_Frame_Content_OS" left="" top="" width="" height="" dockPosition="Left" />
                                     <componentMember name="spp_BDF_RP_Content_Frame_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                </componentMembers>
-                            </dashboard>
-                            <dashboard name="00_BDF_RP_Dashboard_Published_OS_Copy" description="" pageCaption="" layoutType="Uniform" isInitiallyVisible="true" loadDashboardTaskType="ExecuteDashboardExtenderBROnce">
-                                <displayFormat>BackgroundColor = XFLightBlue, InnerBackgroundColor = XFLightBlue</displayFormat>
-                                <loadDashboardTaskArgs>{BudFm_SolutionHelper_UX}{LoadWFDashboard}{}</loadDashboardTaskArgs>
-                                <DashboardDefinition>
-                                    <ShowTitle>true</ShowTitle>
-                                    <GridLayoutDefinition>
-                                        <ColumnDefinitions />
-                                        <RowDefinitions />
-                                    </GridLayoutDefinition>
-                                </DashboardDefinition>
-                                <componentMembers>
-                                    <componentMember name="Embedded 00_BDF_RP_Dashboard_Frame_Content_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_Content_Help_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_Approp_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_BLT_Acq_Project_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_BLT_ADReserve_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_BLT_ATU_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_BLT_BilletType_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_BLT_BIType_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_BLT_Build_Out_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_BLT_Comment_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_BLT_Computer_Type_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_BLT_ConusOConus_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_BLT_Destination_LineItemNumber_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_BLT_DetachedDuty_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_BLT_DutyLocation_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_BLT_ElectronicFlightBag_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_BLT_Furniture_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_BLT_GradeRank_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_BLT_GradeType_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_BLT_ICASSType_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_BLT_Lease_ATU_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_BLT_Lease_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_BLT_Lease_PPA_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_BLT_OPFACS_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_BLT_LineItemNumber_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_BLT_PositionNumber_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_BLT_PositionTitle_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_BLT_PPE_ATU_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_BLT_PPE_PPA_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_BLT_PPEType_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_BLT_ReserveType_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_BLT_SpcCodeOccSeries_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_BLT_TermBillet_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_BLT_UII_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_BLT_Utilities_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_BLT_UTL_ATU_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_BLT_UTL_PPA_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_Content_Billets_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_Content_EditRP_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_Content_EditRP_Page1_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_Content_EditRP_Page2_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_Content_EditRP_Page3_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_Content_NonBillets_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_Content_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_Content_Reporting_CostSum_BilletNonBillet_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_Content_Reporting_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_Content_Reporting_RP_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_Description_ChangeLog_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_EditRP_CCReq_AutoAddGenDetail_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_EditRP_CCReq_Base_CIV_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_EditRP_CCReq_Base_Comments_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_EditRP_CCReq_Base_Funding_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_EditRP_CCReq_Base_MIL_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_EditRP_CCReq_Bill_Mandate_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_EditRP_CCReq_ExecSummary_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_EditRP_CCReq_FYRelatedRp1_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_EditRP_CCReq_FYRelatedRp2_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_EditRP_CCReq_FYRelatedRp3_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_EditRP_CCReq_IE_Base_Funding_Comments_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_EditRP_CCReq_IE_K_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_EditRP_CCReq_IE_CIV_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_EditRP_CCReq_IE_MIL_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_EditRP_CCReq_ImpactOnPerformance_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_EditRP_CCReq_IncreaseDecrease_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_EditRP_CCReq_Justification_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_EditRP_CCReq_LeadStaffName1_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_EditRP_CCReq_LeadStaffName2_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_EditRP_CCReq_LeadStaffName3_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_EditRP_CCReq_LeadStaffPhone1_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_EditRP_CCReq_LeadStaffPhone2_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_EditRP_CCReq_LeadStaffPhone3_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_EditRP_CCReq_LeadStaffPOC1_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_EditRP_CCReq_LeadStaffPOC2_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_EditRP_CCReq_LeadStaffPOC3_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_EditRP_CCReq_NumberOfBillets_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_EditRP_CCReq_NumberOfOSQtrs_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_EditRP_CCReq_NumberOfPersonnelQtrs_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_EditRP_CCReq_OlderRelatedRp1_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_EditRP_CCReq_OlderRelatedRp2_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_EditRP_CCReq_OlderRelatedRp3_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_EditRP_CCReq_PartOfReprogramming_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_EditRP_CCReq_RP_Number_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_NBLT_ATU_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_NBLT_Description_Tier2_Input_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_NBLT_Description_Tier2_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_NBLT_DollarKValue_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_NBLT_LineItemNumber_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_NBLT_ObjectClass_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_NBLT_POC_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_NBLT_PPA_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_NBLT_RecurringNonRecurring_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_NBLT_RequestedItem_Tier1_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_NBLT_UII_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_Number_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_Page3_AffectOthers_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_Page3_Alignment_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_Page3_DenialImpact_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_Page3_FundingImpact_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_Page3_Problem_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_Page3_ROI_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_Reason_ChangeLog_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_RPSearchQuery_OS" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_BLT_LineItemNumber_OS_Copy" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_NBLT_LineItemNumber_OS_Copy" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_Number_OS_Copy" left="" top="" width="" height="" dockPosition="Left" />
-                                    <componentMember name="spp_BDF_RP_BLT_PPEType_Descr_OS" left="" top="" width="" height="" dockPosition="Left" />
                                 </componentMembers>
                             </dashboard>
                         </dashboards>
