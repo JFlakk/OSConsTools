@@ -821,6 +821,8 @@ Namespace OneStream.BusinessRule.DashboardExtender.BudFm_SolutionHelper
 			Dim RP_Entity = rpUtils.Get_Rp_Entity(si, RPName)					
 			Dim description_ChangeLog As String = args.NameValuePairs("Description_ChangeLog")
 			Dim reason_ChangeLog As String = args.NameValuePairs("Reason_ChangeLog")
+			Dim Content_OS As String = args.NameValuePairs("Content_OS")
+			Dim Content_EditRP_OS As String = args.NameValuePairs("Content_EditRP_OS")
 
 			RunPreSaveStepsForRP(si, wfCube, wfScenario, wfTime, RPName, reason_ChangeLog, description_ChangeLog, "")
 
