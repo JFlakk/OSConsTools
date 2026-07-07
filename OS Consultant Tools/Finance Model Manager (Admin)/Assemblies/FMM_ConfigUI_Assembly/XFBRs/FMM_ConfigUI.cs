@@ -67,6 +67,10 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardS
                 {
                     return Get_CalcDB();
                 }
+                else if (args.FunctionName.XFEqualsIgnoreCase("Get_DataValConfigDB"))
+                {
+                    return Get_DataValConfigDB();
+                }
                 else if (args.FunctionName.XFEqualsIgnoreCase("Get_DBObjectVisibleEnabled"))
                 {
                     return Get_DBObjectVisibleEnabled();
@@ -262,6 +266,37 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardS
             {
                 return string.Empty;
             }
+        }
+
+        private string Get_DataValConfigDB()
+        {
+            var valConfigType = args.NameValuePairs.XFGetValue("valConfigType", "NA");
+            var valConfigID = args.NameValuePairs.XFGetValue("valConfigID", "0");
+            var currDB = args.NameValuePairs.XFGetValue("currDB", "NA");
+            var isUpdate = valConfigType.XFEqualsIgnoreCase("Update");
+
+            if (currDB.XFEqualsIgnoreCase("FMM_DataValConfig_C2"))
+            {
+                int.TryParse(valConfigID, out var id);
+                if (isUpdate && id == 0)
+                {
+                    return "FMM_DataValConfig_C2_Blank";
+                }
+
+                return "FMM_DataValConfig_C2_AddUpdate";
+            }
+
+            if (currDB.XFEqualsIgnoreCase("FMM_DataValConfig_C2R4"))
+            {
+                return "FMM_DataValConfig_C2R4_AddUpdate";
+            }
+
+            if (currDB.XFEqualsIgnoreCase("FMM_DataValConfig_C2R3"))
+            {
+                return "FMM_DataValConfig_C2R3_Update";
+            }
+
+            return isUpdate ? $"{currDB}_Update" : $"{currDB}_Add";
         }
 #endregion
 		

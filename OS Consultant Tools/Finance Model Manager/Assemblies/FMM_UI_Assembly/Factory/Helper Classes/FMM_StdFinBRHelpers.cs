@@ -112,6 +112,14 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
 
             // 4. Convert results back to a DataTable and Save to Destination Table
             DataTable dtFinal = results.ToDataTable();
+            var dataValidationEngine = new FMM_DataValidationEngine();
+            var tableValidationErrors = dataValidationEngine.ValidateDownstreamData(si, "Table", dtFinal);
+            var cubeToTableValidationErrors = dataValidationEngine.ValidateDownstreamData(si, "CubeToTable", dtFinal);
+            var allValidationErrors = tableValidationErrors.Concat(cubeToTableValidationErrors).ToList();
+            if (allValidationErrors.Count > 0)
+            {
+                throw new XFException($"Downstream data validation failed: {string.Join(" | ", allValidationErrors)}");
+            }
             SaveToDestination(si, destConfig.TableName, dtFinal);
         }
 

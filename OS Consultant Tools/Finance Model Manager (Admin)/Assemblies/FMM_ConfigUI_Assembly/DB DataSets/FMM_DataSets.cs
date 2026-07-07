@@ -170,6 +170,10 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardD
                         {
                             return get_FMM_UnitConfigs();
                         }
+                        else if (args.DataSetName.XFEqualsIgnoreCase("get_FMM_DataValConfigs"))
+                        {
+                            return get_FMM_DataValConfigs();
+                        }
 
 
                         break;
@@ -292,6 +296,67 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardD
             {
                 throw ErrorHandler.LogWrite(si, new XFException(si, ex));
             }
+        }
+
+        private DataTable get_FMM_DataValConfigs()
+        {
+            try
+            {
+                var dtRaw = new DataTable("FMM_DataValConfigRaw");
+                var dt = new DataTable("FMM_DataValConfigs");
+                dt.Columns.Add("ValConfig", typeof(string));
+                dt.Columns.Add("ValConfigID", typeof(int));
+
+                var dbConnApp = BRApi.Database.CreateApplicationDbConnInfo(si);
+                using (var connection = new SqlConnection(dbConnApp.ConnectionString))
+                {
+                    var sql_gbl_get_datasets = new GBL_UI_Assembly.SQL_GBL_Get_DataSets(si, connection);
+                    var sqa = new SqlDataAdapter();
+                    var sql = @"SELECT * FROM FMM_DataValConfig ORDER BY ValConfigID";
+                    sql_gbl_get_datasets.Fill_Get_GBL_DT(si, sqa, dtRaw, sql, Array.Empty<SqlParameter>());
+                }
+
+                var idCol = GetFirstColumnName(dtRaw, "ValConfigID", "DataValConfigID", "ID");
+                var nameCol = GetFirstColumnName(dtRaw, "ValConfig", "Name");
+                var descrCol = GetFirstColumnName(dtRaw, "Descr", "Description");
+
+                foreach (DataRow row in dtRaw.Rows)
+                {
+                    var id = 0;
+                    if (idCol != null)
+                    {
+                        int.TryParse(row[idCol]?.ToString(), out id);
+                    }
+
+                    var name = nameCol != null ? row[nameCol]?.ToString() ?? string.Empty : $"Validation {id}";
+                    var descr = descrCol != null ? row[descrCol]?.ToString() ?? string.Empty : string.Empty;
+                    var display = string.IsNullOrWhiteSpace(descr) ? name : $"{name} - {descr}";
+
+                    var newRow = dt.NewRow();
+                    newRow["ValConfig"] = display;
+                    newRow["ValConfigID"] = id;
+                    dt.Rows.Add(newRow);
+                }
+
+                return dt;
+            }
+            catch (Exception ex)
+            {
+                throw ErrorHandler.LogWrite(si, new XFException(si, ex));
+            }
+        }
+
+        private static string GetFirstColumnName(DataTable dt, params string[] candidateNames)
+        {
+            foreach (var candidate in candidateNames)
+            {
+                if (dt.Columns.Contains(candidate))
+                {
+                    return candidate;
+                }
+            }
+
+            return null;
         }
 
         private DataTable Get_FMM_ActConfig(string actType)

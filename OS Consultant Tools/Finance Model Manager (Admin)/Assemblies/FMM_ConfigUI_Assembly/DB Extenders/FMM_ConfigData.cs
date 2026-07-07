@@ -189,6 +189,21 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardE
                             case var fn when fn.XFEqualsIgnoreCase("CustTable_Select"):
                                 changed_Result = CustTable_Select();
                                 return changed_Result;
+                            case var fn when fn.XFEqualsIgnoreCase("DataValConfig_SaveAdd"):
+                                changed_Result = DataValConfig_Save("Add");
+                                return changed_Result;
+                            case var fn when fn.XFEqualsIgnoreCase("DataValConfig_SaveUpdate"):
+                                changed_Result = DataValConfig_Save("Update");
+                                return changed_Result;
+                            case var fn when fn.XFEqualsIgnoreCase("DataValConfig_SaveDelete"):
+                                changed_Result = DataValConfig_Save("Delete");
+                                return changed_Result;
+                            case var fn when fn.XFEqualsIgnoreCase("DataValConfig_Add"):
+                                changed_Result = DataValConfig_Add();
+                                return changed_Result;
+                            case var fn when fn.XFEqualsIgnoreCase("DataValConfig_Select"):
+                                changed_Result = DataValConfig_Select();
+                                return changed_Result;
                             case var fn when fn.XFEqualsIgnoreCase("CalcConfig_SaveAdd"):
                                 gbl_ModelType = args.SelectionChangedTaskInfo.CustomSubstVarsWithUserSelectedValues.XFGetValue("DL_FMM_CalcType");
                                 changed_Result = CalcConfig_Save("Add");
@@ -1130,6 +1145,131 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardE
             catch (Exception ex)
             {
                 throw ErrorHandler.LogWrite(si, new XFException(si, ex));
+            }
+        }
+        #endregion
+
+        #region "Data Validation Config Functions"
+        private XFSelectionChangedTaskResult DataValConfig_Add()
+        {
+            var selectResult = new XFSelectionChangedTaskResult { ChangeCustomSubstVarsInDashboard = true };
+            var gblHelpers = new GBL_UI_Assembly.GBL_Helpers();
+
+            gblHelpers.UpdateCustomSubstVar(ref selectResult, "BL_FMM_DataValConfigID", string.Empty);
+            gblHelpers.UpdateCustomSubstVar(ref selectResult, "IV_FMM_DataValConfig_AddUpdate", "Add");
+            gblHelpers.UpdateCustomSubstVar(ref selectResult, "IV_FMM_DataValConfig_Name", string.Empty);
+            gblHelpers.UpdateCustomSubstVar(ref selectResult, "IV_FMM_DataValConfig_Descr", string.Empty);
+            gblHelpers.UpdateCustomSubstVar(ref selectResult, "DL_FMM_DataValConfig_Context", "Account");
+            gblHelpers.UpdateCustomSubstVar(ref selectResult, "DL_FMM_DataValConfig_Type", "Required");
+            gblHelpers.UpdateCustomSubstVar(ref selectResult, "DL_FMM_DataValConfig_Status", "Active");
+            gblHelpers.UpdateCustomSubstVar(ref selectResult, "DL_FMM_DataValConfig_TargetType", "Cube");
+            gblHelpers.UpdateCustomSubstVar(ref selectResult, "DL_FMM_DataValConfig_EntityScope", "AllEntities");
+            gblHelpers.UpdateCustomSubstVar(ref selectResult, "IV_FMM_DataValConfig_ConfigJSON", string.Empty);
+
+            return selectResult;
+        }
+
+        private XFSelectionChangedTaskResult DataValConfig_Select()
+        {
+            var selectResult = new XFSelectionChangedTaskResult { ChangeCustomSubstVarsInDashboard = true };
+            var gblHelpers = new GBL_UI_Assembly.GBL_Helpers();
+            var existingId = args.SelectionChangedTaskInfo.CustomSubstVarsWithUserSelectedValues.XFGetValue("BL_FMM_DataValConfigID", "0").XFConvertToInt();
+
+            gblHelpers.UpdateCustomSubstVar(ref selectResult, "BL_FMM_DataValConfigID", existingId.XFToString());
+            gblHelpers.UpdateCustomSubstVar(ref selectResult, "IV_FMM_DataValConfig_AddUpdate", "Update");
+            var modifiedVars = selectResult.ModifiedCustomSubstVars;
+            FMM_ConfigHelpers.SetDataValConfigParams(si, ref modifiedVars);
+            selectResult.ModifiedCustomSubstVars = modifiedVars;
+
+            return selectResult;
+        }
+
+        private XFSelectionChangedTaskResult DataValConfig_Save(string runType)
+        {
+            try
+            {
+                var saveResult = new XFSelectionChangedTaskResult();
+                var customSubstVars = args.SelectionChangedTaskInfo.CustomSubstVars;
+                var customSubstVarsWithValues = args.SelectionChangedTaskInfo.CustomSubstVarsWithUserSelectedValues;
+                var valConfigId = customSubstVarsWithValues.XFGetValue("BL_FMM_DataValConfigID", "0").XFConvertToInt();
+
+                var dbConnApp = BRApi.Database.CreateApplicationDbConnInfo(si);
+                using (var connection = new SqlConnection(dbConnApp.ConnectionString))
+                {
+                    connection.Open();
+                    var cmdBuilder = new GBL_UI_Assembly.SQA_GBL_Command_Builder(si, connection);
+                    var sqa = new SqlDataAdapter();
+                    var dt = new DataTable();
+
+                    var sql = @"SELECT * FROM FMM_DataValConfig WHERE ValConfigID = @ValConfigID";
+                    var sqlParams = new[] { new SqlParameter("@ValConfigID", SqlDbType.Int) { Value = valConfigId } };
+                    cmdBuilder.FillDataTable(si, sqa, dt, sql, sqlParams);
+
+                    DataRow row = null;
+                    if (runType == "Add")
+                    {
+                        row = dt.NewRow();
+                        dt.Rows.Add(row);
+                    }
+                    else if (runType == "Update" && dt.Rows.Count > 0)
+                    {
+                        row = dt.Rows[0];
+                    }
+                    else if (runType == "Delete" && dt.Rows.Count > 0)
+                    {
+                        dt.Rows[0].Delete();
+                        cmdBuilder.UpdateTable(si, "FMM_DataValConfig", dt, sqa);
+                        saveResult.IsOK = true;
+                        saveResult.ShowMessageBox = true;
+                        saveResult.Message = "Validation Config Deleted Successfully.";
+                        return saveResult;
+                    }
+                    else
+                    {
+                        saveResult.IsOK = false;
+                        saveResult.ShowMessageBox = true;
+                        saveResult.Message = runType == "Delete" ? "Validation Config not found." : "No matching Validation Config found.";
+                        return saveResult;
+                    }
+
+                    var configJson = BuildDataValConfigJson(customSubstVars, customSubstVarsWithValues);
+
+                    SetColumnIfExists(row, "ValConfig", customSubstVars.XFGetValue("IV_FMM_DataValConfig_Name", string.Empty));
+                    SetColumnIfExists(row, "Name", customSubstVars.XFGetValue("IV_FMM_DataValConfig_Name", string.Empty));
+                    SetColumnIfExists(row, "Descr", customSubstVars.XFGetValue("IV_FMM_DataValConfig_Descr", string.Empty));
+                    SetColumnIfExists(row, "Description", customSubstVars.XFGetValue("IV_FMM_DataValConfig_Descr", string.Empty));
+                    SetColumnIfExists(row, "Context", customSubstVars.XFGetValue("DL_FMM_DataValConfig_Context", "Account"));
+                    SetColumnIfExists(row, "ValType", customSubstVars.XFGetValue("DL_FMM_DataValConfig_Type", "Required"));
+                    SetColumnIfExists(row, "Type", customSubstVars.XFGetValue("DL_FMM_DataValConfig_Type", "Required"));
+                    SetColumnIfExists(row, "Status", customSubstVars.XFGetValue("DL_FMM_DataValConfig_Status", "Active"));
+                    SetColumnIfExists(row, "ConfigJSON", configJson);
+                    SetColumnIfExists(row, "IsActive", customSubstVars.XFGetValue("IV_FMM_DataValConfig_IsActive", "1"));
+                    SetColumnIfExists(row, "UpdateDate", DateTime.Now);
+                    SetColumnIfExists(row, "UpdateUser", si.UserName);
+                    if (runType == "Add")
+                    {
+                        SetColumnIfExists(row, "CreateDate", DateTime.Now);
+                        SetColumnIfExists(row, "CreateUser", si.UserName);
+                    }
+
+                    cmdBuilder.UpdateTable(si, "FMM_DataValConfig", dt, sqa);
+                    saveResult.IsOK = true;
+                    saveResult.ShowMessageBox = true;
+                    saveResult.Message = runType == "Add" ? "Validation Config Saved." : "Validation Config Updated.";
+                    saveResult.ChangeCustomSubstVarsInDashboard = true;
+                    saveResult.ModifiedCustomSubstVars["IV_FMM_DataValConfig_ConfigJSON"] = configJson;
+                }
+
+                return saveResult;
+            }
+            catch (Exception ex)
+            {
+                return new XFSelectionChangedTaskResult
+                {
+                    IsOK = false,
+                    ShowMessageBox = true,
+                    Message = $"An error occurred: {ex.Message}"
+                };
             }
         }
         #endregion
@@ -5355,6 +5495,65 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardE
         #endregion
 
         #region "Helper Functions"
+
+        private static void SetColumnIfExists(DataRow row, string columnName, object value)
+        {
+            if (row?.Table?.Columns.Contains(columnName) == true)
+            {
+                row[columnName] = value ?? DBNull.Value;
+            }
+        }
+
+        private static string EscapeJson(string input)
+        {
+            return (input ?? string.Empty).Replace("\\", "\\\\").Replace("\"", "\\\"");
+        }
+
+        private static string GetFromEither(Dictionary<string, string> primary, Dictionary<string, string> secondary, string key, string fallback = "")
+        {
+            if (primary != null && primary.TryGetValue(key, out var pVal) && !string.IsNullOrEmpty(pVal))
+            {
+                return pVal;
+            }
+
+            if (secondary != null && secondary.TryGetValue(key, out var sVal) && !string.IsNullOrEmpty(sVal))
+            {
+                return sVal;
+            }
+
+            return fallback;
+        }
+
+        private static string BuildDataValConfigJson(Dictionary<string, string> customSubstVars, Dictionary<string, string> customSubstVarsWithValues)
+        {
+            var targetType = GetFromEither(customSubstVarsWithValues, customSubstVars, "DL_FMM_DataValConfig_TargetType", "Cube");
+            var entityScope = GetFromEither(customSubstVarsWithValues, customSubstVars, "DL_FMM_DataValConfig_EntityScope", "AllEntities");
+            var entityFilter = GetFromEither(customSubstVarsWithValues, customSubstVars, "IV_FMM_DataValConfig_EntityFilter");
+            var entityList = GetFromEither(customSubstVarsWithValues, customSubstVars, "IV_FMM_DataValConfig_EntityList");
+            var cubeName = GetFromEither(customSubstVarsWithValues, customSubstVars, "IV_FMM_DataValConfig_CubeName");
+            var tableName = GetFromEither(customSubstVarsWithValues, customSubstVars, "IV_FMM_DataValConfig_TableName");
+            var sourceCube = GetFromEither(customSubstVarsWithValues, customSubstVars, "IV_FMM_DataValConfig_SourceCube");
+            var targetTable = GetFromEither(customSubstVarsWithValues, customSubstVars, "IV_FMM_DataValConfig_TargetTable");
+            var joinKeys = GetFromEither(customSubstVarsWithValues, customSubstVars, "IV_FMM_DataValConfig_JoinKeys");
+            var columnName = GetFromEither(customSubstVarsWithValues, customSubstVars, "IV_FMM_DataValConfig_ColumnName");
+            var rowFilter = GetFromEither(customSubstVarsWithValues, customSubstVars, "IV_FMM_DataValConfig_RowFilter");
+            var tolerance = GetFromEither(customSubstVarsWithValues, customSubstVars, "IV_FMM_DataValConfig_Tolerance");
+
+            return "{"
+                   + $"\"targetType\":\"{EscapeJson(targetType)}\","
+                   + $"\"entityScopeMode\":\"{EscapeJson(entityScope)}\","
+                   + $"\"entityFilter\":\"{EscapeJson(entityFilter)}\","
+                   + $"\"entityList\":\"{EscapeJson(entityList)}\","
+                   + $"\"cubeName\":\"{EscapeJson(cubeName)}\","
+                   + $"\"tableName\":\"{EscapeJson(tableName)}\","
+                   + $"\"sourceCube\":\"{EscapeJson(sourceCube)}\","
+                   + $"\"targetTable\":\"{EscapeJson(targetTable)}\","
+                   + $"\"joinKeys\":\"{EscapeJson(joinKeys)}\","
+                   + $"\"columnName\":\"{EscapeJson(columnName)}\","
+                   + $"\"rowFilter\":\"{EscapeJson(rowFilter)}\","
+                   + $"\"tolerance\":\"{EscapeJson(tolerance)}\""
+                   + "}";
+        }
 
         private void MapConfigValues(ref DataRow row, Dictionary<string, string> customSubstVars, int saveTypeValue, string configHelperType)
         {

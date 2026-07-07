@@ -8,6 +8,7 @@ using System.Linq;
 using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Microsoft.CSharp;
 using Microsoft.Data.SqlClient;
@@ -84,7 +85,9 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardE
         private Dictionary<int, string[]> DataValConfig = new Dictionary<int, string[]>()
         {
             {0, new string[] {"BL_FMM_CubeConfigID_Table"}},
-            {1, new string[] {"BL_FMM_ActConfigID_Table"}}
+            {1, new string[] {"BL_FMM_ActConfigID_Table"}},
+            {2, new string[] {"BL_FMM_DataValConfigID"}},
+            {3, new string[] {"IV_FMM_DataValConfig_AddUpdate"}}
         };
 
         private Dictionary<int, string[]> ModelConfig = new Dictionary<int, string[]>()
@@ -441,6 +444,11 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardE
                 Load_CustTableConfig(ref taskResult);
             }
 
+            if (mappedParam == "BL_FMM_DataValConfigID" && dashboard == "FMM_DataValConfig")
+            {
+                Load_DataValConfig(ref taskResult);
+            }
+
             if (mappedParam == "IV_FMM_ModelConfigID" && dashboard == "3_FMM_ModelConfigDialog_Update")
             {
                 setupUpdateModelDialog(ref taskResult);
@@ -486,6 +494,43 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardE
                 // Replace 'Console.WriteLine' with your specific logging method (e.g., Log.Info)
                 BRApi.ErrorLog.LogMessage(si, $"Key: {kvp.Key}, Value: {kvp.Value}");
             }
+        }
+
+        private void Load_DataValConfig(ref XFLoadDashboardTaskResult loadDbTaskResult)
+        {
+            var modifiedVars = loadDbTaskResult.ModifiedCustomSubstVars;
+            FMM_ConfigHelpers.SetDataValConfigParams(si, ref modifiedVars);
+
+            var configJson = modifiedVars.XFGetValue("IV_FMM_DataValConfig_ConfigJSON", string.Empty);
+            if (!string.IsNullOrWhiteSpace(configJson))
+            {
+                GBL_UI_Assembly.GBL_Helpers.DictKeyAddUpdate(ref modifiedVars, "DL_FMM_DataValConfig_TargetType", ExtractJsonValue(configJson, "targetType", "Cube"));
+                GBL_UI_Assembly.GBL_Helpers.DictKeyAddUpdate(ref modifiedVars, "DL_FMM_DataValConfig_EntityScope", ExtractJsonValue(configJson, "entityScopeMode", "AllEntities"));
+                GBL_UI_Assembly.GBL_Helpers.DictKeyAddUpdate(ref modifiedVars, "IV_FMM_DataValConfig_EntityFilter", ExtractJsonValue(configJson, "entityFilter", string.Empty));
+                GBL_UI_Assembly.GBL_Helpers.DictKeyAddUpdate(ref modifiedVars, "IV_FMM_DataValConfig_EntityList", ExtractJsonValue(configJson, "entityList", string.Empty));
+                GBL_UI_Assembly.GBL_Helpers.DictKeyAddUpdate(ref modifiedVars, "IV_FMM_DataValConfig_CubeName", ExtractJsonValue(configJson, "cubeName", string.Empty));
+                GBL_UI_Assembly.GBL_Helpers.DictKeyAddUpdate(ref modifiedVars, "IV_FMM_DataValConfig_TableName", ExtractJsonValue(configJson, "tableName", string.Empty));
+                GBL_UI_Assembly.GBL_Helpers.DictKeyAddUpdate(ref modifiedVars, "IV_FMM_DataValConfig_SourceCube", ExtractJsonValue(configJson, "sourceCube", string.Empty));
+                GBL_UI_Assembly.GBL_Helpers.DictKeyAddUpdate(ref modifiedVars, "IV_FMM_DataValConfig_TargetTable", ExtractJsonValue(configJson, "targetTable", string.Empty));
+                GBL_UI_Assembly.GBL_Helpers.DictKeyAddUpdate(ref modifiedVars, "IV_FMM_DataValConfig_JoinKeys", ExtractJsonValue(configJson, "joinKeys", string.Empty));
+                GBL_UI_Assembly.GBL_Helpers.DictKeyAddUpdate(ref modifiedVars, "IV_FMM_DataValConfig_ColumnName", ExtractJsonValue(configJson, "columnName", string.Empty));
+                GBL_UI_Assembly.GBL_Helpers.DictKeyAddUpdate(ref modifiedVars, "IV_FMM_DataValConfig_RowFilter", ExtractJsonValue(configJson, "rowFilter", string.Empty));
+                GBL_UI_Assembly.GBL_Helpers.DictKeyAddUpdate(ref modifiedVars, "IV_FMM_DataValConfig_Tolerance", ExtractJsonValue(configJson, "tolerance", string.Empty));
+            }
+
+            loadDbTaskResult.ModifiedCustomSubstVars = modifiedVars;
+        }
+
+        private static string ExtractJsonValue(string json, string key, string defaultValue)
+        {
+            if (string.IsNullOrWhiteSpace(json))
+            {
+                return defaultValue;
+            }
+
+            var pattern = $"\"{Regex.Escape(key)}\"\\s*:\\s*\"(?<val>[^\"]*)\"";
+            var match = Regex.Match(json, pattern, RegexOptions.IgnoreCase);
+            return match.Success ? match.Groups["val"].Value : defaultValue;
         }
 
         private string getDefaultParam(string param, Dictionary<string, string> customSubstVars)

@@ -239,6 +239,29 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
 
 			public Dictionary<int, Dictionary<string, string>> ParameterMappings { get; init; }
 		}
+
+		public static class ValConfigRegistry
+		{
+			public static readonly Dictionary<SaveType, ValConfig> Configs = new()
+			{
+				[SaveType.View] = new ValConfig
+				{
+					ParameterMappings = new()
+					{
+						{ 0, new Dictionary<string, string> { { "IV_FMM_DataValConfig_Name", "ValConfig" } } },
+						{ 1, new Dictionary<string, string> { { "IV_FMM_DataValConfig_Descr", "Descr" } } },
+						{ 2, new Dictionary<string, string> { { "DL_FMM_DataValConfig_Context", "Context" } } },
+						{ 3, new Dictionary<string, string> { { "DL_FMM_DataValConfig_Type", "ValType" } } },
+						{ 4, new Dictionary<string, string> { { "DL_FMM_DataValConfig_Status", "Status" } } },
+						{ 5, new Dictionary<string, string> { { "IV_FMM_DataValConfig_ConfigJSON", "ConfigJSON" } } },
+						{ 6, new Dictionary<string, string> { { "IV_FMM_DataValConfig_CreateDate", "CreateDate" } } },
+						{ 7, new Dictionary<string, string> { { "IV_FMM_DataValConfig_CreateUser", "CreateUser" } } },
+						{ 8, new Dictionary<string, string> { { "IV_FMM_DataValConfig_UpdateDate", "UpdateDate" } } },
+						{ 9, new Dictionary<string, string> { { "IV_FMM_DataValConfig_UpdateUser", "UpdateUser" } } }
+					}
+				}
+			};
+		}
 		#endregion
 		#region "Model Config"
 		public class ModelConfig : IConfigMappings
@@ -769,7 +792,9 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
 			foreach (var mapping in config.ParameterMappings.Values)
 				foreach (var kvp in mapping)
 				{
-					var rawValue = dataRow != null ? dataRow[kvp.Value].ToString() : string.Empty;
+					var rawValue = string.Empty;
+					if (dataRow != null && dataRow.Table.Columns.Contains(kvp.Value))
+						rawValue = dataRow[kvp.Value]?.ToString() ?? string.Empty;
 
 					// If this column has a registered lookup substVar, resolve the ID to its display text.
 					var resolvedValue = rawValue;
@@ -797,6 +822,11 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
 		public static void SetModelConfigParams(SessionInfo si, ref Dictionary<string, string> substVars)
 		{
 			SetConfigParams(si, ref substVars, "IV_FMM_ModelConfig_AddUpdate", "BL_FMM_ModelConfigID", "SELECT * FROM FMM_ModelConfig WHERE ModelConfigID = @ModelConfigID", "@ModelConfigID", "FMM_ModelConfig", st => ModelConfigRegistry.Configs.GetValueOrDefault(st));
+		}
+
+		public static void SetDataValConfigParams(SessionInfo si, ref Dictionary<string, string> substVars)
+		{
+			SetConfigParams(si, ref substVars, "IV_FMM_DataValConfig_AddUpdate", "BL_FMM_DataValConfigID", "SELECT * FROM FMM_DataValConfig WHERE ValConfigID = @ValConfigID", "@ValConfigID", "FMM_DataValConfig", st => ValConfigRegistry.Configs.GetValueOrDefault(st));
 		}
 
 		private static void SetPropertyIfExists(object target, IEnumerable<string> candidateNames, object value)

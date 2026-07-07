@@ -2624,6 +2624,246 @@
                                 <dimName></dimName>
                                 <memberFilter></memberFilter>
                             </parameter>
+                            <parameter name="DL_FMM_DataValConfig_TargetType" description="Data Val Config Parameter" userPrompt="" parameterType="DelimitedList" sortOrder="60">
+                                <defaultValue>Cube</defaultValue>
+                                <resultFormatStringType>Default</resultFormatStringType>
+                                <resultCustomFormatString></resultCustomFormatString>
+                                <parameterCommandType>Unknown</parameterCommandType>
+                                <sqlQuery></sqlQuery>
+                                <dbLocation>Application</dbLocation>
+                                <externalDBConnName></externalDBConnName>
+                                <methodType>Unknown</methodType>
+                                <methodQuery></methodQuery>
+                                <resultsTableName></resultsTableName>
+                                <displayMember></displayMember>
+                                <valueMember></valueMember>
+                                <displayItems>Cube,Table,CubeToTable</displayItems>
+                                <valueItems>Cube,Table,CubeToTable</valueItems>
+                                <cubeName></cubeName>
+                                <dimType></dimType>
+                                <dimName></dimName>
+                                <memberFilter></memberFilter>
+                            </parameter>
+                            <parameter name="DL_FMM_DataValConfig_EntityScope" description="Data Val Config Parameter" userPrompt="" parameterType="DelimitedList" sortOrder="60">
+                                <defaultValue>AllEntities</defaultValue>
+                                <resultFormatStringType>Default</resultFormatStringType>
+                                <resultCustomFormatString></resultCustomFormatString>
+                                <parameterCommandType>Unknown</parameterCommandType>
+                                <sqlQuery></sqlQuery>
+                                <dbLocation>Application</dbLocation>
+                                <externalDBConnName></externalDBConnName>
+                                <methodType>Unknown</methodType>
+                                <methodQuery></methodQuery>
+                                <resultsTableName></resultsTableName>
+                                <displayMember></displayMember>
+                                <valueMember></valueMember>
+                                <displayItems>All Entities,Entity Filter,Entity List</displayItems>
+                                <valueItems>AllEntities,EntityFilter,EntityList</valueItems>
+                                <cubeName></cubeName>
+                                <dimType></dimType>
+                                <dimName></dimName>
+                                <memberFilter></memberFilter>
+                            </parameter>
+                            <parameter name="IV_FMM_DataValConfig_EntityFilter" description="Data Val Config Parameter" userPrompt="" parameterType="InputValue" sortOrder="60">
+                                <defaultValue></defaultValue>
+                                <resultFormatStringType>Default</resultFormatStringType>
+                                <resultCustomFormatString></resultCustomFormatString>
+                                <parameterCommandType>Unknown</parameterCommandType>
+                                <sqlQuery></sqlQuery>
+                                <dbLocation>Application</dbLocation>
+                                <externalDBConnName></externalDBConnName>
+                                <methodType>Unknown</methodType>
+                                <methodQuery></methodQuery>
+                                <resultsTableName></resultsTableName>
+                                <displayMember></displayMember>
+                                <valueMember></valueMember>
+                                <displayItems></displayItems>
+                                <valueItems></valueItems>
+                                <cubeName></cubeName>
+                                <dimType></dimType>
+                                <dimName></dimName>
+                                <memberFilter></memberFilter>
+                            </parameter>
+                            <parameter name="IV_FMM_DataValConfig_EntityList" description="Data Val Config Parameter" userPrompt="" parameterType="InputValue" sortOrder="60">
+                                <defaultValue></defaultValue>
+                                <resultFormatStringType>Default</resultFormatStringType>
+                                <resultCustomFormatString></resultCustomFormatString>
+                                <parameterCommandType>Unknown</parameterCommandType>
+                                <sqlQuery></sqlQuery>
+                                <dbLocation>Application</dbLocation>
+                                <externalDBConnName></externalDBConnName>
+                                <methodType>Unknown</methodType>
+                                <methodQuery></methodQuery>
+                                <resultsTableName></resultsTableName>
+                                <displayMember></displayMember>
+                                <valueMember></valueMember>
+                                <displayItems></displayItems>
+                                <valueItems></valueItems>
+                                <cubeName></cubeName>
+                                <dimType></dimType>
+                                <dimName></dimName>
+                                <memberFilter></memberFilter>
+                            </parameter>
+                            <parameter name="IV_FMM_DataValConfig_CubeName" description="Data Val Config Parameter" userPrompt="" parameterType="InputValue" sortOrder="60">
+                                <defaultValue></defaultValue>
+                                <resultFormatStringType>Default</resultFormatStringType>
+                                <resultCustomFormatString></resultCustomFormatString>
+                                <parameterCommandType>Unknown</parameterCommandType>
+                                <sqlQuery></sqlQuery>
+                                <dbLocation>Application</dbLocation>
+                                <externalDBConnName></externalDBConnName>
+                                <methodType>Unknown</methodType>
+                                <methodQuery></methodQuery>
+                                <resultsTableName></resultsTableName>
+                                <displayMember></displayMember>
+                                <valueMember></valueMember>
+                                <displayItems></displayItems>
+                                <valueItems></valueItems>
+                                <cubeName></cubeName>
+                                <dimType></dimType>
+                                <dimName></dimName>
+                                <memberFilter></memberFilter>
+                            </parameter>
+                            <parameter name="IV_FMM_DataValConfig_TableName" description="Data Val Config Parameter" userPrompt="" parameterType="InputValue" sortOrder="60">
+                                <defaultValue></defaultValue>
+                                <resultFormatStringType>Default</resultFormatStringType>
+                                <resultCustomFormatString></resultCustomFormatString>
+                                <parameterCommandType>Unknown</parameterCommandType>
+                                <sqlQuery></sqlQuery>
+                                <dbLocation>Application</dbLocation>
+                                <externalDBConnName></externalDBConnName>
+                                <methodType>Unknown</methodType>
+                                <methodQuery></methodQuery>
+                                <resultsTableName></resultsTableName>
+                                <displayMember></displayMember>
+                                <valueMember></valueMember>
+                                <displayItems></displayItems>
+                                <valueItems></valueItems>
+                                <cubeName></cubeName>
+                                <dimType></dimType>
+                                <dimName></dimName>
+                                <memberFilter></memberFilter>
+                            </parameter>
+                            <parameter name="IV_FMM_DataValConfig_SourceCube" description="Data Val Config Parameter" userPrompt="" parameterType="InputValue" sortOrder="60">
+                                <defaultValue></defaultValue>
+                                <resultFormatStringType>Default</resultFormatStringType>
+                                <resultCustomFormatString></resultCustomFormatString>
+                                <parameterCommandType>Unknown</parameterCommandType>
+                                <sqlQuery></sqlQuery>
+                                <dbLocation>Application</dbLocation>
+                                <externalDBConnName></externalDBConnName>
+                                <methodType>Unknown</methodType>
+                                <methodQuery></methodQuery>
+                                <resultsTableName></resultsTableName>
+                                <displayMember></displayMember>
+                                <valueMember></valueMember>
+                                <displayItems></displayItems>
+                                <valueItems></valueItems>
+                                <cubeName></cubeName>
+                                <dimType></dimType>
+                                <dimName></dimName>
+                                <memberFilter></memberFilter>
+                            </parameter>
+                            <parameter name="IV_FMM_DataValConfig_TargetTable" description="Data Val Config Parameter" userPrompt="" parameterType="InputValue" sortOrder="60">
+                                <defaultValue></defaultValue>
+                                <resultFormatStringType>Default</resultFormatStringType>
+                                <resultCustomFormatString></resultCustomFormatString>
+                                <parameterCommandType>Unknown</parameterCommandType>
+                                <sqlQuery></sqlQuery>
+                                <dbLocation>Application</dbLocation>
+                                <externalDBConnName></externalDBConnName>
+                                <methodType>Unknown</methodType>
+                                <methodQuery></methodQuery>
+                                <resultsTableName></resultsTableName>
+                                <displayMember></displayMember>
+                                <valueMember></valueMember>
+                                <displayItems></displayItems>
+                                <valueItems></valueItems>
+                                <cubeName></cubeName>
+                                <dimType></dimType>
+                                <dimName></dimName>
+                                <memberFilter></memberFilter>
+                            </parameter>
+                            <parameter name="IV_FMM_DataValConfig_JoinKeys" description="Data Val Config Parameter" userPrompt="" parameterType="InputValue" sortOrder="60">
+                                <defaultValue></defaultValue>
+                                <resultFormatStringType>Default</resultFormatStringType>
+                                <resultCustomFormatString></resultCustomFormatString>
+                                <parameterCommandType>Unknown</parameterCommandType>
+                                <sqlQuery></sqlQuery>
+                                <dbLocation>Application</dbLocation>
+                                <externalDBConnName></externalDBConnName>
+                                <methodType>Unknown</methodType>
+                                <methodQuery></methodQuery>
+                                <resultsTableName></resultsTableName>
+                                <displayMember></displayMember>
+                                <valueMember></valueMember>
+                                <displayItems></displayItems>
+                                <valueItems></valueItems>
+                                <cubeName></cubeName>
+                                <dimType></dimType>
+                                <dimName></dimName>
+                                <memberFilter></memberFilter>
+                            </parameter>
+                            <parameter name="IV_FMM_DataValConfig_ColumnName" description="Data Val Config Parameter" userPrompt="" parameterType="InputValue" sortOrder="60">
+                                <defaultValue></defaultValue>
+                                <resultFormatStringType>Default</resultFormatStringType>
+                                <resultCustomFormatString></resultCustomFormatString>
+                                <parameterCommandType>Unknown</parameterCommandType>
+                                <sqlQuery></sqlQuery>
+                                <dbLocation>Application</dbLocation>
+                                <externalDBConnName></externalDBConnName>
+                                <methodType>Unknown</methodType>
+                                <methodQuery></methodQuery>
+                                <resultsTableName></resultsTableName>
+                                <displayMember></displayMember>
+                                <valueMember></valueMember>
+                                <displayItems></displayItems>
+                                <valueItems></valueItems>
+                                <cubeName></cubeName>
+                                <dimType></dimType>
+                                <dimName></dimName>
+                                <memberFilter></memberFilter>
+                            </parameter>
+                            <parameter name="IV_FMM_DataValConfig_RowFilter" description="Data Val Config Parameter" userPrompt="" parameterType="InputValue" sortOrder="60">
+                                <defaultValue></defaultValue>
+                                <resultFormatStringType>Default</resultFormatStringType>
+                                <resultCustomFormatString></resultCustomFormatString>
+                                <parameterCommandType>Unknown</parameterCommandType>
+                                <sqlQuery></sqlQuery>
+                                <dbLocation>Application</dbLocation>
+                                <externalDBConnName></externalDBConnName>
+                                <methodType>Unknown</methodType>
+                                <methodQuery></methodQuery>
+                                <resultsTableName></resultsTableName>
+                                <displayMember></displayMember>
+                                <valueMember></valueMember>
+                                <displayItems></displayItems>
+                                <valueItems></valueItems>
+                                <cubeName></cubeName>
+                                <dimType></dimType>
+                                <dimName></dimName>
+                                <memberFilter></memberFilter>
+                            </parameter>
+                            <parameter name="IV_FMM_DataValConfig_Tolerance" description="Data Val Config Parameter" userPrompt="" parameterType="InputValue" sortOrder="60">
+                                <defaultValue></defaultValue>
+                                <resultFormatStringType>Default</resultFormatStringType>
+                                <resultCustomFormatString></resultCustomFormatString>
+                                <parameterCommandType>Unknown</parameterCommandType>
+                                <sqlQuery></sqlQuery>
+                                <dbLocation>Application</dbLocation>
+                                <externalDBConnName></externalDBConnName>
+                                <methodType>Unknown</methodType>
+                                <methodQuery></methodQuery>
+                                <resultsTableName></resultsTableName>
+                                <displayMember></displayMember>
+                                <valueMember></valueMember>
+                                <displayItems></displayItems>
+                                <valueItems></valueItems>
+                                <cubeName></cubeName>
+                                <dimType></dimType>
+                                <dimName></dimName>
+                                <memberFilter></memberFilter>
+                            </parameter>
                             <parameter name="IV_FMM_ApprConfig_CreateUser" description="Reg_Config Parameter" userPrompt="" parameterType="InputValue" sortOrder="60">
                                 <defaultValue></defaultValue>
                                 <resultFormatStringType>Default</resultFormatStringType>
@@ -6518,6 +6758,7 @@
                             </component>
                             <component name="btn_FMM_DataValConfig_SaveAdd" description="" xfText="Save Validation Config" toolTip="Save New Validation Config" componentType="Button" templateParameterValues="" brText1="" brText2="" boundParameterName="" paramValueForButtonClick="" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="SaveDataForAllComponents" selectionChangedPovActionType="NoAction" selectionChangedTaskType="ExecuteDashboardExtenderBusinessRule" selectionChangedUIActionType="NoAction" selectionChangedNavigationType="NoAction">
                                 <displayFormat>|!LV_Std_btn_Format!|</displayFormat>
+                                <selectionChangedTaskArgs>{Workspace.Current.FMM_ConfigUI_Assembly.FMM_ConfigData}{DataValConfig_SaveAdd}{}</selectionChangedTaskArgs>
                                 <componentDefinition>
                                     <XFButtonDefinition ButtonType="Standard">
                                         <ImageFileSourceType>Unknown</ImageFileSourceType>
@@ -6531,6 +6772,7 @@
                             </component>
                             <component name="btn_FMM_DataValConfig_SaveUpdate" description="" xfText="Save Validation Config" toolTip="Save Validation Config" componentType="Button" templateParameterValues="" brText1="" brText2="" boundParameterName="" paramValueForButtonClick="" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="SaveDataForAllComponents" selectionChangedPovActionType="NoAction" selectionChangedTaskType="ExecuteDashboardExtenderBusinessRule" selectionChangedUIActionType="NoAction" selectionChangedNavigationType="NoAction">
                                 <displayFormat>|!LV_Std_btn_Format!|</displayFormat>
+                                <selectionChangedTaskArgs>{Workspace.Current.FMM_ConfigUI_Assembly.FMM_ConfigData}{DataValConfig_SaveUpdate}{}</selectionChangedTaskArgs>
                                 <componentDefinition>
                                     <XFButtonDefinition ButtonType="Standard">
                                         <ImageFileSourceType>Unknown</ImageFileSourceType>
@@ -7204,6 +7446,14 @@
                                 <adapterMembers />
                             </component>
                             <component name="cbx_FMM_DataValConfig_Type" description="" xfText="Validation Type:" toolTip="Select Validation Type" componentType="ComboBox" templateParameterValues="" brText1="" brText2="" boundParameterName="DL_FMM_DataValConfig_Type" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="NoTask" selectionChangedUIActionType="NoAction" selectionChangedNavigationType="NoAction">
+                                <displayFormat>|!LV_Std_cbx_Format!|</displayFormat>
+                                <adapterMembers />
+                            </component>
+                            <component name="cbx_FMM_DataValConfig_TargetType" description="" xfText="Validation Target:" toolTip="Select Validation Target" componentType="ComboBox" templateParameterValues="" brText1="" brText2="" boundParameterName="DL_FMM_DataValConfig_TargetType" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="NoTask" selectionChangedUIActionType="NoAction" selectionChangedNavigationType="NoAction">
+                                <displayFormat>|!LV_Std_cbx_Format!|</displayFormat>
+                                <adapterMembers />
+                            </component>
+                            <component name="cbx_FMM_DataValConfig_EntityScope" description="" xfText="Entity Scope:" toolTip="Select Entity Scope" componentType="ComboBox" templateParameterValues="" brText1="" brText2="" boundParameterName="DL_FMM_DataValConfig_EntityScope" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="NoTask" selectionChangedUIActionType="NoAction" selectionChangedNavigationType="NoAction">
                                 <displayFormat>|!LV_Std_cbx_Format!|</displayFormat>
                                 <adapterMembers />
                             </component>
@@ -8673,8 +8923,9 @@
                                 <dashboardsToRedraw>FMM_CustTableConfig</dashboardsToRedraw>
                                 <adapterMembers />
                             </component>
-                            <component name="lbx_FMM_DataValConfigID" description="" xfText="Validation Configs" toolTip="" componentType="ListBox" templateParameterValues="" brText1="" brText2="" boundParameterName="BL_FMM_DataValConfigID" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="NoTask" selectionChangedUIActionType="Refresh" selectionChangedNavigationType="NoAction">
+                            <component name="lbx_FMM_DataValConfigID" description="" xfText="Validation Configs" toolTip="" componentType="ListBox" templateParameterValues="" brText1="" brText2="" boundParameterName="BL_FMM_DataValConfigID" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="ExecuteDashboardExtenderBusinessRule" selectionChangedUIActionType="Refresh" selectionChangedNavigationType="NoAction">
                                 <displayFormat>|!LV_Std_lbx_Format!|, Width = Auto</displayFormat>
+                                <selectionChangedTaskArgs>{Workspace.Current.FMM_ConfigUI_Assembly.FMM_ConfigData}{DataValConfig_Select}{}</selectionChangedTaskArgs>
                                 <dashboardsToRedraw>FMM_DataValConfig</dashboardsToRedraw>
                                 <adapterMembers />
                             </component>
@@ -10933,6 +11184,56 @@
                                 <adapterMembers />
                             </component>
                             <component name="txt_FMM_DataValConfig_ConfigJSON" description="" xfText="Config JSON:" toolTip="Enter Config JSON" componentType="TextBox" templateParameterValues="" brText1="" brText2="" boundParameterName="IV_FMM_DataValConfig_ConfigJSON" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="NoTask" selectionChangedUIActionType="NoAction" selectionChangedNavigationType="NoAction">
+                                <displayFormat>|!LV_Std_txt_Format!|</displayFormat>
+                                <componentDefinition />
+                                <adapterMembers />
+                            </component>
+                            <component name="txt_FMM_DataValConfig_EntityFilter" description="" xfText="Entity Filter:" toolTip="Entity filter expression" componentType="TextBox" templateParameterValues="" brText1="" brText2="" boundParameterName="IV_FMM_DataValConfig_EntityFilter" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="NoTask" selectionChangedUIActionType="NoAction" selectionChangedNavigationType="NoAction">
+                                <displayFormat>|!LV_Std_txt_Format!|</displayFormat>
+                                <componentDefinition />
+                                <adapterMembers />
+                            </component>
+                            <component name="txt_FMM_DataValConfig_EntityList" description="" xfText="Entity List (CSV):" toolTip="Comma separated entity list" componentType="TextBox" templateParameterValues="" brText1="" brText2="" boundParameterName="IV_FMM_DataValConfig_EntityList" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="NoTask" selectionChangedUIActionType="NoAction" selectionChangedNavigationType="NoAction">
+                                <displayFormat>|!LV_Std_txt_Format!|</displayFormat>
+                                <componentDefinition />
+                                <adapterMembers />
+                            </component>
+                            <component name="txt_FMM_DataValConfig_CubeName" description="" xfText="Cube Name:" toolTip="Cube target/source" componentType="TextBox" templateParameterValues="" brText1="" brText2="" boundParameterName="IV_FMM_DataValConfig_CubeName" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="NoTask" selectionChangedUIActionType="NoAction" selectionChangedNavigationType="NoAction">
+                                <displayFormat>|!LV_Std_txt_Format!|</displayFormat>
+                                <componentDefinition />
+                                <adapterMembers />
+                            </component>
+                            <component name="txt_FMM_DataValConfig_TableName" description="" xfText="Table Name:" toolTip="Table target" componentType="TextBox" templateParameterValues="" brText1="" brText2="" boundParameterName="IV_FMM_DataValConfig_TableName" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="NoTask" selectionChangedUIActionType="NoAction" selectionChangedNavigationType="NoAction">
+                                <displayFormat>|!LV_Std_txt_Format!|</displayFormat>
+                                <componentDefinition />
+                                <adapterMembers />
+                            </component>
+                            <component name="txt_FMM_DataValConfig_SourceCube" description="" xfText="Source Cube:" toolTip="Source cube for cube-to-table" componentType="TextBox" templateParameterValues="" brText1="" brText2="" boundParameterName="IV_FMM_DataValConfig_SourceCube" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="NoTask" selectionChangedUIActionType="NoAction" selectionChangedNavigationType="NoAction">
+                                <displayFormat>|!LV_Std_txt_Format!|</displayFormat>
+                                <componentDefinition />
+                                <adapterMembers />
+                            </component>
+                            <component name="txt_FMM_DataValConfig_TargetTable" description="" xfText="Target Table:" toolTip="Target table for cube-to-table" componentType="TextBox" templateParameterValues="" brText1="" brText2="" boundParameterName="IV_FMM_DataValConfig_TargetTable" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="NoTask" selectionChangedUIActionType="NoAction" selectionChangedNavigationType="NoAction">
+                                <displayFormat>|!LV_Std_txt_Format!|</displayFormat>
+                                <componentDefinition />
+                                <adapterMembers />
+                            </component>
+                            <component name="txt_FMM_DataValConfig_JoinKeys" description="" xfText="Join Keys:" toolTip="Comma separated join keys" componentType="TextBox" templateParameterValues="" brText1="" brText2="" boundParameterName="IV_FMM_DataValConfig_JoinKeys" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="NoTask" selectionChangedUIActionType="NoAction" selectionChangedNavigationType="NoAction">
+                                <displayFormat>|!LV_Std_txt_Format!|</displayFormat>
+                                <componentDefinition />
+                                <adapterMembers />
+                            </component>
+                            <component name="txt_FMM_DataValConfig_ColumnName" description="" xfText="Column Name:" toolTip="Table column for validation" componentType="TextBox" templateParameterValues="" brText1="" brText2="" boundParameterName="IV_FMM_DataValConfig_ColumnName" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="NoTask" selectionChangedUIActionType="NoAction" selectionChangedNavigationType="NoAction">
+                                <displayFormat>|!LV_Std_txt_Format!|</displayFormat>
+                                <componentDefinition />
+                                <adapterMembers />
+                            </component>
+                            <component name="txt_FMM_DataValConfig_RowFilter" description="" xfText="Row Filter:" toolTip="Table row filter expression" componentType="TextBox" templateParameterValues="" brText1="" brText2="" boundParameterName="IV_FMM_DataValConfig_RowFilter" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="NoTask" selectionChangedUIActionType="NoAction" selectionChangedNavigationType="NoAction">
+                                <displayFormat>|!LV_Std_txt_Format!|</displayFormat>
+                                <componentDefinition />
+                                <adapterMembers />
+                            </component>
+                            <component name="txt_FMM_DataValConfig_Tolerance" description="" xfText="Tolerance:" toolTip="Tolerance for cube-to-table variance" componentType="TextBox" templateParameterValues="" brText1="" brText2="" boundParameterName="IV_FMM_DataValConfig_Tolerance" applyParamValueToCurrentDbrd="true" selectionChangedSaveType="NoAction" selectionChangedPovActionType="NoAction" selectionChangedTaskType="NoTask" selectionChangedUIActionType="NoAction" selectionChangedNavigationType="NoAction">
                                 <displayFormat>|!LV_Std_txt_Format!|</displayFormat>
                                 <componentDefinition />
                                 <adapterMembers />
@@ -17058,7 +17359,7 @@
                                         </DashboardDefinition>
                                         <componentMembers />
                                     </dashboard>
-                                    <dashboard name="FMM_DataValConfig_C2R2_Add" description="" pageCaption="" dashboardType="Unknown" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
+                                    <dashboard name="FMM_DataValConfig_C2R2_Add" description="" pageCaption="" dashboardType="Unknown" layoutType="VerticalStackPanel" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
                                         <displayFormat>BorderMarginLeft = 10</displayFormat>
                                         <DashboardDefinition>
                                             <ShowTitle>true</ShowTitle>
@@ -17082,10 +17383,12 @@
                                         <componentMembers>
                                             <componentMember name="cbx_FMM_DataValConfig_Context" left="" top="" width="" height="" dockPosition="Left" />
                                             <componentMember name="cbx_FMM_DataValConfig_Type" left="" top="" width="" height="" dockPosition="Left" />
+                                            <componentMember name="cbx_FMM_DataValConfig_TargetType" left="" top="" width="" height="" dockPosition="Left" />
+                                            <componentMember name="cbx_FMM_DataValConfig_EntityScope" left="" top="" width="" height="" dockPosition="Left" />
                                             <componentMember name="txt_FMM_DataValConfig_Descr" left="" top="" width="" height="" dockPosition="Left" />
                                         </componentMembers>
                                     </dashboard>
-                                    <dashboard name="FMM_DataValConfig_C2R2_Update" description="" pageCaption="" dashboardType="Unknown" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
+                                    <dashboard name="FMM_DataValConfig_C2R2_Update" description="" pageCaption="" dashboardType="Unknown" layoutType="VerticalStackPanel" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
                                         <displayFormat>BorderMarginLeft = 10</displayFormat>
                                         <DashboardDefinition>
                                             <ShowTitle>true</ShowTitle>
@@ -17109,6 +17412,8 @@
                                         <componentMembers>
                                             <componentMember name="cbx_FMM_DataValConfig_Context" left="" top="" width="" height="" dockPosition="Left" />
                                             <componentMember name="cbx_FMM_DataValConfig_Type" left="" top="" width="" height="" dockPosition="Left" />
+                                            <componentMember name="cbx_FMM_DataValConfig_TargetType" left="" top="" width="" height="" dockPosition="Left" />
+                                            <componentMember name="cbx_FMM_DataValConfig_EntityScope" left="" top="" width="" height="" dockPosition="Left" />
                                             <componentMember name="txt_FMM_DataValConfig_Descr" left="" top="" width="" height="" dockPosition="Left" />
                                         </componentMembers>
                                     </dashboard>
@@ -17128,7 +17433,7 @@
                                         </DashboardDefinition>
                                         <componentMembers />
                                     </dashboard>
-                                    <dashboard name="FMM_DataValConfig_C2R3_Update" description="" pageCaption="" dashboardType="Unknown" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
+                                    <dashboard name="FMM_DataValConfig_C2R3_Update" description="" pageCaption="" dashboardType="Unknown" layoutType="VerticalStackPanel" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
                                         <displayFormat>BorderMarginLeft = 10</displayFormat>
                                         <DashboardDefinition>
                                             <ShowTitle>true</ShowTitle>
@@ -17150,6 +17455,8 @@
                                         </DashboardDefinition>
                                         <componentMembers>
                                             <componentMember name="cbx_FMM_DataValConfig_Status" left="" top="" width="" height="" dockPosition="Left" />
+                                            <componentMember name="txt_FMM_DataValConfig_EntityFilter" left="" top="" width="" height="" dockPosition="Left" />
+                                            <componentMember name="txt_FMM_DataValConfig_EntityList" left="" top="" width="" height="" dockPosition="Left" />
                                         </componentMembers>
                                     </dashboard>
                                     <dashboard name="FMM_DataValConfig_C2R4" description="" pageCaption="" dashboardType="Unknown" layoutType="Uniform" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -17168,7 +17475,7 @@
                                         </DashboardDefinition>
                                         <componentMembers />
                                     </dashboard>
-                                    <dashboard name="FMM_DataValConfig_C2R4_AddUpdate" description="" pageCaption="" dashboardType="Unknown" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
+                                    <dashboard name="FMM_DataValConfig_C2R4_AddUpdate" description="" pageCaption="" dashboardType="Unknown" layoutType="VerticalStackPanel" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
                                         <displayFormat>BorderMarginLeft = 10</displayFormat>
                                         <DashboardDefinition>
                                             <ShowTitle>true</ShowTitle>
@@ -17189,6 +17496,14 @@
                                             <ScrollPosition>Default</ScrollPosition>
                                         </DashboardDefinition>
                                         <componentMembers>
+                                            <componentMember name="txt_FMM_DataValConfig_CubeName" left="" top="" width="" height="" dockPosition="Left" />
+                                            <componentMember name="txt_FMM_DataValConfig_TableName" left="" top="" width="" height="" dockPosition="Left" />
+                                            <componentMember name="txt_FMM_DataValConfig_SourceCube" left="" top="" width="" height="" dockPosition="Left" />
+                                            <componentMember name="txt_FMM_DataValConfig_TargetTable" left="" top="" width="" height="" dockPosition="Left" />
+                                            <componentMember name="txt_FMM_DataValConfig_JoinKeys" left="" top="" width="" height="" dockPosition="Left" />
+                                            <componentMember name="txt_FMM_DataValConfig_ColumnName" left="" top="" width="" height="" dockPosition="Left" />
+                                            <componentMember name="txt_FMM_DataValConfig_RowFilter" left="" top="" width="" height="" dockPosition="Left" />
+                                            <componentMember name="txt_FMM_DataValConfig_Tolerance" left="" top="" width="" height="" dockPosition="Left" />
                                             <componentMember name="txt_FMM_DataValConfig_ConfigJSON" left="" top="" width="" height="" dockPosition="Left" />
                                         </componentMembers>
                                     </dashboard>
