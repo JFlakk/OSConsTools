@@ -103,6 +103,19 @@ Public Function Main(ByVal si As SessionInfo, ByVal globals As BRGlobals, ByVal 
 '								BrApi.ErrorLog.LogMessage(si, "Change Comment Not Required")
 '							End If
 '							BrApi.ErrorLog.LogMessage(si, " RP Status: " & Get_RP_Status(si, "25_4120_00"))
+'							Edit RP Page 1 (OS) simulation:
+'							Dim editRPCube As String = "BudFm"
+'							Dim editRPScenario As String = "RAP_FY25"
+'							Dim editRPName As String = "25_4120_00"
+'							BrApi.ErrorLog.LogMessage(si, "Is RP Editable: " & Is_RP_Editable(si, editRPName).ToString())
+'							Copy_RP_Attributes(si, editRPCube, editRPScenario, editRPScenario, editRPName, editRPName & "_WV", False)
+'							
+'							Billets (OS) simulation:
+'							Dim billetsRPName As String = "25_4120_00"
+'							Dim billetsEntity As String = Get_RP_Entity(si, billetsRPName)
+'							Dim billetScript As String = "A#Number_of_Billets:E#" & billetsEntity & ":S#RAP_FY25:T#FY_2026:V#Annotation:F#" & billetsRPName & ":O#Forms:I#None:U1#None:U2#None:U3#None:U4#None:U5#None:U6#None:U7#None:U8#None"
+'							Dim billetCount As String = BRApi.Finance.Data.GetDataCellUsingMemberScript(si, "BudFm", billetScript).DataCellEx.DataCellAnnotation
+'							BrApi.ErrorLog.LogMessage(si, "Billet Count for " & billetsRPName & ": " & billetCount)
 					BrApi.ErrorLog.LogMessage(si, "Calling Load Method")
 					Load_Form_Data_Exported_By_DM_Job(si)
 					
