@@ -286,15 +286,7 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardS
             {
                 if (int.TryParse(col, out int colIndex) && colIndex > 0)
                 {
-//                    var modelTypeKey = currModelType.Equals("Table", StringComparison.OrdinalIgnoreCase) ? "Table" : "Cube";
-					// Added - Devlin
-					string modelTypeKey = "Table";
-			        if (currModelType.Equals("Table", StringComparison.OrdinalIgnoreCase)) { modelTypeKey = "Table"; }
-			        else if (currModelType.Equals("Cube", StringComparison.OrdinalIgnoreCase)) { modelTypeKey = "Cube"; }
-			        else if (currModelType.Equals("CubeToTable", StringComparison.OrdinalIgnoreCase)) { modelTypeKey = "CubeToTable"; }
-			        else if (currModelType.Equals("BRTabletoCube", StringComparison.OrdinalIgnoreCase)) { modelTypeKey = "BRTabletoCube"; }
-			        else if (currModelType.Equals("Consol", StringComparison.OrdinalIgnoreCase)) { modelTypeKey = "Consol"; }
-					
+					var modelTypeKey = NormalizeModelTypeKey(currModelType);
 
                     if (ModelColumnFormatter.DestCellColumns.TryGetValue(modelTypeKey, out var columns) && colIndex <= columns.Length)
                     {
@@ -306,14 +298,7 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardS
             {
                 if (int.TryParse(col, out int colIndex) && colIndex > 0)
                 {
-//                    var modelTypeKey = currModelType.Equals("Table", StringComparison.OrdinalIgnoreCase) ? "Table" : "Cube";
-					// Added - Devlin
-					string modelTypeKey = "Table";
-					if (currModelType.Equals("Table", StringComparison.OrdinalIgnoreCase)) { modelTypeKey = "Table"; }
-			        else if (currModelType.Equals("Cube", StringComparison.OrdinalIgnoreCase)) { modelTypeKey = "Cube"; }
-			        else if (currModelType.Equals("CubeToTable", StringComparison.OrdinalIgnoreCase)) { modelTypeKey = "CubeToTable"; }
-			        else if (currModelType.Equals("BRTabletoCube", StringComparison.OrdinalIgnoreCase)) { modelTypeKey = "BRTabletoCube"; }
-			        else if (currModelType.Equals("Consol", StringComparison.OrdinalIgnoreCase)) { modelTypeKey = "Consol"; }
+					var modelTypeKey = NormalizeModelTypeKey(currModelType);
 
                     if (ModelColumnFormatter.SrcCellColumns.TryGetValue(modelTypeKey, out var columns) && colIndex <= columns.Length)
                     {
@@ -323,6 +308,36 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardS
             }
             return null;
         }
+
+		private static string NormalizeModelTypeKey(string currModelType)
+		{
+			if (string.IsNullOrWhiteSpace(currModelType))
+			{
+				return "Table";
+			}
+
+			var normalized = currModelType.Replace(" ", string.Empty);
+
+			switch (normalized.ToLowerInvariant())
+			{
+				case "table":
+					return "Table";
+				case "cube":
+					return "Cube";
+				case "tabletocube":
+				case "brtabletocube":
+					return "BRTabletoCube";
+				case "cubetotable":
+				case "brcubetotable":
+					return "CubetoTable";
+				case "consol":
+				case "consolidate":
+				case "consolidation":
+					return "Consol";
+				default:
+					return currModelType;
+			}
+		}
 
         private string Get_DBObjectVisibleEnabled()
         {
@@ -658,7 +673,7 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardS
                         new ColumnConfig { ColumnName = "TimeFilter", Description = "Time Filter", Width = "Auto", IsVisible = true }
                     }
                 },
-                { "BRTabletoCube", new ColumnConfig[]
+                { "CubetoTable", new ColumnConfig[]
                     {
                         new ColumnConfig { ColumnName = "CubeConfigID", IsVisible = false },
                         new ColumnConfig { ColumnName = "ActConfigID", IsVisible = false },

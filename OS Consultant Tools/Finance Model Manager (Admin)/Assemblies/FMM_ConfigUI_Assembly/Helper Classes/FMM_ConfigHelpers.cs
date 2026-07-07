@@ -343,7 +343,7 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
 				},
 				[CalcType.BRTabletoCube] = new CalcConfig
 				{
-					DashboardName = "FMM_ModelConfigBRTabletoCube",
+					DashboardName = "FMM_CalcConfig_BRTabletoCube",
 					ParameterMappings = new()
 					{
 						{ 0, new Dictionary<string, string> { { "IV_FMM_CalcConfig_Sequence", "Sequence" } } },
