@@ -19,6 +19,31 @@ Namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardS
 	Public Class MainClass
 		' legacy class state (BudFm_ParamHelper)
 		Dim rpUtils As New BUDFM_RP_Utilities
+		Private NotInheritable Class AppnToolbarConfig
+			Public ReadOnly CreateRP As String
+			Public ReadOnly RPContentEdit As String
+			Public ReadOnly RPContentView As String
+			Public ReadOnly BilletsMain As String
+			Public ReadOnly BilletsAddEdit As String
+			Public ReadOnly BilletsView As String
+			Public ReadOnly Reporting As String
+			Public ReadOnly ConcReview As String
+			Public ReadOnly Fallback As String
+			Public Sub New(ByVal createRP As String, ByVal rpContentEdit As String, ByVal rpContentView As String, ByVal billetsMain As String, ByVal billetsAddEdit As String, ByVal billetsView As String, ByVal reporting As String, ByVal concReview As String, ByVal fallback As String)
+				Me.CreateRP = createRP
+				Me.RPContentEdit = rpContentEdit
+				Me.RPContentView = rpContentView
+				Me.BilletsMain = billetsMain
+				Me.BilletsAddEdit = billetsAddEdit
+				Me.BilletsView = billetsView
+				Me.Reporting = reporting
+				Me.ConcReview = concReview
+				Me.Fallback = fallback
+			End Sub
+		End Class
+		Private Shared ReadOnly ToolbarConfigByAppn As New Dictionary(Of String, AppnToolbarConfig)(StringComparer.OrdinalIgnoreCase) From {
+			{"OS", New AppnToolbarConfig("OS_RP_ToolbarCreateRP", "OS_RP_Toolbar_03b", "OS_RP_Toolbar_03bView", "OS_Billets_Toolbar", "OS_NonBillets_Toolbar", "OS_NonBillets_ToolbarView", "OS_Rpt_Toolbar", "OS_RP_ToolbarConcReview", "OS_RP_Toolbar_03")}
+		}
 
 		Public Function Main(ByVal si As SessionInfo, ByVal globals As BRGlobals, ByVal api As Object, ByVal args As DashboardStringFunctionArgs) As Object
 			Try
@@ -4670,30 +4695,33 @@ End If
 				    If args.NameValuePairs.ContainsKey("ContentDB") Then
 				        contentDbValue = args.NameValuePairs("ContentDB")
 				    End If
+				    Dim appn As String = ResolveAppnForToolbar(args.NameValuePairs.XFGetValue("APPN_Content", String.Empty), contentDbValue)
+				    Dim toolbarCfg As AppnToolbarConfig = ResolveToolbarConfig(appn)
+				    Dim resolvedContent As String = NormalizeContentForToolbar(contentDbValue, appn)
 				    ' Mode-aware toolbars: Edit only when the param says Edit AND the
 				    ' user isn't read-only (same trump as GetModeDashboard/RPControlState).
 				    Dim tbMode As String = args.NameValuePairs.XFGetValue("Mode", "View")
 				    Dim tbEdit As Boolean = tbMode.XFEqualsIgnoreCase("Edit") AndAlso Not Workspace.GBL.GBL_Assembly.GBL_Helpers.Is_Read_Only(si, "prm_Security_BudFm_r_Auditor")
 				
-				    Select Case contentDbValue
-				        Case "OS_RP_CreateRP"
-				            Return "OS_RP_ToolbarCreateRP"
-				        Case "OS_RP_Content"
+				    Select Case resolvedContent
+				        Case appn & "_RP_CreateRP"
+				            Return toolbarCfg.CreateRP
+				        Case appn & "_RP_Content"
 				            ' Edit RP: locked-label toolbar while editing, search toolbar in View
-				            Return If(tbEdit, "OS_RP_Toolbar_03b", "OS_RP_Toolbar_03bView")
-				        Case "OS_Billets_Main_04c"
-				            Return "OS_Billets_Toolbar"
-				        Case "OS_Billets_AddEditNon_04d"
-				            Return "OS_NonBillets_Toolbar"
-				        Case "OS_Billets_NonAddEditNon_04d"
-				            Return "OS_NonBillets_ToolbarView"
-				        Case "OS_Rpt_Reporting"
-				            Return "OS_Rpt_Toolbar"
-				        Case "OS_RP_ConcReview"
-				            Return "OS_RP_ToolbarConcReview"
+				            Return If(tbEdit, toolbarCfg.RPContentEdit, toolbarCfg.RPContentView)
+				        Case appn & "_Billets_Main_04c"
+				            Return toolbarCfg.BilletsMain
+				        Case appn & "_Billets_AddEditNon_04d"
+				            Return toolbarCfg.BilletsAddEdit
+				        Case appn & "_Billets_NonAddEditNon_04d"
+				            Return toolbarCfg.BilletsView
+				        Case appn & "_Rpt_Reporting"
+				            Return toolbarCfg.Reporting
+				        Case appn & "_RP_ConcReview"
+				            Return toolbarCfg.ConcReview
 				        Case Else
 				            ' default RP toolbar so the embed never errors on an unmapped page
-				            Return "OS_RP_Toolbar_03"
+				            Return toolbarCfg.Fallback
 				    End Select
 				End If
 								
@@ -4718,6 +4746,40 @@ End If
 			Catch ex As Exception
 				Throw ErrorHandler.LogWrite(si, New XFException(si, ex))
 			End Try
+		End Function
+
+		Private Function ResolveToolbarConfig(ByVal appn As String) As AppnToolbarConfig
+			If ToolbarConfigByAppn.ContainsKey(appn) Then Return ToolbarConfigByAppn(appn)
+			Return New AppnToolbarConfig(appn & "_RP_ToolbarCreateRP", appn & "_RP_Toolbar_03b", appn & "_RP_Toolbar_03bView", appn & "_Billets_Toolbar", appn & "_NonBillets_Toolbar", appn & "_NonBillets_ToolbarView", appn & "_Rpt_Toolbar", appn & "_RP_ToolbarConcReview", appn & "_RP_Toolbar_03")
+		End Function
+
+		Private Function ResolveAppnForToolbar(ByVal appnArg As String, ByVal contentDbValue As String) As String
+			If Not String.IsNullOrWhiteSpace(appnArg) Then Return appnArg.Trim().ToUpperInvariant()
+			If Not String.IsNullOrWhiteSpace(contentDbValue) Then
+				Dim content As String = contentDbValue.Trim()
+				Dim lastUnderscore As Integer = content.LastIndexOf("_"c)
+				If lastUnderscore >= 0 AndAlso lastUnderscore < content.Length - 1 Then
+					Dim suffix As String = content.Substring(lastUnderscore + 1)
+					If ToolbarConfigByAppn.ContainsKey(suffix) Then Return suffix.ToUpperInvariant()
+				End If
+				Dim firstUnderscore As Integer = content.IndexOf("_"c)
+				If firstUnderscore > 0 Then Return content.Substring(0, firstUnderscore).ToUpperInvariant()
+			End If
+			Return "OS"
+		End Function
+
+		Private Function NormalizeContentForToolbar(ByVal contentDbValue As String, ByVal appn As String) As String
+			If String.IsNullOrWhiteSpace(contentDbValue) Then Return appn & "_RP_Content"
+			Dim normalized As String = contentDbValue.Trim()
+			If normalized.XFContainsIgnoreCase("_BDF_RP_Dashboard_Content_") Then
+				If normalized.XFContainsIgnoreCase("CreateRP") Then Return appn & "_RP_CreateRP"
+				If normalized.XFContainsIgnoreCase("NonEditRP") OrElse normalized.XFContainsIgnoreCase("EditRP") Then Return appn & "_RP_Content"
+				If normalized.XFContainsIgnoreCase("NonAddEditNonBillets") Then Return appn & "_Billets_NonAddEditNon_04d"
+				If normalized.XFContainsIgnoreCase("AddEditNonBillets") Then Return appn & "_Billets_AddEditNon_04d"
+				If normalized.XFContainsIgnoreCase("ConcReview") Then Return appn & "_RP_ConcReview"
+				If normalized.XFContainsIgnoreCase("Reporting") Then Return appn & "_Rpt_Reporting"
+			End If
+			Return normalized
 		End Function
 
 	End Class

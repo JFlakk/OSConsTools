@@ -20,43 +20,93 @@ Imports Newtonsoft.Json
 
 Namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
 	Public Module BUDFM_AttributeSupport
+		Private NotInheritable Class AppnRoutingConfig
+			Public ReadOnly DefaultContent As String
+			Public ReadOnly DefaultPage As String
+			Public ReadOnly Frame As String
+			Public Sub New(ByVal defaultContent As String, ByVal defaultPage As String, ByVal frame As String)
+				Me.DefaultContent = defaultContent
+				Me.DefaultPage = defaultPage
+				Me.Frame = frame
+			End Sub
+		End Class
+		Private ReadOnly RoutingConfigMap As New Dictionary(Of String, AppnRoutingConfig)(StringComparer.OrdinalIgnoreCase) From {
+			{"OS", New AppnRoutingConfig("OS_RP_Content", "OS_RP_Page1", "OS_RP_Frame")}
+		}
+		Private ReadOnly KnownAppnSuffixes As New HashSet(Of String)(StringComparer.OrdinalIgnoreCase) From {
+			"OS", "BS", "F", "PCI", "RP", "RD", "MOSP", "MERHCF", "AF", "PC"
+		}
+
 		Public Sub SetRPContentRoutingVars(ByVal si As SessionInfo, ByVal globals As BRGlobals, ByVal vars As Dictionary(Of String, String), ByVal readEdit As String, ByVal content As String, ByVal subcontent As String, ByVal rpAppr As String, ByVal rpNumber As String, ByVal liNumber As String, ByVal wfScenario As String, ByVal wfTime As String, Optional ByVal forceRefresh As Boolean = False)
+			Dim appn As String = If(String.IsNullOrWhiteSpace(rpAppr), "OS", rpAppr.Trim().ToUpperInvariant())
+			Dim cfg As AppnRoutingConfig = ResolveRoutingConfig(appn)
 			' Mode is a param now, not a dashboard swap. Security trumps the request:
 			' a user the GBL check deems read-only never lands in Edit.
 			Dim mode As String = If(readEdit.XFEqualsIgnoreCase("Edit") AndAlso Not Workspace.GBL.GBL_Assembly.GBL_Helpers.Is_Read_Only(si, "prm_Security_BudFm_r_Auditor"), "Edit", "View")
-			vars.XFSetValue("prm_Mode_" & rpAppr, mode)
+			vars.XFSetValue("prm_Mode_" & appn, mode)
 
 			' Normalize legacy twin-suffixed names to the single canonical dashboard,
 			' so callers still passing twin-token names route correctly during
 			' migration (tokens were retired in phase 2).
+			If String.IsNullOrWhiteSpace(content) Then content = cfg.DefaultContent
 			content = content.Replace("_NonEditRP_", "_").Replace("_EditRP_", "_")
 			' Appropriation-agnostic: every appn's canonical objects follow the
 			' convention <APPN>_RP_Content / <APPN>_RP_Page1 / <APPN>_RP_Frame.
-			If String.IsNullOrEmpty(subcontent) AndAlso content.XFEqualsIgnoreCase(rpAppr & "_RP_Content") Then
-				subcontent = rpAppr & "_RP_Page1"
+			If String.IsNullOrEmpty(subcontent) AndAlso content.XFEqualsIgnoreCase(cfg.DefaultContent) Then
+				subcontent = cfg.DefaultPage
 			End If
 			subcontent = subcontent.Replace("_NonEditRP_", "_").Replace("_EditRP_", "_")
 
 			' Single frame regardless of mode (transition shim: the frame param stays
 			' populated so existing EmbeddedDashboard bindings don't blank out; it can
 			' be dropped once the frame embed is rebound directly).
-			vars.XFSetValue("prm_Content_Frame_" & rpAppr, rpAppr & "_RP_Frame")
-			vars.XFSetValue("prm_Content_" & rpAppr, content)
-			vars.XFSetValue("prm_Content_Page_" & rpAppr, subcontent)
-			vars.XFSetValue("prm_Content_EditRP_" & rpAppr, subcontent) ' legacy param name — drop once page embeds rebind to _Content_Page_
-			If String.IsNullOrEmpty(rpNumber) Then Return
-			vars.XFSetValue("prm_Number_" & rpAppr, rpNumber)
+			vars.XFSetValue("prm_Content_Frame_" & appn, cfg.Frame)
+			vars.XFSetValue("prm_Content_" & appn, content)
+			vars.XFSetValue("prm_Content_Page_" & appn, subcontent)
+			vars.XFSetValue("prm_Content_EditRP_" & appn, subcontent) ' legacy param name — drop once page embeds rebind to _Content_Page_
+			If String.IsNullOrEmpty(rpNumber) Then
+				vars.XFSetValue("prm_Number_" & appn, String.Empty)
+				Return
+			End If
+			vars.XFSetValue("prm_Number_" & appn, rpNumber)
 
 			Dim entity As String = GetRPEntity(si, rpNumber)
 			Dim subjectArea As String = If(content.XFContainsIgnoreCase("AddEditNonBillets"), "NonBillet", If(content.XFContainsIgnoreCase("AddEditBillets"), "Billet", "RP"))
 			Dim liKey As String = If(String.IsNullOrEmpty(liNumber), "none", liNumber)
-			Dim key As String = String.Format("attr_{0}_{1}_{2}_{3}_{4}_{5}", subjectArea, rpAppr, rpNumber, liKey, wfScenario, wfTime)
+			Dim key As String = String.Format("attr_{0}_{1}_{2}_{3}_{4}_{5}", subjectArea, appn, rpNumber, liKey, wfScenario, wfTime)
 			Dim pov As DateTime = GetPovLastEdited(si, entity, wfScenario, wfTime, rpNumber, liKey)
-			Dim attrs As Dictionary(Of String, String) = GetAttributes(si, globals, key, pov, entity, wfScenario, wfTime, rpNumber, liKey, rpAppr, subjectArea, forceRefresh)
+			Dim attrs As Dictionary(Of String, String) = GetAttributes(si, globals, key, pov, entity, wfScenario, wfTime, rpNumber, liKey, appn, subjectArea, forceRefresh)
 			For Each kvp As KeyValuePair(Of String, String) In attrs
-				If ParamMap.ContainsKey(kvp.Key) Then vars.XFSetValue(ParamMap(kvp.Key), kvp.Value)
+				For Each targetParam As String In GetAttributeParamTargets(kvp.Key, appn)
+					vars.XFSetValue(targetParam, kvp.Value)
+				Next
 			Next
 		End Sub
+
+		Private Function ResolveRoutingConfig(ByVal appn As String) As AppnRoutingConfig
+			If RoutingConfigMap.ContainsKey(appn) Then Return RoutingConfigMap(appn)
+			Return New AppnRoutingConfig(appn & "_RP_Content", appn & "_RP_Page1", appn & "_RP_Frame")
+		End Function
+
+		Private Function GetAttributeParamTargets(ByVal account As String, ByVal appn As String) As List(Of String)
+			Dim targets As New List(Of String)
+			If Not ParamMap.ContainsKey(account) Then Return targets
+			Dim legacyParam As String = ParamMap(account)
+			Dim canonicalParam As String = ResolveAppnParamName(legacyParam, appn)
+			targets.Add(canonicalParam)
+			If Not canonicalParam.XFEqualsIgnoreCase(legacyParam) Then targets.Add(legacyParam)
+			Return targets
+		End Function
+
+		Private Function ResolveAppnParamName(ByVal paramName As String, ByVal appn As String) As String
+			If String.IsNullOrWhiteSpace(paramName) Then Return paramName
+			Dim normalizedAppn As String = If(String.IsNullOrWhiteSpace(appn), "OS", appn.Trim().ToUpperInvariant())
+			Dim suffixIdx As Integer = paramName.LastIndexOf("_"c)
+			If suffixIdx < 0 OrElse suffixIdx >= paramName.Length - 1 Then Return paramName
+			Dim suffix As String = paramName.Substring(suffixIdx + 1)
+			If Not KnownAppnSuffixes.Contains(suffix) Then Return paramName
+			Return paramName.Substring(0, suffixIdx + 1) & normalizedAppn
+		End Function
 
 		Public Function GetAttributes(ByVal si As SessionInfo, ByVal globals As BRGlobals, ByVal key As String, ByVal povStamp As DateTime, ByVal entity As String, ByVal wfScenario As String, ByVal wfTime As String, ByVal rpNumber As String, ByVal liNumber As String, ByVal rpAppr As String, ByVal subjectArea As String, ByVal forceRefresh As Boolean) As Dictionary(Of String, String)
 			Dim cachedKey As String = GetCache(si, "key")
@@ -307,4 +357,3 @@ Namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
 		}
 	End Module
 End Namespace
-
