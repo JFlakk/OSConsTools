@@ -20,6 +20,20 @@ Imports Newtonsoft.Json
 
 Namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
 	Public Module BUDFM_AttributeSupport
+		' Canonical APPN-scoped routing contract (keep APPN suffixes).
+		' Maintenance checklist:
+		' 1) Any new BUDFM routing parameter must be added with _<APPN> suffix unless intentionally global.
+		' 2) Routing writes should use SetRoutingParamValue / SetRoutingPageCompatValues only.
+		' 3) Legacy prm_Content_EditRP_<APPN> remains compatibility-only; prefer prm_Content_Page_<APPN>.
+		' 4) Do not introduce un-suffixed prm_Mode/prm_Content/prm_Content_Page/prm_Content_Frame/prm_Number keys.
+		Public Const RoutingModeKey As String = "Mode"
+		Public Const RoutingContentKey As String = "Content"
+		Public Const RoutingContentPageKey As String = "Content_Page"
+		Public Const RoutingContentFrameKey As String = "Content_Frame"
+		Public Const RoutingNumberKey As String = "Number"
+		' Legacy compatibility key. Keep during staged cleanup only.
+		Public Const RoutingContentEditLegacyKey As String = "Content_EditRP"
+
 		Private NotInheritable Class AppnRoutingConfig
 			Public ReadOnly DefaultContent As String
 			Public ReadOnly DefaultPage As String
@@ -37,13 +51,40 @@ Namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
 			"OS", "BS", "F", "PCI", "RP", "RD", "MOSP", "MERHCF", "AF", "PC"
 		}
 
+		Public Function NormalizeAppn(ByVal appn As String) As String
+			Return If(String.IsNullOrWhiteSpace(appn), "OS", appn.Trim().ToUpperInvariant())
+		End Function
+
+		Public Function GetRoutingParamName(ByVal routingKey As String, ByVal appn As String) As String
+			Dim normalizedAppn As String = NormalizeAppn(appn)
+			Select Case routingKey
+				Case RoutingModeKey : Return "prm_Mode_" & normalizedAppn
+				Case RoutingContentKey : Return "prm_Content_" & normalizedAppn
+				Case RoutingContentPageKey : Return "prm_Content_Page_" & normalizedAppn
+				Case RoutingContentFrameKey : Return "prm_Content_Frame_" & normalizedAppn
+				Case RoutingNumberKey : Return "prm_Number_" & normalizedAppn
+				Case RoutingContentEditLegacyKey : Return "prm_Content_EditRP_" & normalizedAppn
+				Case Else
+					Throw New ArgumentException("Unknown routing key: " & routingKey)
+			End Select
+		End Function
+
+		Public Sub SetRoutingParamValue(ByVal vars As Dictionary(Of String, String), ByVal routingKey As String, ByVal appn As String, ByVal value As String)
+			vars.XFSetValue(GetRoutingParamName(routingKey, appn), value)
+		End Sub
+
+		Public Sub SetRoutingPageCompatValues(ByVal vars As Dictionary(Of String, String), ByVal appn As String, ByVal contentPage As String)
+			SetRoutingParamValue(vars, RoutingContentPageKey, appn, contentPage)
+			SetRoutingParamValue(vars, RoutingContentEditLegacyKey, appn, contentPage)
+		End Sub
+
 		Public Sub SetRPContentRoutingVars(ByVal si As SessionInfo, ByVal globals As BRGlobals, ByVal vars As Dictionary(Of String, String), ByVal readEdit As String, ByVal content As String, ByVal subcontent As String, ByVal rpAppr As String, ByVal rpNumber As String, ByVal liNumber As String, ByVal wfScenario As String, ByVal wfTime As String, Optional ByVal forceRefresh As Boolean = False)
-			Dim appn As String = If(String.IsNullOrWhiteSpace(rpAppr), "OS", rpAppr.Trim().ToUpperInvariant())
+			Dim appn As String = NormalizeAppn(rpAppr)
 			Dim cfg As AppnRoutingConfig = ResolveRoutingConfig(appn)
 			' Mode is a param now, not a dashboard swap. Security trumps the request:
 			' a user the GBL check deems read-only never lands in Edit.
 			Dim mode As String = If(readEdit.XFEqualsIgnoreCase("Edit") AndAlso Not Workspace.GBL.GBL_Assembly.GBL_Helpers.Is_Read_Only(si, "prm_Security_BudFm_r_Auditor"), "Edit", "View")
-			vars.XFSetValue("prm_Mode_" & appn, mode)
+			SetRoutingParamValue(vars, RoutingModeKey, appn, mode)
 
 			' Normalize legacy twin-suffixed names to the single canonical dashboard,
 			' so callers still passing twin-token names route correctly during
@@ -60,15 +101,14 @@ Namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
 			' Single frame regardless of mode (transition shim: the frame param stays
 			' populated so existing EmbeddedDashboard bindings don't blank out; it can
 			' be dropped once the frame embed is rebound directly).
-			vars.XFSetValue("prm_Content_Frame_" & appn, cfg.Frame)
-			vars.XFSetValue("prm_Content_" & appn, content)
-			vars.XFSetValue("prm_Content_Page_" & appn, subcontent)
-			vars.XFSetValue("prm_Content_EditRP_" & appn, subcontent) ' legacy param name — drop once page embeds rebind to _Content_Page_
+			SetRoutingParamValue(vars, RoutingContentFrameKey, appn, cfg.Frame)
+			SetRoutingParamValue(vars, RoutingContentKey, appn, content)
+			SetRoutingPageCompatValues(vars, appn, subcontent) ' writes canonical _Content_Page_ plus legacy _Content_EditRP_
 			If String.IsNullOrEmpty(rpNumber) Then
-				vars.XFSetValue("prm_Number_" & appn, String.Empty)
+				SetRoutingParamValue(vars, RoutingNumberKey, appn, String.Empty)
 				Return
 			End If
-			vars.XFSetValue("prm_Number_" & appn, rpNumber)
+			SetRoutingParamValue(vars, RoutingNumberKey, appn, rpNumber)
 
 			Dim entity As String = GetRPEntity(si, rpNumber)
 			Dim subjectArea As String = If(content.XFContainsIgnoreCase("AddEditNonBillets"), "NonBillet", If(content.XFContainsIgnoreCase("AddEditBillets"), "Billet", "RP"))

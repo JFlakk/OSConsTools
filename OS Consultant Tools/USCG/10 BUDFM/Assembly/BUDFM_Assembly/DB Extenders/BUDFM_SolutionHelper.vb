@@ -176,6 +176,43 @@ Namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardE
 			Return If(i >= 0, fn.Substring(i + 1), String.Empty)
 		End Function
 
+		Private Function NormalizeRoutingAppn(ByVal appn As String, Optional ByVal fallback As String = "OS") As String
+			Dim normalized As String = BUDFM_AttributeSupport.NormalizeAppn(appn)
+			If String.IsNullOrWhiteSpace(normalized) Then Return BUDFM_AttributeSupport.NormalizeAppn(fallback)
+			Return normalized
+		End Function
+
+		Private Function ResolveRoutingAppnForRP(ByVal rpName As String, Optional ByVal fallbackAppn As String = "OS") As String
+			Dim fallback As String = NormalizeRoutingAppn(fallbackAppn)
+			If String.IsNullOrWhiteSpace(rpName) Then Return fallback
+			Try
+				Return NormalizeRoutingAppn(rpUtils.Get_RP_Appropriation(si, rpName), fallback)
+			Catch
+				Return fallback
+			End Try
+		End Function
+
+		Private Sub SetRoutingNumber(ByVal vars As Dictionary(Of String, String), ByVal appn As String, ByVal rpNumber As String)
+			BUDFM_AttributeSupport.SetRoutingParamValue(vars, BUDFM_AttributeSupport.RoutingNumberKey, NormalizeRoutingAppn(appn), rpNumber)
+		End Sub
+
+		Private Sub SetRoutingContent(ByVal vars As Dictionary(Of String, String), ByVal appn As String, ByVal content As String)
+			BUDFM_AttributeSupport.SetRoutingParamValue(vars, BUDFM_AttributeSupport.RoutingContentKey, NormalizeRoutingAppn(appn), content)
+		End Sub
+
+		Private Sub SetRoutingPageCompat(ByVal vars As Dictionary(Of String, String), ByVal appn As String, ByVal contentPage As String)
+			BUDFM_AttributeSupport.SetRoutingPageCompatValues(vars, NormalizeRoutingAppn(appn), contentPage)
+		End Sub
+
+		Private Sub SetRoutingFrame(ByVal vars As Dictionary(Of String, String), ByVal appn As String, ByVal frame As String)
+			BUDFM_AttributeSupport.SetRoutingParamValue(vars, BUDFM_AttributeSupport.RoutingContentFrameKey, NormalizeRoutingAppn(appn), frame)
+		End Sub
+
+		' Legacy dependency note (staged cleanup):
+		' This extender still writes a large set of attribute UI params that are OS-suffixed
+		' (e.g., prm_BLT_*_OS / prm_NBLT_*_OS). These are not canonical routing keys and are
+		' intentionally left unchanged in this pass. Routing keys are now APPN-scoped via helpers.
+
 		' ---- content router + attribute refresh gate (delegates to FERBE_AttributeSupport) ----
 		Private Function OnSelectionChanged() As Object
 			Dim r As New XFSelectionChangedTaskResult()
@@ -1613,8 +1650,8 @@ Namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardE
 					
 				 	'Show a message box that the RP was successfully updated
 					Dim selectionChangedTaskResult As New XFSelectionChangedTaskResult()
-					selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_Content_EditRP_OS", 					Content_EditRP_OS)
-					selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_Content_OS", 							Content_OS)
+					SetRoutingPageCompat(selectionChangedTaskResult.ModifiedCustomSubstVars, rpAppr, Content_EditRP_OS)
+					SetRoutingContent(selectionChangedTaskResult.ModifiedCustomSubstVars, rpAppr, Content_OS)
 					selectionChangedTaskResult.IsOK = True
 					selectionChangedTaskResult.ShowMessageBox = True
 					selectionChangedTaskResult.ChangeCustomSubstVarsInDashboard = True
@@ -1772,7 +1809,8 @@ Namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardE
 						Return Nothing
 					End If
 					
-					Dim RP_Entity = rpUtils.Get_RP_Entity(si, RPName)												
+					Dim routingAppn As String = ResolveRoutingAppnForRP(RPName, args.NameValuePairs.XFGetValue("APPN_Content", "OS"))
+					Dim RP_Entity = rpUtils.Get_RP_Entity(si, RPName)							
 					Dim scriptGenerics As String = "E#" & RP_Entity & ":S#" & wfScenario & ":T#" & wfTime & ":V#Annotation:F#" & RPName & ":O#Forms:I#None:U1#None:U2#None:U3#None:U4#None:U5#None:U6#None:U7#None:U8#None"			
 					
 					'using a global function to avoid using brapi functions too many times and use api.data.calculate via a finance rule instead
@@ -3661,9 +3699,9 @@ Namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardE
 							environment.NewLine	&
 							environment.NewLine	& "Please ensure you fill out Page 1, Page 2, and Page 3 (if applicable) before proceeding to enter and calculate costs."
 							'set the RP to show
-							selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_Number_" & RPAppr, RPName)
-							selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_Content_EditRP_OS", "OS_RP_Page1")
-							selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_Content_OS","OS_RP_Content")
+							SetRoutingNumber(selectionChangedTaskResult.ModifiedCustomSubstVars, RPAppr, RPName)
+							SetRoutingPageCompat(selectionChangedTaskResult.ModifiedCustomSubstVars, RPAppr, RPAppr & "_RP_Page1")
+							SetRoutingContent(selectionChangedTaskResult.ModifiedCustomSubstVars, RPAppr, RPAppr & "_RP_Content")
 						Catch
 							'selectionChangedTaskResult.IsOK = False
 							'selectionChangedTaskResult.ShowMessageBox = True
@@ -4243,11 +4281,11 @@ Namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardE
 						selectionChangedTaskResult.Message = "Working Version" & 
 						environment.NewLine	& "'" & GetDescription(si,WvRPName) & "'" &
 						environment.NewLine	& "Successfully Created"
-						selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_Number_OS", WvRPName)
+						SetRoutingNumber(selectionChangedTaskResult.ModifiedCustomSubstVars, RPAppr, WvRPName)
 						'brapi.ErrorLog.LogMessage(si,"WvRPName : " & WvRPName)
 						'brapi.ErrorLog.LogMessage(si,"WvRPEntity : " & WvRPEntity)
-						selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_Content_EditRP_OS", "OS_RP_Page1")
-						selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_Content_OS","OS_RP_Content")
+						SetRoutingPageCompat(selectionChangedTaskResult.ModifiedCustomSubstVars, RPAppr, RPAppr & "_RP_Page1")
+						SetRoutingContent(selectionChangedTaskResult.ModifiedCustomSubstVars, RPAppr, RPAppr & "_RP_Content")
 						selectionChangedTaskResult.ChangeCustomSubstVarsInDashboard = True
 						Return selectionChangedTaskResult
 							 
@@ -4924,7 +4962,7 @@ Namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardE
 					
 				 	'Show a message box that the Billet was successfully updated
 					Dim selectionChangedTaskResult As New XFSelectionChangedTaskResult()
-					selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_Content_OS","04c_BDF_RP_Dashboard_Content_NonAddEditBillets_OS")
+					SetRoutingContent(selectionChangedTaskResult.ModifiedCustomSubstVars, ResolveRoutingAppnForRP(RPName, args.NameValuePairs.XFGetValue("APPN_Content", "OS")), "04c_BDF_RP_Dashboard_Content_NonAddEditBillets_OS")
 					selectionChangedTaskResult.ChangeCustomSubstVarsInDashboard = True
 					selectionChangedTaskResult.IsOK = True
 					selectionChangedTaskResult.ShowMessageBox = True
@@ -4941,6 +4979,7 @@ Namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardE
 					Dim wfCube As String = args.NameValuePairs("WFCube")
 					Dim RPName As String = args.NameValuePairs("RPName")
 					Dim RP_Entity = rpUtils.Get_Rp_Entity(si, RPName)					
+					Dim routingAppn As String = ResolveRoutingAppnForRP(RPName, args.NameValuePairs.XFGetValue("APPN_Content", "OS"))
 					Dim LineItemNum As String = args.NameValuePairs("LineItemNum") 
 					Dim description_ChangeLog As String = args.NameValuePairs("Description_ChangeLog")
 					Dim reason_ChangeLog As String = args.NameValuePairs("Reason_ChangeLog")					
@@ -5135,7 +5174,7 @@ Namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardE
 					Dim objXFResult As XFResult = BRApi.Finance.Data.SetDataCellsUsingMemberScript(si, lstMemberScriptAndValue)	
 				 	'Show a message box that the Billet was successfully updated
 					Dim selectionChangedTaskResult As New XFSelectionChangedTaskResult()
-					selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_Content_OS","OS_RP_OSDynamicCopy")
+					SetRoutingContent(selectionChangedTaskResult.ModifiedCustomSubstVars, routingAppn, "OS_RP_OSDynamicCopy")
 					selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_BLT_PPEType_Descr_OS", 				PPE_Typedescription)
 					selectionChangedTaskResult.ChangeCustomSubstVarsInDashboard = True
 					selectionChangedTaskResult.IsOK = True
@@ -5155,6 +5194,7 @@ Namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardE
 					Dim wfCube As String = args.NameValuePairs("WFCube")
 					Dim RPName As String = args.NameValuePairs("RPName")
 					Dim RP_Entity = rpUtils.Get_Rp_Entity(si, RPName)					
+					Dim routingAppn As String = ResolveRoutingAppnForRP(RPName, args.NameValuePairs.XFGetValue("APPN_Content", "OS"))
 					Dim LineItemNum As String = args.NameValuePairs("LineItemNum") 
 					Dim description_ChangeLog As String = args.NameValuePairs("Description_ChangeLog")
 					Dim reason_ChangeLog As String = args.NameValuePairs("Reason_ChangeLog")
@@ -5335,7 +5375,7 @@ Namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardE
 					Dim selectionChangedTaskResult As New XFSelectionChangedTaskResult()
 					selectionChangedTaskResult.IsOK = True
 					selectionChangedTaskResult.ShowMessageBox = True
-					selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_Content_OS",Content_OS)
+					SetRoutingContent(selectionChangedTaskResult.ModifiedCustomSubstVars, routingAppn, Content_OS)
 					selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_NBLT_LineItemNumber_OS_Copy", LineItemNum)
 					selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_NBLT_LineItemNumber_OS", LineItemNum)
 					selectionChangedTaskResult.ChangeCustomSubstVarsInDashboard = True	
@@ -5357,6 +5397,7 @@ Namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardE
 			Dim wfCube As String = args.NameValuePairs("WFCube")
 			Dim RPName As String = args.NameValuePairs("RPName")
 			Dim RP_Entity = rpUtils.Get_Rp_Entity(si, RPName)					
+			Dim routingAppn As String = ResolveRoutingAppnForRP(RPName, args.NameValuePairs.XFGetValue("APPN_Content", "OS"))
 			Dim description_ChangeLog As String = args.NameValuePairs("Description_ChangeLog")
 			Dim reason_ChangeLog As String = args.NameValuePairs("Reason_ChangeLog")
 
@@ -5509,8 +5550,8 @@ Namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardE
 				
 			 	'Show a message box that the RP was successfully updated
 				Dim selectionChangedTaskResult As New XFSelectionChangedTaskResult()
-				selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_Content_EditRP_OS", 					Content_EditRP_OS)
-				selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_Content_OS", 							Content_OS)
+				SetRoutingPageCompat(selectionChangedTaskResult.ModifiedCustomSubstVars, routingAppn, Content_EditRP_OS)
+				SetRoutingContent(selectionChangedTaskResult.ModifiedCustomSubstVars, routingAppn, Content_OS)
 				selectionChangedTaskResult.IsOK = True
 				selectionChangedTaskResult.ShowMessageBox = True
 				selectionChangedTaskResult.ChangeCustomSubstVarsInDashboard = True
@@ -5527,6 +5568,7 @@ Namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardE
 			Dim wfCube As String = args.NameValuePairs("WFCube")
 			Dim RPName As String = args.NameValuePairs("RPName")
 			Dim RP_Entity = rpUtils.Get_Rp_Entity(si, RPName)					
+			Dim routingAppn As String = ResolveRoutingAppnForRP(RPName, args.NameValuePairs.XFGetValue("APPN_Content", "OS"))
 			Dim description_ChangeLog As String = args.NameValuePairs("Description_ChangeLog")
 			Dim reason_ChangeLog As String = args.NameValuePairs("Reason_ChangeLog")
 			
@@ -5565,8 +5607,8 @@ Namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardE
 			
 		 	'Show a message box that the RP was successfully updated
 			Dim selectionChangedTaskResult As New XFSelectionChangedTaskResult()
-			selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_Content_EditRP_OS", 					Content_EditRP_OS)
-			selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_Content_OS", 							Content_OS)
+			SetRoutingPageCompat(selectionChangedTaskResult.ModifiedCustomSubstVars, routingAppn, Content_EditRP_OS)
+			SetRoutingContent(selectionChangedTaskResult.ModifiedCustomSubstVars, routingAppn, Content_OS)
 			selectionChangedTaskResult.IsOK = True
 			selectionChangedTaskResult.ChangeCustomSubstVarsInDashboard = True
 			selectionChangedTaskResult.ShowMessageBox = True
@@ -6082,20 +6124,21 @@ Namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardE
 					End If
 					
 					Dim RPChanged As Boolean = False
+					Dim routingAppn As String = ResolveRoutingAppnForRP(RPName, args.NameValuePairs.XFGetValue("APPN_Content", "OS"))
 					Dim RPNameCopy As String = args.NameValuePairs.XFGetValue("RPNameCopy")
 					If Not String.IsNullOrEmpty(RPNameCopy) AndAlso RPNameCopy<> RPName AndAlso RPNameCopy <> "None" Then 
 						RPChanged= True
 
 						If CheckSaveState(si, globals, args) Then
 							'Throw New Exception(mShowMessage)
-							selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_Number_OS", RPNameCopy)
+							SetRoutingNumber(selectionChangedTaskResult.ModifiedCustomSubstVars, routingAppn, RPNameCopy)
 							selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_Number_OS_Copy", RPNameCopy)
 							If Not String.IsNullOrEmpty(Content_EditRP_OS) Then 
-								selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_Content_EditRP_OS", Content_EditRP_OS)
+								SetRoutingPageCompat(selectionChangedTaskResult.ModifiedCustomSubstVars, routingAppn, Content_EditRP_OS)
 							Else
-								selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_Content_EditRP_OS", "OS_RP_Page1")
+								SetRoutingPageCompat(selectionChangedTaskResult.ModifiedCustomSubstVars, routingAppn, routingAppn & "_RP_Page1")
 							End If
-							selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_Content_OS","OS_RP_Content")	
+							SetRoutingContent(selectionChangedTaskResult.ModifiedCustomSubstVars, routingAppn, routingAppn & "_RP_Content")
 							selectionChangedTaskResult.IsOK = False
 							selectionChangedTaskResult.ShowMessageBox = True
 							selectionChangedTaskResult.Message = mShowMessage
@@ -6192,9 +6235,9 @@ Namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardE
 						selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_Page3_Problem_OS", 					attributeDict.GetValueOrEmpty("Problem"))
 						selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_Page3_ROI_OS", 						attributeDict.GetValueOrEmpty("ROI"))
 						If Not String.IsNullOrEmpty(Content_EditRP_OS) Then 
-							selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_Content_EditRP_OS", "OS_RP_Page1")
+							SetRoutingPageCompat(selectionChangedTaskResult.ModifiedCustomSubstVars, routingAppn, routingAppn & "_RP_Page1")
 						End If 
-						selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_Content_OS","OS_RP_Content")
+						SetRoutingContent(selectionChangedTaskResult.ModifiedCustomSubstVars, routingAppn, routingAppn & "_RP_Content")
 					End If 'Not globals.GetObject("attributeDict") Is Nothing
 										
 					selectionChangedTaskResult.ChangeCustomSubstVarsInDashboard = True
@@ -6543,7 +6586,7 @@ Namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardE
 						   	selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_Number_OS_Copy", RPName )
 							selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_BLT_LineItemNumber_OS",  "LineItem_01")
 							selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_BLT_LineItemNumber_OS_Copy",  "LineItem_01")
-							selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_Content_OS",Content_OS)
+							SetRoutingContent(selectionChangedTaskResult.ModifiedCustomSubstVars, ResolveRoutingAppnForRP(RPName, args.NameValuePairs.XFGetValue("APPN_Content", "OS")), Content_OS)
 						
 						'End If
 					End If
@@ -6585,7 +6628,7 @@ Namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardE
 						   	selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_Number_OS_Copy", RPName )
 							selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_BLT_LineItemNumber_OS",  LINumber)
 							selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_BLT_LineItemNumber_OS_Copy",  LINumber)
-							selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_Content_OS",Content_OS)
+							SetRoutingContent(selectionChangedTaskResult.ModifiedCustomSubstVars, ResolveRoutingAppnForRP(RPName, args.NameValuePairs.XFGetValue("APPN_Content", "OS")), Content_OS)
 						
 						'End If
 					End If
@@ -6713,7 +6756,7 @@ Namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardE
 						selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_BLT_UTL_PPA_OS", 				attributeDict.GetValueOrEmpty("Utilities_PPA"))
 						
 						
-						selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_Content_OS",Content_OS)
+						SetRoutingContent(selectionChangedTaskResult.ModifiedCustomSubstVars, ResolveRoutingAppnForRP(RPName, args.NameValuePairs.XFGetValue("APPN_Content", "OS")), Content_OS)
 						
 					End If 'Not globals.GetObject("attributeDict") Is Nothing
 											
@@ -7084,9 +7127,9 @@ Namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardE
 								selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_NBLT_ObjectClass_OS", 				attributeDict.GetValueOrEmpty("Object_Class"))
 								
 								If Not String.IsNullOrEmpty(Content_EditRP_OS) Then 
-									selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_Content_EditRP_OS", Content_EditRP_OS)
+									SetRoutingPageCompat(selectionChangedTaskResult.ModifiedCustomSubstVars, ResolveRoutingAppnForRP(RPName, args.NameValuePairs.XFGetValue("APPN_Content", "OS")), Content_EditRP_OS)
 								End If
-								selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_Content_OS", Content_OS)
+								SetRoutingContent(selectionChangedTaskResult.ModifiedCustomSubstVars, ResolveRoutingAppnForRP(RPName, args.NameValuePairs.XFGetValue("APPN_Content", "OS")), Content_OS)
 							
 							End If 'globals.GetObject("attributeDict") Is Nothing
 							
@@ -7756,7 +7799,8 @@ Namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardE
 							Brapi.Dashboards.Parameters.SetLiteralParameterValue(si, False, "prmRPSearchQuery", SearchKeyword)
 							
 							Dim selectionChangedTaskResult As New XFSelectionChangedTaskResult()
-							selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_Content_OS", Content)
+							Dim routingAppn As String = NormalizeRoutingAppn(args.NameValuePairs.XFGetValue("APPN_Content", "OS"))
+							SetRoutingContent(selectionChangedTaskResult.ModifiedCustomSubstVars, routingAppn, Content)
 							selectionChangedTaskResult.ChangeCustomSubstVarsInDashboard = True
 							Return selectionChangedTaskResult
 			Return Nothing
@@ -8802,8 +8846,8 @@ End If
 								selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_Page3_FundingImpact_OS", 				attributeDict.GetValueOrEmpty("Funding_Impact"))
 								selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_Page3_Problem_OS", 					attributeDict.GetValueOrEmpty("Problem"))
 								selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_Page3_ROI_OS", 						attributeDict.GetValueOrEmpty("ROI"))
-								selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_Content_EditRP_OS", 					Content_EditRP_OS)
-								selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_Content_OS", 							Content_OS)
+								SetRoutingPageCompat(selectionChangedTaskResult.ModifiedCustomSubstVars, ResolveRoutingAppnForRP(RPName, args.NameValuePairs.XFGetValue("APPN_Content", "OS")), Content_EditRP_OS)
+								SetRoutingContent(selectionChangedTaskResult.ModifiedCustomSubstVars, ResolveRoutingAppnForRP(RPName, args.NameValuePairs.XFGetValue("APPN_Content", "OS")), Content_OS)
 							
 												
 								
@@ -8813,8 +8857,8 @@ End If
 						End Try
 					Else 
 						
-						selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_Content_EditRP_OS", 					Content_EditRP_OS)
-						selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_Content_OS", 							Content_OS)						
+						SetRoutingPageCompat(selectionChangedTaskResult.ModifiedCustomSubstVars, ResolveRoutingAppnForRP(RPName, args.NameValuePairs.XFGetValue("APPN_Content", "OS")), Content_EditRP_OS)
+						SetRoutingContent(selectionChangedTaskResult.ModifiedCustomSubstVars, ResolveRoutingAppnForRP(RPName, args.NameValuePairs.XFGetValue("APPN_Content", "OS")), Content_OS)						
 					End If 'Not globals.GetObject("attributeDict") Is Nothing
 							
 					
@@ -8827,7 +8871,9 @@ End If
 			' ==== ported verbatim from BudFM_SolutionHelper.OnCbxBtnClick_RPCreate (called by non-OS appropriation dashboards) ====
 					
 						Dim selectionChangedTaskResult As New XFSelectionChangedTaskResult()
-						selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_Content_OS",args.NameValuePairs("Content_OS"))
+						Dim routingAppn As String = NormalizeRoutingAppn(args.NameValuePairs.XFGetValue("Appropriation", args.NameValuePairs.XFGetValue("APPN_Content", "OS")))
+						Dim routedContent As String = args.NameValuePairs.XFGetValue("Content_OS", args.NameValuePairs.XFGetValue("Content", String.Empty))
+						SetRoutingContent(selectionChangedTaskResult.ModifiedCustomSubstVars, routingAppn, routedContent)
 						selectionChangedTaskResult.ChangeCustomSubstVarsInDashboard = True
 						Return selectionChangedTaskResult
 							 
@@ -9388,8 +9434,8 @@ End If
 						selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_Page3_FundingImpact_OS", 				attributeDict.GetValueOrEmpty("Funding_Impact"))
 						selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_Page3_Problem_OS", 					attributeDict.GetValueOrEmpty("Problem"))
 						selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_Page3_ROI_OS", 						attributeDict.GetValueOrEmpty("ROI"))
-						selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_Content_EditRP_OS", 					"OS_RP_Page1")
-						selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_Content_OS", 							"OS_RP_Content")
+						SetRoutingPageCompat(selectionChangedTaskResult.ModifiedCustomSubstVars, routingAppn, routingAppn & "_RP_Page1")
+						SetRoutingContent(selectionChangedTaskResult.ModifiedCustomSubstVars, routingAppn, routingAppn & "_RP_Content")
 
 					End If 'Not globals.GetObject("attributeDict") Is Nothing
 					
@@ -9516,8 +9562,8 @@ End If
 						selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_Page3_FundingImpact_OS", 				attributeDict.GetValueOrEmpty("Funding_Impact"))
 						selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_Page3_Problem_OS", 					attributeDict.GetValueOrEmpty("Problem"))
 						selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_Page3_ROI_OS", 						attributeDict.GetValueOrEmpty("ROI"))
-						selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_Content_EditRP_OS", 					"OS_RP_Page1")
-						selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_Content_OS",							"OS_RP_Content")
+						SetRoutingPageCompat(selectionChangedTaskResult.ModifiedCustomSubstVars, routingAppn, routingAppn & "_RP_Page1")
+						SetRoutingContent(selectionChangedTaskResult.ModifiedCustomSubstVars, routingAppn, routingAppn & "_RP_Content")
 
 					End If 'Not globals.GetObject("attributeDict") Is Nothing
 					
@@ -10917,7 +10963,8 @@ Private Function UpdateRpCompletionStatusFunction(
 						selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_NBLT_PPA_OS", 						attributeDict.GetValueOrEmpty("PPA"))
 						selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_NBLT_UII_OS", 						attributeDict.GetValueOrEmpty("UII"))
 						selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_NBLT_ObjectClass_OS", 				attributeDict.GetValueOrEmpty("Object_Class"))
-						selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_Content_OS", 				"OS_Billets_NonAddEditNon_04d")
+						Dim routingAppn As String = ResolveRoutingAppnForRP(RPName, args.NameValuePairs.XFGetValue("APPN_Content", "OS"))
+						SetRoutingContent(selectionChangedTaskResult.ModifiedCustomSubstVars, routingAppn, "OS_Billets_NonAddEditNon_04d")
 					
 						selectionChangedTaskResult.ShowMessageBox = True
 						selectionChangedTaskResult.Message = stringmessage
@@ -10947,6 +10994,7 @@ Private Function UpdateRpCompletionStatusFunction(
 						Return Nothing
 					End If
 					
+					Dim routingAppn As String = ResolveRoutingAppnForRP(RPName, args.NameValuePairs.XFGetValue("APPN_Content", "OS"))
 					Dim RP_Entity = rpUtils.Get_RP_Entity(si, RPName)	
 					Dim scriptGenerics As String = "E#" & RP_Entity & ":S#" & wfScenario & ":T#" & wfTime & ":V#Annotation:F#" & RPName & ":O#Forms:I#None:U1#None:U2#None:U3#None:U4#None:U5#None:U6#"& LINumber & ":U7#None:U8#None"
 										
@@ -11069,8 +11117,8 @@ Private Function UpdateRpCompletionStatusFunction(
 						selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_BLT_Comment_OS", 				attributeDict.GetValueOrEmpty("LineItem_Comment"))
 						selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_BLT_UTL_PPA_OS", 				attributeDict.GetValueOrEmpty("Utilities_PPA"))
 						
-						selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_Content_OS","OS_RP_OSDynamicCopy")
-						selectionChangedTaskResult.ModifiedCustomSubstVars.XFSetValue("prm_Content_Frame_OS","OS_RP_Frame")
+						SetRoutingContent(selectionChangedTaskResult.ModifiedCustomSubstVars, routingAppn, "OS_RP_OSDynamicCopy")
+						SetRoutingFrame(selectionChangedTaskResult.ModifiedCustomSubstVars, routingAppn, routingAppn & "_RP_Frame")
 						
 						
 						selectionChangedTaskResult.ShowMessageBox = True
