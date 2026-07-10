@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Master Data Manager (Admin) OneStream Workspace XML placeholder.
+     This file is generated and managed by the OneStream platform.
+     C# business rule source lives under Assemblies/MDM_ConfigUI_Assembly/. -->
+<Workspace>
+  <Name>MasterDataManagerAdmin</Name>
+</Workspace>
