@@ -1,0 +1,109 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<OneStreamXF version="9.3.0.18429">
+    <applicationWorkspacesRoot>
+        <workspaces>
+            <workspace name="00 GBL" description="" notes="" accessGroup="Everyone" maintenanceGroup="Everyone" isShareableWorkspace="true" sharedWorkspaceNames="" companyName="" versionNum="" author="" namespacePrefix="GBL" importsNamespace1="" importsNamespace2="" importsNamespace3="" importsNamespace4="" importsNamespace5="" importsNamespace6="" importsNamespace7="" importsNamespace8="" wsAssemblyService="" text1="" text2="" text3="" text4="" text5="" text6="" text7="" text8="">
+                <WorkspaceDefinition>
+                    <SubstitutionVariableItems />
+                </WorkspaceDefinition>
+                <maintenanceUnits>
+                    <maintenanceUnit name="GBL Objects" description="" accessGroup="Everyone" maintenanceGroup="Everyone" wsAssemblyService="" category="">
+                        <fileResources />
+                        <stringResources />
+                        <parameters />
+                        <adapters />
+                        <components />
+                        <dashboardGroups />
+                        <workspaceAssemblies>
+                            <workspaceAssembly name="GBL_Assembly" description="" compilerLanguage="VisualBasic">
+                                <dependencies />
+                                <files>
+                                    <folder name="Helper Classes">
+                                        <file name="GBL_Helpers.vb" fileType="VisualBasic" businessRuleType="Unknown" compilerActionType="Unknown" isEncrypted="false">
+                                            <sourceCode><![CDATA[Imports System
+Imports System.Collections.Generic
+Imports System.Data
+Imports System.Data.Common
+Imports System.Globalization
+Imports System.IO
+Imports System.Linq
+Imports Microsoft.VisualBasic
+Imports OneStream.Finance.Database
+Imports OneStream.Finance.Engine
+Imports OneStream.Shared.Common
+Imports OneStream.Shared.Database
+Imports OneStream.Shared.Engine
+Imports OneStream.Shared.Wcf
+Imports OneStream.Stage.Database
+Imports OneStream.Stage.Engine
+
+Namespace Workspace.__WsNamespacePrefix.__WsAssemblyName
+	Public Class GBL_Helpers
+
+#Region "Shared utilities (parsed out of app-local RP_Utilities - generic, no RP domain)"
+
+		' Returns the two-digit year for a given WFTime / fiscal year string.
+		'   Input: "2025"  ->  Returns: "25"
+		' Parsed out of the app-local Get_WFTime_YY; pure string op, no RP dependency.
+		Public Shared Function GetWFTime_YY(ByVal si As SessionInfo, ByVal WFTime As String) As String
+			Try
+				Return WFTime.Substring(2, 2)
+			Catch ex As Exception
+				Throw ErrorHandler.LogWrite(si, New XFException(si, ex))
+			End Try
+		End Function
+
+		' Splits a pipe-delimited text property and returns the element at the given index.
+		' Parsed out of the app-local Parse_RP_Text_Property; nothing RP-specific about it.
+		Public Shared Function ParseTextProperty(ByVal si As SessionInfo, ByVal Text As String, ByVal ReturnStringAtIndex As String) As String
+			Try
+				If Text = "" Then Return ""
+				Return StringHelper.SplitString(Text, "|")(ReturnStringAtIndex)
+			Catch ex As Exception
+				Throw ErrorHandler.LogWrite(si, New XFException(si, ex))
+			End Try
+		End Function
+
+		' Returns True when the current user should see the workflow read-only:
+		'   - in the (app-supplied) auditor group and not an admin, OR
+		'   - not in the active scenario's ReadWriteDataGroup.
+		' Parsed out of the app-local Is_Read_Only. The auditor group is passed in via
+		' auditorGroupParamName so no app-specific parameter name is baked into GBL.
+		Public Shared Function Is_Read_Only(ByVal si As SessionInfo, ByVal auditorGroupParamName As String) As Boolean
+			Try
+				Dim grpAuditors As String = BRApi.Dashboards.Parameters.GetLiteralParameterValue(si, False, auditorGroupParamName)
+
+				Dim wfPk As WorkflowUnitPk = BRApi.Workflow.General.GetWorkflowUnitPk(si)
+				Dim scenarioReadWriteGrpId As Guid = BRApi.Finance.Members.GetMemberInfo(si, dimTypeId.Scenario, wfPk.ScenarioKey, True).Member.ReadWriteDataGroupUniqueID
+				Dim userInScenarioReadWriteGrp As Boolean = BRApi.Security.Authorization.IsUserInGroup(si, scenarioReadWriteGrpId)
+
+				If BRApi.Security.Authorization.IsUserInGroup(si, grpAuditors) And Not BRApi.Security.Authorization.IsUserInAdminGroup(si) Then
+					Return True
+				Else If Not userInScenarioReadWriteGrp Then
+					Return True
+				Else
+					Return False
+				End If
+			Catch ex As Exception
+				Throw ErrorHandler.LogWrite(si, New XFException(si, ex))
+			End Try
+		End Function
+
+#End Region
+
+	End Class
+End Namespace
+]]></sourceCode>
+                                        </file>
+                                    </folder>
+                                </files>
+                            </workspaceAssembly>
+                        </workspaceAssemblies>
+                        <cubeViewGroups />
+                        <dataManagementGroups />
+                    </maintenanceUnit>
+                </maintenanceUnits>
+            </workspace>
+        </workspaces>
+    </applicationWorkspacesRoot>
+</OneStreamXF>
