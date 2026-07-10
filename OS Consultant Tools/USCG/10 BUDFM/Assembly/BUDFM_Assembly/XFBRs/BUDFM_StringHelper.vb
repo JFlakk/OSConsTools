@@ -89,7 +89,7 @@ Namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardS
 		' Mode-twin embed picker: returns Base & "Edit"/"View" from the Mode param,
 		' for EmbeddedDashboard bindings that swap a button strip (or any twin pair)
 		' by mode. Security trumps the param — a read-only user always gets View.
-		' Usage: XFBR(...BUDFM_StringHelper, GetModeDashboard, Base=[OS_RP_Content1], Mode=[|!prm_Mode_OS!|])
+		' Usage: XFBR(...BUDFM_StringHelper, GetModeDashboard, Base=[OS_RP_Content1], Mode=[|!prm_Mode_<APPN>!|])
 		Private Function GetModeDashboard(ByVal si As SessionInfo, ByVal args As DashboardStringFunctionArgs) As String
 			Dim base As String = args.NameValuePairs.XFGetValue("Base", String.Empty)
 			Dim mode As String = args.NameValuePairs.XFGetValue("Mode", "View")
@@ -105,6 +105,8 @@ Namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardS
 		End Function
 
 		' ===== ported wholesale from BudFm_ParamHelper (dead dup block removed) =====
+		' Note: some comment-only examples below still show legacy unsuffixed tokens.
+		' Live BUDFM routing bindings use APPN-suffixed routing params.
 		Private Function InnerMain(ByVal si As SessionInfo, ByVal globals As BRGlobals, ByVal api As Object, ByVal args As DashboardStringFunctionArgs) As Object
 			Try
 				
