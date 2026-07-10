@@ -28,7 +28,7 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardS
         private DashboardStringFunctionArgs args;
         #endregion
 		// Default returned when LayoutType is None/unmapped or required column value is missing.
-		private const string DefaultDashboard = "emb_Dynamic_DDM_App_Content_DB";
+		private const string DefaultDashboard = "DDM_App_Content_DB";
 
 		public object Main(SessionInfo si, BRGlobals globals, object api, DashboardStringFunctionArgs args)
 		{
@@ -54,39 +54,17 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardS
 		#region "Layout Dashboard Resolver"
 		private string Get_LayoutDB()
 		{
-			var AppMenuID = args.NameValuePairs.XFGetValue("BL_DDM_AppMenu", "NA");
-			
-			var dt = new DataTable("DDM_DynDBMenuLayoutConfig");
-			var dbConnApp = BRApi.Database.CreateApplicationDbConnInfo(si);
-			
-			using (var connection = new SqlConnection(dbConnApp.ConnectionString))
-			{
-			    var sql_gbl_get_datasets = new GBL_UI_Assembly.SQL_GBL_Get_DataSets(si, connection);
-			    var sqa = new SqlDataAdapter();
-			
-			    var sql = @"
-			        SELECT LayoutType
-			        FROM dbo.DDM_DynDBMenuLayoutConfig
-			        WHERE DynDBMenuID = @DynDBMenuID";
-			
-			    var sqlparams = new[]
-			    {
-			        new SqlParameter("@DynDBMenuID", SqlDbType.Int) { Value = AppMenuID }
-			    };
-			
-			    sql_gbl_get_datasets.Fill_Get_GBL_DT(si, sqa, dt, sql, sqlparams);
-			}
-			// 2) Allow an explicit LayoutType override via NameValuePairs (testing / direct calls).
+			// 1) Allow an explicit LayoutType override via NameValuePairs (testing / direct calls).
 			var layoutTypeOverride = args.NameValuePairs.XFGetValue("LayoutType", string.Empty);
 			if (!string.IsNullOrEmpty(layoutTypeOverride) && int.TryParse(layoutTypeOverride, out int overrideLayoutType))
 			{
 				var dbName = args.NameValuePairs.XFGetValue("DB_Name", string.Empty);
 				var cvName = args.NameValuePairs.XFGetValue("CV_Name", string.Empty);
-				BRApi.ErrorLog.LogMessage(si, $"Get_LayoutDB: LayoutType override={overrideLayoutType}, DB_Name='{dbName}', currDB='{currDB}'");
+				BRApi.ErrorLog.LogMessage(si, $"Get_LayoutDB: LayoutType override={overrideLayoutType}, DB_Name='{dbName}'");
 				return Resolve_Layout_Dashboard(overrideLayoutType, dbName, cvName);
 			}
 
-			// 3) DB-driven: query DDM_DynDBMenuLayoutConfig for the currently selected menu.
+			// 2) DB-driven: query DDM_DynDBMenuLayoutConfig for the currently selected menu.
 			var configMenuRow = DDM_Support.get_ConfigMenuRow(si, args.NameValuePairs);
 			if (configMenuRow == null)
 			{
@@ -94,20 +72,20 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardS
 				return DefaultDashboard;
 			}
 
-			BRApi.ErrorLog.LogMessage(si, $"Get_LayoutDB: currDB='{currDB}'");
-
-			// 4) Delegate to DDM_Support (which uses DDM_ConfigHelpers) to resolve the dashboard
-			//    for the specific context (pane) that called this XFBR.
-			var paneBinding = DDM_Support.get_PaneBinding(configMenuRow, currDB);
-			BRApi.ErrorLog.LogMessage(si, $"Get_LayoutDB: resolved to '{paneBinding.DashboardName}'");
-			return paneBinding.DashboardName;
+			// 3) Resolve the content dashboard name.
+			//    Single-pane layouts (Dashboard, CubeView) always route through DDM_App_Content_DB;
+			//    its dynamic service redirects CubeView content to DDM_App_Content_CV at render time.
+			int layoutType = GBL_UI_Assembly.GBL_Helpers.GetIntColumn(configMenuRow, "LayoutType", (int)DDM_ConfigHelpers.LayoutType.None);
+			var resolved = Resolve_Layout_Dashboard(layoutType, string.Empty, string.Empty);
+			BRApi.ErrorLog.LogMessage(si, $"Get_LayoutDB: LayoutType={layoutType}, resolved='{resolved}'");
+			return resolved;
 		}
 
 		/// <summary>
-		/// Maps an explicit LayoutType override (plus optional DB_Name / CV_Name) to a layout
-		/// dashboard name, using <see cref="DDM_ConfigHelpers.LayoutType"/> enum values.
-		/// Only used for the NameValuePairs override path; the DB-driven path uses
-		/// <see cref="DDM_Support.get_PaneBinding"/> instead.
+		/// Maps a LayoutType (plus optional DB_Name / CV_Name) to the dashboard name that
+		/// <see cref="DDM_App_Content_C2"/> should embed.  Single-pane layouts always resolve
+		/// to <c>DDM_App_Content_DB</c>; the dynamic dashboard service switches CubeView
+		/// content to <c>DDM_App_Content_CV</c> at render time.
 		/// </summary>
 		private string Resolve_Layout_Dashboard(int layoutTypeInt, string dbName, string cvName)
 		{
@@ -115,13 +93,11 @@ namespace Workspace.__WsNamespacePrefix.__WsAssemblyName.BusinessRule.DashboardS
 			{
 				case DDM_ConfigHelpers.LayoutType.Dashboard:
 				case DDM_ConfigHelpers.LayoutType.Dashboard_CustomDB:
-					return string.IsNullOrEmpty(dbName) ? DefaultDashboard : dbName;
-
 				case DDM_ConfigHelpers.LayoutType.CubeView:
-					// The CV shell hosts the cube view; the caller sets CubeViewName from CV_Name.
-					return "DDM_App_Content_CV";
-
 				case DDM_ConfigHelpers.LayoutType.None:
+					// Single-pane content: always route through DDM_App_Content_DB.
+					// Its GetDynamicComponentsForDynamicDashboard handler will redirect
+					// CubeView content to DDM_App_Content_CV and bind the cube view there.
 					return DefaultDashboard;
 
 				case DDM_ConfigHelpers.LayoutType.Dashboard_TopBottom:    return "DDM_App_Content_TB_DB";
