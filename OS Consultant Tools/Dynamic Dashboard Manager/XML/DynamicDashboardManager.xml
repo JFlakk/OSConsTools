@@ -1136,6 +1136,7 @@
                                         <componentMembers>
                                             <componentMember name="Embedded DDM_App_Content_L_DB" left="" top="" width="" height="" dockPosition="Left" />
                                             <componentMember name="Embedded DDM_App_Content_2R_DB" left="" top="" width="" height="" dockPosition="Left" />
+                                            <componentMember name="sp_BL_DDM_AppMenu" left="" top="" width="" height="" dockPosition="Left" />
                                         </componentMembers>
                                     </dashboard>
                                     <dashboard name="DDM_App_Content_1T2B_DB" description="" pageCaption="" dashboardType="EmbeddedDynamic" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -1160,6 +1161,7 @@
                                         <componentMembers>
                                             <componentMember name="Embedded DDM_App_Content_T_DB" left="" top="" width="" height="" dockPosition="Left" />
                                             <componentMember name="Embedded DDM_App_Content_2B_DB" left="" top="" width="" height="" dockPosition="Left" />
+                                            <componentMember name="sp_BL_DDM_AppMenu" left="" top="" width="" height="" dockPosition="Left" />
                                         </componentMembers>
                                     </dashboard>
                                     <dashboard name="DDM_App_Content_2B_DB" description="" pageCaption="" dashboardType="Embedded" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -1185,6 +1187,7 @@
                                         <componentMembers>
                                             <componentMember name="Embedded DDM_App_Content_BL_DB" left="" top="" width="" height="" dockPosition="Left" />
                                             <componentMember name="Embedded DDM_App_Content_BR_DB" left="" top="" width="" height="" dockPosition="Left" />
+                                            <componentMember name="sp_BL_DDM_AppMenu" left="" top="" width="" height="" dockPosition="Left" />
                                         </componentMembers>
                                     </dashboard>
                                     <dashboard name="DDM_App_Content_2L_DB" description="" pageCaption="" dashboardType="EmbeddedDynamic" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -1209,6 +1212,7 @@
                                         <componentMembers>
                                             <componentMember name="Embedded DDM_App_Content_TL_DB" left="" top="" width="" height="" dockPosition="Left" />
                                             <componentMember name="Embedded DDM_App_Content_BL_DB" left="" top="" width="" height="" dockPosition="Left" />
+                                            <componentMember name="sp_BL_DDM_AppMenu" left="" top="" width="" height="" dockPosition="Left" />
                                         </componentMembers>
                                     </dashboard>
                                     <dashboard name="DDM_App_Content_2L1R_DB" description="" pageCaption="" dashboardType="Embedded" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -1233,6 +1237,7 @@
                                         <componentMembers>
                                             <componentMember name="Embedded DDM_App_Content_2L_DB" left="" top="" width="" height="" dockPosition="Left" />
                                             <componentMember name="Embedded DDM_App_Content_R_DB" left="" top="" width="" height="" dockPosition="Left" />
+                                            <componentMember name="sp_BL_DDM_AppMenu" left="" top="" width="" height="" dockPosition="Left" />
                                         </componentMembers>
                                     </dashboard>
                                     <dashboard name="DDM_App_Content_2R_DB" description="" pageCaption="" dashboardType="Embedded" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -1258,6 +1263,7 @@
                                         <componentMembers>
                                             <componentMember name="Embedded DDM_App_Content_TR_DB" left="" top="" width="" height="" dockPosition="Left" />
                                             <componentMember name="Embedded DDM_App_Content_BR_DB" left="" top="" width="" height="" dockPosition="Left" />
+                                            <componentMember name="sp_BL_DDM_AppMenu" left="" top="" width="" height="" dockPosition="Left" />
                                         </componentMembers>
                                     </dashboard>
                                     <dashboard name="DDM_App_Content_2T_DB" description="" pageCaption="" dashboardType="Embedded" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -1283,6 +1289,7 @@
                                         <componentMembers>
                                             <componentMember name="Embedded DDM_App_Content_TL_DB" left="" top="" width="" height="" dockPosition="Left" />
                                             <componentMember name="Embedded DDM_App_Content_TR_DB" left="" top="" width="" height="" dockPosition="Left" />
+                                            <componentMember name="sp_BL_DDM_AppMenu" left="" top="" width="" height="" dockPosition="Left" />
                                         </componentMembers>
                                     </dashboard>
                                     <dashboard name="DDM_App_Content_2T1B_DB" description="" pageCaption="" dashboardType="EmbeddedDynamic" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -1307,6 +1314,7 @@
                                         <componentMembers>
                                             <componentMember name="Embedded DDM_App_Content_2T_DB" left="" top="" width="" height="" dockPosition="Left" />
                                             <componentMember name="Embedded DDM_App_Content_B_DB" left="" top="" width="" height="" dockPosition="Left" />
+                                            <componentMember name="sp_BL_DDM_AppMenu" left="" top="" width="" height="" dockPosition="Left" />
                                         </componentMembers>
                                     </dashboard>
                                     <dashboard name="DDM_App_Content_2x2_DB" description="" pageCaption="" dashboardType="EmbeddedDynamic" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -1331,6 +1339,7 @@
                                         <componentMembers>
                                             <componentMember name="Embedded DDM_App_Content_2T_DB" left="" top="" width="" height="" dockPosition="Left" />
                                             <componentMember name="Embedded DDM_App_Content_2B_DB" left="" top="" width="" height="" dockPosition="Left" />
+                                            <componentMember name="sp_BL_DDM_AppMenu" left="" top="" width="" height="" dockPosition="Left" />
                                         </componentMembers>
                                     </dashboard>
                                     <dashboard name="DDM_App_Content_B_DB" description="" pageCaption="" dashboardType="EmbeddedDynamic" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -1352,7 +1361,9 @@
                                             </GridLayoutDefinition>
                                             <ScrollPosition>Default</ScrollPosition>
                                         </DashboardDefinition>
-                                        <componentMembers />
+                                        <componentMembers>
+                                            <componentMember name="sp_BL_DDM_AppMenu" left="" top="" width="" height="" dockPosition="Left" />
+                                        </componentMembers>
                                     </dashboard>
                                     <dashboard name="DDM_App_Content_BL_DB" description="" pageCaption="" dashboardType="EmbeddedDynamic" layoutType="Uniform" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
                                         <DashboardDefinition>
@@ -1368,7 +1379,9 @@
                                             </GridLayoutDefinition>
                                             <ScrollPosition>Default</ScrollPosition>
                                         </DashboardDefinition>
-                                        <componentMembers />
+                                        <componentMembers>
+                                            <componentMember name="sp_BL_DDM_AppMenu" left="" top="" width="" height="" dockPosition="Left" />
+                                        </componentMembers>
                                     </dashboard>
                                     <dashboard name="DDM_App_Content_BR_DB" description="" pageCaption="" dashboardType="EmbeddedDynamic" layoutType="Uniform" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
                                         <DashboardDefinition>
@@ -1384,7 +1397,9 @@
                                             </GridLayoutDefinition>
                                             <ScrollPosition>Default</ScrollPosition>
                                         </DashboardDefinition>
-                                        <componentMembers />
+                                        <componentMembers>
+                                            <componentMember name="sp_BL_DDM_AppMenu" left="" top="" width="" height="" dockPosition="Left" />
+                                        </componentMembers>
                                     </dashboard>
                                     <dashboard name="DDM_App_Content_C2" description="" pageCaption="" dashboardType="Embedded" layoutType="Uniform" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
                                         <DashboardDefinition>
@@ -1424,6 +1439,7 @@
                                         </DashboardDefinition>
                                         <componentMembers>
                                             <componentMember name="cv_DDM_Dynamic_App_Content" left="" top="" width="" height="" dockPosition="Left" />
+                                            <componentMember name="sp_BL_DDM_AppMenu" left="" top="" width="" height="" dockPosition="Left" />
                                         </componentMembers>
                                     </dashboard>
                                     <dashboard name="DDM_App_Content_DB" description="" pageCaption="" dashboardType="EmbeddedDynamic" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -1462,7 +1478,9 @@
                                             </GridLayoutDefinition>
                                             <ScrollPosition>Default</ScrollPosition>
                                         </DashboardDefinition>
-                                        <componentMembers />
+                                        <componentMembers>
+                                            <componentMember name="sp_BL_DDM_AppMenu" left="" top="" width="" height="" dockPosition="Left" />
+                                        </componentMembers>
                                     </dashboard>
                                     <dashboard name="DDM_App_Content_LR_DB" description="" pageCaption="" dashboardType="EmbeddedTopLevelWithoutParameterPrompts" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
                                         <displayFormat>BorderColor = #FF000000, InnerBackgroundColor = Aquamarine</displayFormat>
@@ -1487,6 +1505,7 @@
                                         <componentMembers>
                                             <componentMember name="Embedded DDM_App_Content_L_DB" left="R_" top="" width="" height="" dockPosition="Left" />
                                             <componentMember name="Embedded DDM_App_Content_R_DB" left="" top="" width="" height="" dockPosition="Left" />
+                                            <componentMember name="sp_BL_DDM_AppMenu" left="" top="" width="" height="" dockPosition="Left" />
                                         </componentMembers>
                                     </dashboard>
                                     <dashboard name="DDM_App_Content_R_DB" description="" pageCaption="" dashboardType="EmbeddedDynamic" layoutType="Uniform" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -1503,7 +1522,9 @@
                                             </GridLayoutDefinition>
                                             <ScrollPosition>Default</ScrollPosition>
                                         </DashboardDefinition>
-                                        <componentMembers />
+                                        <componentMembers>
+                                            <componentMember name="sp_BL_DDM_AppMenu" left="" top="" width="" height="" dockPosition="Left" />
+                                        </componentMembers>
                                     </dashboard>
                                     <dashboard name="DDM_App_Content_T_DB" description="" pageCaption="" dashboardType="EmbeddedDynamic" layoutType="Uniform" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
                                         <DashboardDefinition>
@@ -1519,7 +1540,9 @@
                                             </GridLayoutDefinition>
                                             <ScrollPosition>Default</ScrollPosition>
                                         </DashboardDefinition>
-                                        <componentMembers />
+                                        <componentMembers>
+                                            <componentMember name="sp_BL_DDM_AppMenu" left="" top="" width="" height="" dockPosition="Left" />
+                                        </componentMembers>
                                     </dashboard>
                                     <dashboard name="DDM_App_Content_TB_DB" description="" pageCaption="" dashboardType="EmbeddedDynamic" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
                                         <DashboardDefinition>
@@ -1543,6 +1566,7 @@
                                         <componentMembers>
                                             <componentMember name="Embedded DDM_App_Content_T_DB" left="" top="" width="" height="" dockPosition="Left" />
                                             <componentMember name="Embedded DDM_App_Content_B_DB" left="" top="" width="" height="" dockPosition="Left" />
+                                            <componentMember name="sp_BL_DDM_AppMenu" left="" top="" width="" height="" dockPosition="Left" />
                                         </componentMembers>
                                     </dashboard>
                                     <dashboard name="DDM_App_Content_TL_DB" description="" pageCaption="" dashboardType="EmbeddedDynamic" layoutType="Uniform" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -1559,7 +1583,9 @@
                                             </GridLayoutDefinition>
                                             <ScrollPosition>Default</ScrollPosition>
                                         </DashboardDefinition>
-                                        <componentMembers />
+                                        <componentMembers>
+                                            <componentMember name="sp_BL_DDM_AppMenu" left="" top="" width="" height="" dockPosition="Left" />
+                                        </componentMembers>
                                     </dashboard>
                                     <dashboard name="DDM_App_Content_TR_DB" description="" pageCaption="" dashboardType="EmbeddedDynamic" layoutType="Uniform" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
                                         <DashboardDefinition>
@@ -1575,7 +1601,9 @@
                                             </GridLayoutDefinition>
                                             <ScrollPosition>Default</ScrollPosition>
                                         </DashboardDefinition>
-                                        <componentMembers />
+                                        <componentMembers>
+                                            <componentMember name="sp_BL_DDM_AppMenu" left="" top="" width="" height="" dockPosition="Left" />
+                                        </componentMembers>
                                     </dashboard>
                                     <dashboard name="DDM_App_Hdr" description="" pageCaption="" dashboardType="Embedded" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
                                         <displayFormat>|!LV_Std_Header_Format!|</displayFormat>

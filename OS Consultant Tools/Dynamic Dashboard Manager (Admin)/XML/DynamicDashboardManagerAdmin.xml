@@ -6640,6 +6640,8 @@ order by name;</sqlQuery>
                                         <componentMembers>
                                             <componentMember name="lbx_DDM_SetupOptions" left="" top="" width="" height="" dockPosition="Left" />
                                             <componentMember name="Embedded DDM_AdminContent_C2" left="" top="" width="" height="" dockPosition="Left" />
+                                            <componentMember name="sp_DL_DDM_SetupOptions" left="" top="" width="" height="" dockPosition="Left" />
+                                            <componentMember name="sp_IV_DDM_MenuWidth" left="" top="" width="" height="" dockPosition="Left" />
                                         </componentMembers>
                                     </dashboard>
                                     <dashboard name="DDM_AdminContent_C2" description="" pageCaption="" dashboardType="Embedded" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
@@ -6660,7 +6662,11 @@ order by name;</sqlQuery>
                                             </GridLayoutDefinition>
                                             <ScrollPosition>Default</ScrollPosition>
                                         </DashboardDefinition>
-                                        <componentMembers />
+                                        <componentMembers>
+                                            <componentMember name="sp_BL_DDM_WFPRoot" left="" top="" width="" height="" dockPosition="Left" />
+                                            <componentMember name="sp_DL_DDM_SetupOptions" left="" top="" width="" height="" dockPosition="Left" />
+                                            <componentMember name="sp_IV_DDM_ConfigID" left="" top="" width="" height="" dockPosition="Left" />
+                                        </componentMembers>
                                     </dashboard>
                                     <dashboard name="DDM_AdminHdr" description="" pageCaption="" dashboardType="Embedded" layoutType="Grid" isInitiallyVisible="true" loadDashboardTaskType="NoTask">
                                         <displayFormat>|!LV_Std_Header_Format!|</displayFormat>
