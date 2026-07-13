@@ -296,24 +296,6 @@ BRApi.ErrorLog.LogMessage(si,$"Hit7");
             return menuOption;
         }
 
-        private static string get_PaneName(string dynamicDashboardName)
-        {
-            const string prefix = "DDM_App_Content_";
-            const string suffix = "DB";
-
-			if (!string.IsNullOrEmpty(dynamicDashboardName)
-			    && dynamicDashboardName.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)
-			    && dynamicDashboardName.EndsWith(suffix, StringComparison.OrdinalIgnoreCase)
-			    && !dynamicDashboardName.Equals(prefix + suffix, StringComparison.OrdinalIgnoreCase)) // Ensures it's not just Prefix + Suffix
-			{
-			    return dynamicDashboardName.Substring(prefix.Length, dynamicDashboardName.Length - prefix.Length - suffix.Length);
-			}
-			else if (dynamicDashboardName.Equals(prefix + suffix, StringComparison.OrdinalIgnoreCase))
-			{}
-
-            return string.Empty;
-        }
-
         private static DDM_ConfigHelpers.DBPaneContents resolve_PaneContentType(DataRow row, string paneName)
         {
             var typeColumnCandidates = new List<string>();
